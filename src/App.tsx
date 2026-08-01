@@ -104,10 +104,13 @@ const globalCss = (T) => `
   /* ── Content protection: prevent download/save/copy on protected media ── */
   .protected-content{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;}
   .protected-content-wrap{position:relative;}
-  .protected-content-wrap::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;}
+  /* This overlay must not capture clicks, or video controls (play/pause/seek) become unusable */
+  .protected-content-wrap::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;pointer-events:none;}
   video.protected-video::-webkit-media-controls-download-button{display:none!important;}
   video.protected-video::-webkit-media-controls-enclosure{overflow:hidden;}
-  video.protected-video{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;}
+  /* Videos must remain clickable so native play/pause/seek controls work; right-click and
+     drag-out protection is instead handled via onContextMenu + controlsList in the component. */
+  video.protected-video{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
   img.protected-img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;pointer-events:none;}
   a.protected-link{pointer-events:none;}
   /* ── Responsive Web Layout ── */
