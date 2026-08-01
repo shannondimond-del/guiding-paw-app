@@ -1,4 +1,4 @@
-import { useState, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 
 const ThemeContext = createContext();
 const useTheme = () => useContext(ThemeContext);
@@ -5433,6 +5433,16 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
 // ROOT APP
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function App() {
+  // Some Chrome installs fail to paint the initial CSS media-query layout (mobile vs.
+  // desktop view) on first load, leaving the page blank until something forces a
+  // reflow — e.g. resizing the window or opening DevTools. Dispatching a resize event
+  // shortly after mount reliably nudges Chrome to repaint, with no visible effect on
+  // browsers that aren't affected by this quirk.
+  useEffect(() => {
+    const t = setTimeout(() => window.dispatchEvent(new Event("resize")), 60);
+    return () => clearTimeout(t);
+  }, []);
+
   const [darkMode,setDarkMode]=useState(true);
   const T=darkMode?DARK:LIGHT;
   const [screen,setScreen]=useState("signin");
