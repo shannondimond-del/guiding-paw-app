@@ -5438,8 +5438,18 @@ export default function App() {
   // reflow — e.g. resizing the window or opening DevTools. Dispatching a resize event
   // shortly after mount reliably nudges Chrome to repaint, with no visible effect on
   // browsers that aren't affected by this quirk.
+  // Some Chrome installs fail to paint the initial CSS media-query layout (mobile vs.
+  // desktop view) on first load, leaving the page blank until something forces a real
+  // reflow — e.g. resizing the window or opening DevTools. A synthetic "resize" event
+  // alone doesn't trigger this (it doesn't change actual page dimensions), so instead we
+  // briefly toggle the page's visibility, which forces Chrome to recompute layout and
+  // repaint for real. No visible effect on browsers that aren't affected by this quirk.
   useEffect(() => {
-    const t = setTimeout(() => window.dispatchEvent(new Event("resize")), 60);
+    const t = setTimeout(() => {
+      document.documentElement.style.display = "none";
+      void document.documentElement.offsetHeight; // force synchronous layout recalculation
+      document.documentElement.style.display = "";
+    }, 60);
     return () => clearTimeout(t);
   }, []);
 
