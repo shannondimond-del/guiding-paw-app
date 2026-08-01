@@ -136,16 +136,11 @@ const globalCss = (T) => `
 // ─── SHARED UI ─────────────────────────────────────────────────────────────────
 // Guiding Paw logo using the uploaded PNG
 const LogoImg = ({size=56}) => {
-  const [err,setErr]=useState(false);
-  // Try the uploaded file path first (works in Claude artifacts with file uploads)
-  const src = "/mnt/user-data/uploads/ChatGPT_Image_Mar_11__2026__09_19_09_AM.png";
+  // No real logo image file is bundled with the app, so we render the paw-print
+  // fallback directly instead of attempting to load a path that will always 404.
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px"}}>
-      {err
-        ? <div style={{width:size,height:size,display:"flex",alignItems:"center",justifyContent:"center",background:"#1C2636",borderRadius:"50%",fontSize:size*.4,flexShrink:0}}>🐾</div>
-        : <img src={src} alt="Guiding Paw Training" onError={()=>setErr(true)}
-            style={{width:size,height:size,objectFit:"contain",filter:"drop-shadow(0 4px 12px rgba(176,141,87,.45))",flexShrink:0}} />
-      }
+      <div style={{width:size,height:size,display:"flex",alignItems:"center",justifyContent:"center",background:"#1C2636",borderRadius:"50%",fontSize:size*.4,flexShrink:0}}>🐾</div>
     </div>
   );
 };
