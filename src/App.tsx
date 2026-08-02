@@ -1752,6 +1752,11 @@ const ageInWeeks = (birthdayStr) => {
 // weekly pacing (a real part of the training program) will never actually apply.
 const TESTING_MODE = true;
 
+// ─── SHOP / AMAZON STOREFRONT ────────────────────────────────────────────────────
+// One link controls every "Shop" button in the app. Update this single line once a
+// dedicated Guiding Paw storefront exists — no other changes needed.
+const AMAZON_STOREFRONT_URL = "https://www.amazon.com/shop/influencer-cf5629f9?ref_=cm_sw_r_cp_ud_aipsfshop_aipsfinfluencer-cf5629f9_APSTZ0ADCMY623JYZ1MS_1&ccs_id=d8e6cd3e-a740-4f8f-9e8c-651f81fc1e58";
+
 // ─── VIDEO HOSTING CONFIG ───────────────────────────────────────────────────────
 // This ONE line controls where every video in the app is loaded from.
 // - While testing locally / before you have a video host: leave as "/videos"
@@ -3510,13 +3515,14 @@ const StoreScreen = () => {
             </div>
             <div style={{textAlign:"right",flexShrink:0}}>
               <p style={{fontSize:"14px",fontWeight:"900",color:T.gold,marginBottom:"5px"}}>{p.price}</p>
-              <button style={{background:T.brown,border:"none",borderRadius:"8px",padding:"5px 10px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>Shop →</button>
+              <button onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")}
+                style={{background:T.brown,border:"none",borderRadius:"8px",padding:"5px 10px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>Shop →</button>
             </div>
           </div>
         ))}
       </div>
       <div className="s4" style={{textAlign:"center",marginTop:"16px",padding:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,borderRadius:"12px"}}>
-        <p style={{fontSize:"11px",color:T.textMuted}}>View all products: <span style={{color:T.gold,fontWeight:"700",cursor:"pointer"}}>VIEW ALL PRODUCTS →</span></p>
+        <p style={{fontSize:"11px",color:T.textMuted}}>View all products: <span onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")} style={{color:T.gold,fontWeight:"700",cursor:"pointer"}}>VIEW ALL PRODUCTS →</span></p>
       </div>
     </ScrollBody>
   );
