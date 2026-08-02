@@ -1030,14 +1030,26 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
     return Object.keys(e).length === 0;
   };
 
+  const [sendError, setSendError] = useState("");
+
   const handleContinue = () => {
     if(!validate()) return;
     setLoading(true);
-    // Simulate account creation + email dispatch (1.2s)
-    setTimeout(() => {
-      setLoading(false);
-      onVerify({ firstName, lastName, email, pw });
-    }, 1200);
+    setSendError("");
+    fetch("/api/send-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: email.trim() }),
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("send failed")))
+      .then(() => {
+        setLoading(false);
+        onVerify({ firstName, lastName, email, pw });
+      })
+      .catch(() => {
+        setLoading(false);
+        setSendError("We couldn't send the verification email right now. Please try again in a moment.");
+      });
   };
 
   const inputStyle = (field) => ({
@@ -1147,6 +1159,7 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
           </div>
 
           {/* CTA */}
+          {sendError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginBottom:"10px",textAlign:"center"}}>⚠ {sendError}</p>}
           <button onClick={handleContinue} disabled={loading} style={{
             width:"100%",padding:"13px",borderRadius:"11px",border:"none",
             background:loading?"rgba(176,141,87,.4)":allAgreed?T.gold:"rgba(176,141,87,.35)",
@@ -1217,17 +1230,25 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
     if(entered.length < 6){ setCodeError(true); return; }
     setVerifying(true);
     setCodeError(false);
-    setTimeout(()=>{
-      // Demo: any 6-digit code works, or specifically 123456
-      if(entered.length===6){
+    fetch("/api/verify-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: userData.email, code: entered }),
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("verify failed")))
+      .then(({valid}) => {
         setVerifying(false);
-        setPhase("verified");
-        setTimeout(()=>onVerified(), 2000);
-      } else {
+        if(valid){
+          setPhase("verified");
+          setTimeout(()=>onVerified(), 2000);
+        } else {
+          setCodeError(true);
+        }
+      })
+      .catch(() => {
         setVerifying(false);
         setCodeError(true);
-      }
-    },1100);
+      });
   };
 
   const handleResend = () => {
@@ -1235,6 +1256,11 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
     startCooldown();
     setCodeDigits(["","","","","",""]);
     setCodeError(false);
+    fetch("/api/send-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: userData.email }),
+    }).catch(()=>{ /* resend is best-effort; user can just try again */ });
   };
 
   if(phase==="verified") return (
@@ -1266,7 +1292,7 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
           <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"4px"}}>We sent a 6-digit verification code to:</p>
           <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"16px"}}>{userData.email}</p>
           <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",display:"inline-block"}}>
-            <p style={{fontSize:"11px",color:T.textMuted}}>💡 Demo: any 6 digits work — try <strong style={{color:T.gold}}>123456</strong></p>
+            <p style={{fontSize:"11px",color:T.textMuted}}>📬 Check your inbox (and spam folder) — the code can take a minute to arrive.</p>
           </div>
         </div>
 
