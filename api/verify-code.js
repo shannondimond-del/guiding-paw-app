@@ -5,7 +5,7 @@
 // current and previous 10-minute window, so a code doesn't die the instant a new
 // window starts) and checks it against what the user typed in. No database needed.
 
-const crypto = require("crypto");
+import crypto from "crypto";
 
 function codeForWindow(email, windowIndex) {
   const secret = process.env.VERIFICATION_SECRET;
@@ -18,7 +18,7 @@ function codeForWindow(email, windowIndex) {
   return String(num).padStart(6, "0");
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
@@ -40,4 +40,4 @@ module.exports = async (req, res) => {
     console.error("verify-code error:", err);
     res.status(500).json({ error: "Something went wrong verifying the code" });
   }
-};
+}

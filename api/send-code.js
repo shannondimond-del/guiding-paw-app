@@ -6,7 +6,7 @@
 // a database to remember codes; verify-code.js just recomputes the same value)
 // and sends it to the GoHighLevel Inbound Webhook, which emails it to the user.
 
-const crypto = require("crypto");
+import crypto from "crypto";
 
 function codeForWindow(email, windowIndex) {
   const secret = process.env.VERIFICATION_SECRET;
@@ -15,12 +15,11 @@ function codeForWindow(email, windowIndex) {
     .createHmac("sha256", secret)
     .update(`${email.trim().toLowerCase()}:${windowIndex}`)
     .digest("hex");
-  // Take the first 6 hex characters worth of entropy and turn them into a 6-digit number
   const num = parseInt(h.slice(0, 8), 16) % 1000000;
   return String(num).padStart(6, "0");
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
@@ -39,8 +38,6 @@ module.exports = async (req, res) => {
       return;
     }
 
-    // 10-minute window — the code stays valid for up to ~10-20 minutes total,
-    // since verify-code.js checks both the current and the previous window.
     const windowIndex = Math.floor(Date.now() / (10 * 60 * 1000));
     const code = codeForWindow(email, windowIndex);
 
@@ -60,4 +57,4 @@ module.exports = async (req, res) => {
     console.error("send-code error:", err);
     res.status(500).json({ error: "Something went wrong sending the verification email" });
   }
-};
+}
