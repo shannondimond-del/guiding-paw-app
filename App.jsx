@@ -1,7 +1,109 @@
-import { useState, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext, useRef } from "react";
 
 const ThemeContext = createContext();
 const useTheme = () => useContext(ThemeContext);
+
+// ─── ICON SYSTEM ────────────────────────────────────────────────────────────────
+// Replaces emoji throughout the app with consistent, theme-colored stroke icons.
+// Usage: <Icon name="paw" size={16}/> — size defaults to 16, color defaults to
+// currentColor (inherits from surrounding text color) unless a color prop is given.
+const ICON_PATHS = {
+  moon: <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>,
+  sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></>,
+  home: <><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></>,
+  pin: <><path d="M12 22s7-7.4 7-12a7 7 0 1 0-14 0c0 4.6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></>,
+  heart: <path d="M20.8 7.6a5 5 0 0 0-8.4-2.6l-.4.4-.4-.4a5 5 0 0 0-8.4 5.4c1 2.6 3.4 5 8.8 9.6 5.4-4.6 7.8-7 8.8-9.6a5 5 0 0 0 0-2.8z"/>,
+  book: <><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/></>,
+  calendar: <><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></>,
+  bag: <><path d="M6 8h12l-1 12.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 7 20.5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></>,
+  paw: <><circle cx="6" cy="9" r="2"/><circle cx="18" cy="9" r="2"/><circle cx="9.5" cy="5" r="2"/><circle cx="14.5" cy="5" r="2"/><path d="M12 12c-3.3 0-6 2.3-6 5a3 3 0 0 0 3 3c1.3 0 1.9-.7 3-.7s1.7.7 3 .7a3 3 0 0 0 3-3c0-2.7-2.7-5-6-5z"/></>,
+  settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></>,
+  users: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></>,
+  brain: <><path d="M9.5 2a3 3 0 0 0-3 3v.3A3.5 3.5 0 0 0 4 8.5 3.5 3.5 0 0 0 5.5 15a3 3 0 0 0 3 4.5A3 3 0 0 0 12 21a3 3 0 0 0 3.5-1.5 3 3 0 0 0 3-4.5 3.5 3.5 0 0 0 1.5-6.5A3.5 3.5 0 0 0 17.5 5.3V5a3 3 0 0 0-3-3 3 3 0 0 0-2.5 1.4A3 3 0 0 0 9.5 2z"/><path d="M12 2.5v18"/></>,
+  dog: <><path d="M4 10l3-5 3 1 2-1 2 1 3-1 3 5"/><path d="M5 10c0 6 3 10 7 10s7-4 7-10"/><circle cx="9.5" cy="12" r=".8" fill="currentColor" stroke="none"/><circle cx="14.5" cy="12" r=".8" fill="currentColor" stroke="none"/></>,
+  check: <path d="M20 6L9 17l-5-5"/>,
+  checkCircle: <><circle cx="12" cy="12" r="9.5"/><path d="M8 12.5l2.5 2.5 5.5-6"/></>,
+  x: <path d="M18 6L6 18M6 6l12 12"/>,
+  alert: <><path d="M12 3l10 17.5H2z"/><path d="M12 9.5v4.5M12 17v.01"/></>,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></>,
+  eyeOff: <><path d="M3 3l18 18"/><path d="M10.6 5.2A9.4 9.4 0 0 1 12 5c6.5 0 10 7 10 7a15.5 15.5 0 0 1-3.3 4.2M6.5 6.5C3.6 8.3 2 12 2 12s3.5 7 10 7c1.2 0 2.3-.2 3.3-.6"/><path d="M9.5 9.5a3 3 0 0 0 4.2 4.2"/></>,
+  lock: <><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M7 10.5V7a5 5 0 0 1 10 0v3.5"/></>,
+  key: <><circle cx="8" cy="15" r="4.5"/><path d="M11.5 11.5L20 3M16.5 6.5l2.5 2.5M13.5 9.5l2 2"/></>,
+  flame: <path d="M12 22a7 7 0 0 0 7-7c0-3.5-2.5-5-3.5-8-1.5 2-2 3-2 3s.5-4-2-7c0 4-3 5.5-4.5 8.5A7 7 0 0 0 12 22z"/>,
+  star: <path d="M12 2.5l3 6.4 6.9.8-5 4.9 1.3 6.9-6.2-3.4-6.2 3.4 1.3-6.9-5-4.9 6.9-.8z"/>,
+  gradCap: <><path d="M2 8.5L12 4l10 4.5-10 4.5-10-4.5z"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5M22 8.5V15"/></>,
+  party: <><path d="M4 20l4-13 9 9-13 4z"/><path d="M13 3l1.5 1.5M18 5l1.5 1.5M16 9l1.5 1.5"/></>,
+  clipboard: <><rect x="5" y="4.5" width="14" height="17" rx="2"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M9 12h6M9 16h6"/></>,
+  footprints: <><ellipse cx="8" cy="8" rx="2.2" ry="3"/><ellipse cx="16" cy="17" rx="2.2" ry="3"/><path d="M6.5 12.5l1 1M17.5 21l1 1"/></>,
+  trophy: <><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 5H4v2a3 3 0 0 0 4 2.8M16 5h4v2a3 3 0 0 1-4 2.8"/><path d="M10 17.5h4M12 14v3.5M9 21h6"/></>,
+  bulb: <><path d="M9 18h6M10 21h4"/><path d="M12 2a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.7V16h6v-.5c0-.7.3-1.3.8-1.7A6.5 6.5 0 0 0 12 2z"/></>,
+  card: <><rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M2.5 10h19M6 15h4"/></>,
+  leaf: <><path d="M21 3S9 2 5 9c-3 5.3 0 10.5 4 12 6 2.3 12-5 12-14 0-1.4-.1-3-.1-4z"/><path d="M4 21c3-3.5 6-6 10-8.5"/></>,
+  pencil: <><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 6.5l3.5 3.5"/></>,
+  link: <><path d="M9 15l6-6"/><path d="M13 4.5l1-1a3.5 3.5 0 0 1 5 5l-1.5 1.5M11 19.5l-1 1a3.5 3.5 0 0 1-5-5l1.5-1.5"/></>,
+  mail: <><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M3 6.5l9 6.5 9-6.5"/></>,
+  tag: <><path d="M20.5 12.5L12.8 20.2a1.5 1.5 0 0 1-2.1 0l-7-7a1.5 1.5 0 0 1 0-2.1L11.4 3.4a1.5 1.5 0 0 1 1.1-.4H19a1.5 1.5 0 0 1 1.5 1.5v6.4a1.5 1.5 0 0 1-.4 1.1z"/><circle cx="15" cy="7" r="1.4" fill="currentColor" stroke="none"/></>,
+  target: <><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></>,
+  sleep: <><path d="M17 4h-6l-3 5h4l-4 6h5l-3 5h6"/></>,
+  bed: <><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18v2M21 18v2M3 12V8a2 2 0 0 1 2-2h4v4"/><circle cx="7" cy="9.5" r="1.3" fill="currentColor" stroke="none"/></>,
+  bowl: <><path d="M3 12h18a8 8 0 0 1-16 0z"/><path d="M6 12a2.5 2.5 0 0 1 0-5M18 12a2.5 2.5 0 0 0 0-5"/></>,
+  ball: <><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18M3 12h18"/></>,
+  medal: <><circle cx="12" cy="15.5" r="5"/><path d="M9.5 11L6.5 3M14.5 11l3-8"/><path d="M12 13v5"/></>,
+  bookOpen: <><path d="M12 6.5S9.5 4 4 4v14.5C9.5 18.5 12 21 12 21s2.5-2.5 8-2.5V4c-5.5 0-8 2.5-8 2.5z"/><path d="M12 6.5V21"/></>,
+  camera: <><path d="M4 8h3l1.5-2.5h7L17 8h3a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 4 8z"/><circle cx="12" cy="14" r="3.6"/></>,
+  message: <path d="M21 12a8 8 0 1 1-3.5-6.6L21 4l-1 3.8A8 8 0 0 1 21 12z"/>,
+  music: <><path d="M9 18.5a2.5 2.5 0 1 1-2.5-2.5A2.5 2.5 0 0 1 9 18.5zM19 16.5a2.5 2.5 0 1 1-2.5-2.5 2.5 2.5 0 0 1 2.5 2.5z"/><path d="M9 18.5V5.5l10-2v13"/></>,
+  puzzle: <path d="M14 4.5h-3v2a1.5 1.5 0 0 1-3 0v-2H5v3.5h2a1.5 1.5 0 0 1 0 3H5V15h3.5v-2a1.5 1.5 0 0 1 3 0v2H15v-3.5h2a1.5 1.5 0 0 0 0-3h-2V5z"/>,
+  syringe: <><path d="M18 2l4 4M11 9l4 4M2 22l5-1.5L19 8 16 5 3.5 17z"/><path d="M14.5 5.5l4 4"/></>,
+  plus: <path d="M12 4.5v15M4.5 12h15"/>,
+  run: <><circle cx="14.5" cy="4.5" r="1.8"/><path d="M9 21l2-6-3-2 1-5 4 2 3 5-3 6M6 15l3-3 3 1"/></>,
+  zap: <path d="M13 2L4 14h6l-1 8 9-12h-6z"/>,
+  dice: <><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></>,
+  droplet: <path d="M12 2.5S5 11 5 15.5a7 7 0 0 0 14 0C19 11 12 2.5 12 2.5z"/>,
+  refresh: <><path d="M21 12a9 9 0 0 1-15.4 6.4M3 12a9 9 0 0 1 15.4-6.4"/><path d="M21 4.5V9h-4.5M3 19.5V15h4.5"/></>,
+  gift: <><rect x="3" y="9" width="18" height="11" rx="1"/><path d="M3 9h18v4H3zM12 9v11"/><path d="M12 9S9 6 7 6a2 2 0 0 0 0 4M12 9s3-3 5-3a2 2 0 0 1 0 4"/></>,
+  info: <><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6M12 7.5v.01"/></>,
+  arrowRight: <path d="M5 12h14M13 6l6 6-6 6"/>,
+  arrowLeft: <path d="M19 12H5M11 18l-6-6 6-6"/>,
+  video: <><rect x="2.5" y="6" width="14" height="12" rx="2"/><path d="M16.5 10.5L21 7v10l-4.5-3.5"/></>,
+  handshake: <><path d="M2 12l4-4h4l3 3-1.5 1.5a1.5 1.5 0 0 1-2.2-2M22 12l-4-4h-4l-3 3 1.5 1.5a1.5 1.5 0 0 0 2.2-2"/><path d="M9 11l4 4M8 15l3 3"/></>,
+  dot: <circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/>,
+  globe: <><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.5 2.7 4 6.2 4 9.5s-1.5 6.8-4 9.5c-2.5-2.7-4-6.2-4-9.5s1.5-6.8 4-9.5z"/></>,
+  car: <><path d="M4 16V11l2-5h12l2 5v5"/><path d="M2.5 16h19M6.5 16v2.5M17.5 16v2.5"/><circle cx="7.5" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16.5" cy="16" r="1.5" fill="currentColor" stroke="none"/></>,
+  door: <><rect x="5" y="2.5" width="14" height="19" rx="1"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/></>,
+  wave: <path d="M2 15c2-3 4-3 6 0s4 3 6 0 4-3 6 0M2 10c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/>,
+  chart: <><path d="M4 20V10M12 20V4M20 20v-7"/><path d="M2 20h20"/></>,
+  bone: <path d="M6 8.5a2.2 2.2 0 1 0-3.5 2.6L8 16.5a2.2 2.2 0 1 0 2.6-3.5M18 15.5a2.2 2.2 0 1 0 3.5-2.6L16 7.5a2.2 2.2 0 1 0-2.6 3.5"/>,
+  backpack: <><path d="M7 8V6a5 5 0 0 1 10 0v2"/><rect x="4" y="8" width="16" height="14" rx="3"/><path d="M9 12h6M8 22v-6h8v6"/></>,
+  box: <><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v9l9 5 9-5V8M12 13v9"/></>,
+  rocket: <><path d="M12 2s5 2 5 8-5 12-5 12-5-6-5-12 5-8 5-8z"/><circle cx="12" cy="9" r="1.6" fill="currentColor" stroke="none"/><path d="M8 16l-3 3 1-4M16 16l3 3-1-4"/></>,
+  clock: <><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3.5 2"/></>,
+  play: <path d="M6 4.5l14 7.5-14 7.5z"/>,
+  pause: <><rect x="6" y="4.5" width="4.5" height="15" rx="1"/><rect x="13.5" y="4.5" width="4.5" height="15" rx="1"/></>,
+  menu: <path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17"/>,
+  chat: <path d="M21 12a8 8 0 1 1-3.5-6.6L21 4l-1 3.8A8 8 0 0 1 21 12z"/>,
+  flower: <><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="12" r="2.5"/></>,
+  timer: <><circle cx="12" cy="13" r="8"/><path d="M12 13V9M9 2h6"/></>,
+  antenna: <><path d="M4 8l4-5M20 8l-4-5M12 3v18M9 21h6"/></>,
+  controller: <><rect x="2.5" y="8" width="19" height="10" rx="5"/><path d="M7 11v4M5 13h4M16 12h.01M19 14h.01"/></>,
+  muscle: <path d="M4 12V7a2 2 0 0 1 4 0v2h1V6a2 2 0 0 1 4 0v3h1a3 3 0 0 1 3 3v2a5 5 0 0 1-5 5H8a4 4 0 0 1-4-4z"/>,
+  bird: <><path d="M17 8a5 5 0 0 0-10 0c0 3 2 4 2 7a4 4 0 0 1-4 4"/><circle cx="15" cy="7" r="1" fill="currentColor" stroke="none"/><path d="M17 8l4-1-2 3"/></>,
+  phone: <path d="M6.5 2.5h5l1 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1v5a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 4.5 4.5a2 2 0 0 1 2-2z"/>,
+  trash: <><path d="M4 6.5h16M9 6.5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2.5"/><path d="M6 6.5V20a1.5 1.5 0 0 0 1.5 1.5h9A1.5 1.5 0 0 0 18 20V6.5M10 11v6M14 11v6"/></>,
+  cameraPlus: <><path d="M4 8h3l1.5-2.5h7L17 8h3a1.5 1.5 0 0 1 1.5 1.5v10a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5v-10A1.5 1.5 0 0 1 4 8z"/><circle cx="11.5" cy="14" r="3.2"/><path d="M18 4.5v3M16.5 6h3"/></>,
+};
+
+const Icon = ({name, size=16, color="currentColor", style={}, strokeWidth=2}) => {
+  const path = ICON_PATHS[name];
+  if(!path) return null;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+      style={{display:"inline-block",verticalAlign:"middle",flexShrink:0,...style}}>
+      {path}
+    </svg>
+  );
+};
 
 // ─── THEMES ───────────────────────────────────────────────────────────────────
 const DARK = {
@@ -41,6 +143,11 @@ const DARK = {
   // New: navy accent for section headers, badges, week rows
   navyAccentBg:"rgba(28,38,54,0.85)", navyAccentBorder:"rgba(58,90,130,0.4)",
   weekRowActive:"rgba(28,50,80,0.5)",
+  // Sidebar / bottom-tab / top-bar surface — distinct from page bg, theme-aware
+  navBarBg:"#0d1823", navBarBorder:"rgba(176,141,87,.15)", navBarDivider:"rgba(176,141,87,.12)",
+  navText:"rgba(216,198,174,0.6)", navTextStrong:"rgba(216,198,174,.85)", navActiveText:"#B08D57",
+  navLogoText:"#c9a870", navLogoSub:"rgba(176,141,87,.6)", navSignOut:"rgba(216,198,174,.45)",
+  navTopbarBg:"rgba(13,21,32,.97)",
 };
 const LIGHT = {
   mode:"light",
@@ -69,6 +176,11 @@ const LIGHT = {
   routineCard:"rgba(28,38,54,0.05)", diagCard:"rgba(255,248,230,0.9)",
   navyAccentBg:"rgba(28,38,54,0.07)", navyAccentBorder:"rgba(28,38,54,0.2)",
   weekRowActive:"rgba(28,38,54,0.1)",
+  // Sidebar / bottom-tab / top-bar surface — light in light mode (previously stayed navy)
+  navBarBg:"#fffcf6", navBarBorder:"rgba(28,38,54,.12)", navBarDivider:"rgba(28,38,54,.1)",
+  navText:"#6b6357", navTextStrong:"#1C2636", navActiveText:"#8a6535",
+  navLogoText:"#6b4e26", navLogoSub:"rgba(138,101,53,.75)", navSignOut:"#8a8175",
+  navTopbarBg:"rgba(255,252,246,.97)",
 };
 
 // ─── GLOBAL CSS ────────────────────────────────────────────────────────────────
@@ -104,33 +216,49 @@ const globalCss = (T) => `
   /* ── Content protection: prevent download/save/copy on protected media ── */
   .protected-content{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;}
   .protected-content-wrap{position:relative;}
-  .protected-content-wrap::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;}
+  /* This overlay must not capture clicks, or video controls (play/pause/seek) become unusable */
+  .protected-content-wrap::after{content:"";position:absolute;inset:0;z-index:10;background:transparent;pointer-events:none;}
   video.protected-video::-webkit-media-controls-download-button{display:none!important;}
   video.protected-video::-webkit-media-controls-enclosure{overflow:hidden;}
-  video.protected-video{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none;}
+  /* Videos must remain clickable so native play/pause/seek controls work; right-click and
+     drag-out protection is instead handled via onContextMenu + controlsList in the component. */
+  video.protected-video{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
   img.protected-img{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;pointer-events:none;}
   a.protected-link{pointer-events:none;}
-  /* ── Responsive Web Layout ── */
+  /* ── Unified Web Layout (same sidebar + topbar structure on phone & desktop) ── */
   .app-root{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px 16px;transition:background .4s;}
-  .web-layout{display:none;}
   .phone-layout{display:flex;width:100%;max-width:390px;margin:0 auto;}
+  .web-layout{display:flex;width:100%;min-height:100vh;}
+  .app-root:has(.web-layout){padding:0;align-items:stretch;justify-content:stretch;}
+  .web-sidebar{width:240px;min-height:100vh;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;transition:transform .25s;}
+  .web-main{flex:1;min-height:100vh;overflow-y:auto;display:flex;flex-direction:column;min-width:0;}
+  .web-topbar{display:flex;flex-direction:column;border-bottom:1px solid rgba(176,141,87,.15);flex-shrink:0;}
+  .web-topbar-row{display:flex;align-items:center;justify-content:space-between;padding:10px 28px;gap:10px;}
+  .web-content{flex:1;padding:24px 32px;overflow-y:auto;max-height:calc(100vh - 60px);}
+  .web-content::-webkit-scrollbar{width:5px;}
+  .web-content::-webkit-scrollbar-thumb{background:rgba(176,141,87,.3);border-radius:4px;}
+  .sidebar-nav-btn{width:100%;display:flex;align-items:center;gap:12px;padding:11px 22px;border:none;cursor:pointer;background:none;font-family:'Lato',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;transition:all .18s;border-radius:0;}
+  .sidebar-nav-btn:hover{background:rgba(176,141,87,.1);}
+  .sidebar-nav-btn.active{background:rgba(176,141,87,.18);border-right:3px solid #B08D57;}
+  .hamburger-btn{display:none;background:none;border:none;cursor:pointer;padding:4px;align-items:center;justify-content:center;flex-shrink:0;}
+  .sidebar-backdrop{display:none;}
   @media(min-width:900px){
-    .app-root{align-items:flex-start;padding:0;}
-    .web-layout{display:flex;width:100%;min-height:100vh;}
-    .phone-layout{display:none;}
-    .web-sidebar{width:240px;min-height:100vh;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden;}
-    .web-main{flex:1;min-height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
-    .web-topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid rgba(176,141,87,.15);flex-shrink:0;}
-    .web-content{flex:1;padding:24px 32px;overflow-y:auto;max-height:calc(100vh - 60px);}
-    .web-content::-webkit-scrollbar{width:5px;}
-    .web-content::-webkit-scrollbar-thumb{background:rgba(176,141,87,.3);border-radius:4px;}
-    .sidebar-nav-btn{width:100%;display:flex;align-items:center;gap:12px;padding:11px 22px;border:none;cursor:pointer;background:none;font-family:'Lato',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;transition:all .18s;border-radius:0;}
-    .sidebar-nav-btn:hover{background:rgba(176,141,87,.1);}
-    .sidebar-nav-btn.active{background:rgba(176,141,87,.18);border-right:3px solid #B08D57;}
+    .web-sidebar{position:sticky;transform:none!important;}
   }
-  @media(min-width:600px) and (max-width:899px){
-    .phone-layout{max-width:480px;}
+  @media(max-width:899px){
+    .web-sidebar{position:fixed;top:0;left:0;z-index:220;transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,.5);}
+    .web-sidebar.open{transform:translateX(0);}
+    .hamburger-btn{display:flex;}
+    .web-topbar-row{padding:8px 14px;}
+    .web-content{padding:16px;max-height:none;}
+    .sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:210;}
   }
+  @media(max-width:599px){
+    .phone-layout{max-width:100%;}
+  }
+  /* ── Rolling time-wheel picker (potty timer) ── */
+  .wheel-scroll{scrollbar-width:none;-ms-overflow-style:none;}
+  .wheel-scroll::-webkit-scrollbar{display:none;width:0;height:0;}
 `;
 
 // ─── SHARED UI ─────────────────────────────────────────────────────────────────
@@ -140,7 +268,7 @@ const LogoImg = ({size=56}) => {
   // fallback directly instead of attempting to load a path that will always 404.
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px"}}>
-      <div style={{width:size,height:size,display:"flex",alignItems:"center",justifyContent:"center",background:"#1C2636",borderRadius:"50%",fontSize:size*.4,flexShrink:0}}>🐾</div>
+      <div style={{width:size,height:size,display:"flex",alignItems:"center",justifyContent:"center",background:"#1C2636",borderRadius:"50%",flexShrink:0,color:"#B08D57"}}><Icon name="paw" size={size*.5}/></div>
     </div>
   );
 };
@@ -175,14 +303,17 @@ const TopBanner = ({setPage}) => {
   );
 };
 
-const ThemeToggle = ({darkMode,setDarkMode}) => (
-  <button onClick={()=>setDarkMode(d=>!d)} style={{display:"flex",alignItems:"center",gap:"6px",background:"none",border:"none",cursor:"pointer",padding:"4px 2px"}}>
-    <span style={{fontSize:"14px"}}>{darkMode?"🌙":"☀️"}</span>
-    <div style={{width:"40px",height:"22px",borderRadius:"11px",background:darkMode?"rgba(176,141,87,.35)":"rgba(163,86,42,.2)",border:`1.5px solid ${darkMode?"rgba(176,141,87,.6)":"rgba(163,86,42,.35)"}`,position:"relative",transition:"all .3s"}}>
-      <div style={{position:"absolute",top:"2px",left:darkMode?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:darkMode?"#c9a870":"#A3562A",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.25)"}}/>
-    </div>
-  </button>
-);
+const ThemeToggle = ({darkMode,setDarkMode}) => {
+  const T=useTheme();
+  return (
+    <button onClick={()=>setDarkMode(d=>!d)} style={{display:"flex",alignItems:"center",gap:"6px",background:"none",border:"none",cursor:"pointer",padding:"4px 2px"}}>
+      <Icon name={darkMode?"moon":"sun"} size={15} color={T.navText}/>
+      <div style={{width:"40px",height:"22px",borderRadius:"11px",background:darkMode?"rgba(176,141,87,.35)":"rgba(163,86,42,.2)",border:`1.5px solid ${darkMode?"rgba(176,141,87,.6)":"rgba(163,86,42,.35)"}`,position:"relative",transition:"all .3s"}}>
+        <div style={{position:"absolute",top:"2px",left:darkMode?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:darkMode?"#c9a870":"#A3562A",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.25)"}}/>
+      </div>
+    </button>
+  );
+};
 
 const GoldBtn = ({children,onClick,style={}}) => {
   const T=useTheme();
@@ -206,7 +337,7 @@ const SectionTitle = ({children}) => { const T=useTheme(); return <h3 style={{fo
 
 const Chip = ({label,selected,onClick,emoji=""}) => {
   const T=useTheme();
-  return <button onClick={onClick} style={{padding:"9px 14px",borderRadius:"22px",border:`1px solid ${selected?T.gold:T.chipBorder}`,background:selected?"rgba(176,141,87,.18)":T.chipBg,color:selected?T.goldLight:T.textMuted,fontSize:"12.5px",fontWeight:selected?"700":"400",cursor:"pointer",transition:"all .18s",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}>{emoji&&<span>{emoji}</span>}{label}</button>;
+  return <button onClick={onClick} style={{padding:"9px 14px",borderRadius:"22px",border:`1px solid ${selected?T.gold:T.chipBorder}`,background:selected?"rgba(176,141,87,.18)":T.chipBg,color:selected?T.goldLight:T.textMuted,fontSize:"12.5px",fontWeight:selected?"700":"400",cursor:"pointer",transition:"all .18s",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"5px"}}>{emoji&&<Icon name={emoji} size={13}/>}{label}</button>;
 };
 
 const ChipGroup = ({options,selected,onToggle,single=false}) => (
@@ -241,54 +372,59 @@ const PhoneShell = ({children}) => {
 };
 
 // ─── SIDEBAR NAV (desktop web only) ────────────────────────────────────────────
-const SideNav = ({page,setPage,setShowDiag,setShowLifeRecord,setShowWelcome,setShowVideo,setVideoHistory,plan,darkMode,setDarkMode,onSignOut}) => {
+const SideNav = ({page,setPage,setShowDiag,setShowLifeRecord,setShowWelcome,setShowVideo,setVideoHistory,setShowGame,setShowHandout,setHandoutHistory,plan,darkMode,setDarkMode,onSignOut,mobileOpen,setMobileOpen}) => {
   const T=useTheme();
   const navItems=[
-    {id:"dashboard",label:"Dashboard",icon:"🏠"},
-    {id:"live",label:"Live Walk",icon:"📍"},
-    {id:"bond",label:"Bond",icon:"❤️"},
-    {id:"learn",label:"Learn",icon:"📚"},
-    {id:"calendar",label:"Calendar",icon:"📅"},
-    {id:"store",label:"Store",icon:"🛍️"},
-    {id:"share",label:"Share & Refer",icon:"🐾"},
-    {id:"settings",label:"Settings",icon:"⚙️"},
+    {id:"dashboard",label:"Dashboard",icon:"home"},
+    {id:"live",label:"Live",icon:"pin"},
+    {id:"bond",label:"Bond",icon:"heart"},
+    {id:"learn",label:"Learn",icon:"book"},
+    {id:"calendar",label:"Calendar",icon:"calendar"},
+    {id:"store",label:"Store",icon:"bag"},
+    {id:"share",label:"Share & Refer",icon:"paw"},
   ];
-  const sidebarBg = T.mode==="dark" ? "#0d1823" : "#1C2636";
-  const activeText = "#B08D57";
-  const mutedText = "rgba(216,198,174,0.6)";
-  const hoverBg = "rgba(176,141,87,0.1)";
+  const sidebarBg = T.navBarBg;
+  const activeText = T.navActiveText;
+  const mutedText = T.navText;
   return (
-    <div className="web-sidebar" style={{background:sidebarBg,borderRight:`1px solid rgba(176,141,87,.15)`}}>
-      {/* Logo area */}
-      <div style={{padding:"28px 22px 20px",borderBottom:"1px solid rgba(176,141,87,.12)",flexShrink:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
-          <LogoImg size={40}/>
-          <div>
-            <div style={{fontSize:"13px",fontWeight:"900",color:"#c9a870",letterSpacing:".08em",lineHeight:1.1}}>GUIDING PAW</div>
-            <div style={{fontSize:"9px",color:"rgba(176,141,87,.6)",letterSpacing:".2em",fontWeight:"600"}}>TRAINING</div>
+    <>
+      {/* Mobile drawer backdrop — tapping it closes the nav */}
+      <div className={`sidebar-backdrop${mobileOpen?" open":""}`} onClick={()=>setMobileOpen&&setMobileOpen(false)}/>
+      <div className={`web-sidebar${mobileOpen?" open":""}`} style={{background:sidebarBg,borderRight:`1px solid ${T.navBarBorder}`}}>
+        {/* Logo area */}
+        <div style={{padding:"28px 22px 20px",borderBottom:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+            <LogoImg size={40}/>
+            <div>
+              <div style={{fontSize:"13px",fontWeight:"900",color:T.navLogoText,letterSpacing:".08em",lineHeight:1.1}}>GUIDING PAW</div>
+              <div style={{fontSize:"9px",color:T.navLogoSub,letterSpacing:".2em",fontWeight:"600"}}>TRAINING</div>
+            </div>
           </div>
+          <button onClick={()=>setMobileOpen&&setMobileOpen(false)} className="hamburger-btn" style={{color:mutedText}}>
+            <Icon name="x" size={18}/>
+          </button>
+        </div>
+        {/* Nav items */}
+        <div style={{flex:1,overflowY:"auto",paddingTop:"10px"}}>
+          {navItems.map(item=>{
+            const isActive=page===item.id;
+            return (
+              <button key={item.id} className={`sidebar-nav-btn${isActive?" active":""}`}
+                onClick={()=>{setPage(item.id);setShowDiag&&setShowDiag(false);setShowLifeRecord&&setShowLifeRecord(false);setShowWelcome&&setShowWelcome(false);setShowVideo&&setShowVideo(null);setVideoHistory&&setVideoHistory([]);setShowGame&&setShowGame(null);setShowHandout&&setShowHandout(null);setHandoutHistory&&setHandoutHistory([]);setMobileOpen&&setMobileOpen(false);}}
+                style={{color:isActive?activeText:mutedText,borderRight:isActive?`3px solid ${T.navActiveText}`:"3px solid transparent"}}>
+                <span style={{width:"20px",display:"flex",justifyContent:"center"}}><Icon name={item.icon} size={17}/></span>
+                <span style={{fontSize:"13px",fontWeight:isActive?"700":"500"}}>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+        {/* Bottom: theme toggle + sign out */}
+        <div style={{padding:"16px 22px",borderTop:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
+          <button onClick={onSignOut} style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:T.navSignOut,fontFamily:"'Lato',sans-serif",letterSpacing:".08em"}}>Sign out</button>
         </div>
       </div>
-      {/* Nav items */}
-      <div style={{flex:1,overflowY:"auto",paddingTop:"10px"}}>
-        {navItems.map(item=>{
-          const isActive=page===item.id;
-          return (
-            <button key={item.id} className={`sidebar-nav-btn${isActive?" active":""}`}
-              onClick={()=>{setPage(item.id);setShowDiag&&setShowDiag(false);setShowLifeRecord&&setShowLifeRecord(false);setShowWelcome&&setShowWelcome(false);setShowVideo&&setShowVideo(null);setVideoHistory&&setVideoHistory([]);}}
-              style={{color:isActive?activeText:mutedText,borderRight:isActive?`3px solid #B08D57`:"3px solid transparent"}}>
-              <span style={{fontSize:"16px",width:"20px",textAlign:"center"}}>{item.icon}</span>
-              <span style={{fontSize:"13px",fontWeight:isActive?"700":"500"}}>{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      {/* Bottom: theme toggle + sign out */}
-      <div style={{padding:"16px 22px",borderTop:"1px solid rgba(176,141,87,.12)",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-        <button onClick={onSignOut} style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:"rgba(216,198,174,.45)",fontFamily:"'Lato',sans-serif",letterSpacing:".08em"}}>Sign out</button>
-      </div>
-    </div>
+    </>
   );
 };
 
@@ -317,26 +453,54 @@ const ProtectedMedia = ({children, type="image"}) => {
 };
 
 // ─── BOTTOM NAV ────────────────────────────────────────────────────────────────
-const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=[],setWalkLog}) => {
+// Great-circle distance between two {lat,lng} points, in miles — used to turn
+// real GPS coordinates into an actual walked distance.
+function haversineMiles(a,b){
+  if(!a||!b) return 0;
+  const R=3958.8; // Earth radius, miles
+  const toRad=(d)=>d*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+  const lat1=toRad(a.lat), lat2=toRad(b.lat);
+  const h=Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+}
+
+const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=[],setWalkLog,petData,setPetData}) => {
   const T=useTheme();
   const [quickNote,setQuickNote]=useState("");
   const [quickType,setQuickType]=useState(null);
   const [walkActive,setWalkActive]=useState(false);
   const [walkStart,setWalkStart]=useState(null);
   const [walkElapsed,setWalkElapsed]=useState(0);
-  const [walkPoints,setWalkPoints]=useState([]); // simulated GPS coords
+  const [walkPoints,setWalkPoints]=useState([]); // real GPS coords (or simulated fallback)
+  // "locating" while we wait for the first fix, "active" once the browser is giving us
+  // real coordinates, "denied" if the person said no, "unsupported" if this browser/device
+  // has no Geolocation API at all (falls back to an estimate either way).
+  const [gpsStatus,setGpsStatus]=useState("idle");
+  const watchIdRef=useRef(null);
 
-  // Simulated base coords (Salt Lake City area)
+  // Fallback base coords (Salt Lake City area) — only used when real GPS isn't available.
   const BASE_LAT=40.7608, BASE_LNG=-111.8910;
+  const usingRealGps = gpsStatus==="active";
 
-  // Walk timer tick + simulate GPS movement
-  useState(()=>{
+  const clearGpsWatch=()=>{
+    if(watchIdRef.current!=null && typeof navigator!=="undefined" && navigator.geolocation){
+      navigator.geolocation.clearWatch(watchIdRef.current);
+    }
+    watchIdRef.current=null;
+  };
+  // Always stop watching location if the component unmounts mid-walk.
+  useEffect(()=>()=>clearGpsWatch(),[]);
+
+  // Walk timer tick. When real device GPS isn't available (desktop without location
+  // permission, browser without support, etc.) we still simulate gentle movement every
+  // 5 seconds so the walk can be tracked and logged either way.
+  useEffect(()=>{
     if(!walkActive||!walkStart) return;
     const id=setInterval(()=>{
       const secs=Math.floor((Date.now()-walkStart)/1000);
       setWalkElapsed(secs);
-      // Add a simulated GPS point every 5 seconds
-      if(secs%5===0){
+      if(!usingRealGps && secs%5===0){
         setWalkPoints(pts=>{
           const last=pts[pts.length-1]||{lat:BASE_LAT,lng:BASE_LNG};
           return [...pts,{
@@ -347,34 +511,83 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
       }
     },1000);
     return ()=>clearInterval(id);
-  });
+  },[walkActive,walkStart,usingRealGps]);
 
   const fmtDuration=(secs)=>{ const m=Math.floor(secs/60),s=secs%60; return `${m}m ${s.toString().padStart(2,"0")}s`; };
-  // Simulate ~3 mph pace: 1 mile per 20 min
+  // Estimated ~3 mph pace fallback (used only while GPS is unavailable): 1 mile per 20 min
   const simDistanceMi=(secs)=>parseFloat(((secs/60)/20).toFixed(2));
-  const simPace=(secs)=>{ const mi=simDistanceMi(secs); if(mi<0.01) return "--'--\""; const paceMin=secs/60/mi; const pm=Math.floor(paceMin),ps=Math.round((paceMin-pm)*60); return `${pm}'${ps.toString().padStart(2,"0")}\"`; };
 
+  // Real distance walked so far, computed from actual GPS fixes.
+  const realDistanceMi=()=>{
+    let d=0;
+    for(let i=1;i<walkPoints.length;i++) d+=haversineMiles(walkPoints[i-1],walkPoints[i]);
+    return d;
+  };
+
+  const liveDistanceMi = usingRealGps && walkPoints.length>=2
+    ? parseFloat(realDistanceMi().toFixed(2))
+    : simDistanceMi(walkElapsed);
+
+  const livePace=(secs,mi)=>{ if(mi<0.01) return "--'--\""; const paceMin=(secs/60)/mi; const pm=Math.floor(paceMin),ps=Math.round((paceMin-pm)*60); return `${pm}'${ps.toString().padStart(2,"0")}\"`; };
+
+  // Starts tracking the walk using the device's real GPS (works on phones via the
+  // location chip, and on laptops/desktops via the browser's Geolocation API — most
+  // desktop browsers resolve an approximate Wi-Fi/IP-based location). Falls back to
+  // a distance estimate if location isn't available or permission is declined, so the
+  // walk can always still be tracked and logged.
   const startWalk=()=>{
     setWalkActive(true);
     setWalkStart(Date.now());
     setWalkElapsed(0);
-    setWalkPoints([{lat:BASE_LAT,lng:BASE_LNG}]);
+    setWalkPoints([]);
     setShowPlus(false);
     setQuickType(null);
+
+    if(typeof navigator!=="undefined" && navigator.geolocation){
+      setGpsStatus("locating");
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (pos)=>{
+          setGpsStatus("active");
+          const {latitude,longitude}=pos.coords;
+          setWalkPoints(pts=>[...pts,{lat:latitude,lng:longitude,t:Date.now()}]);
+        },
+        ()=>{
+          // Permission denied, or location unavailable — keep the walk running with
+          // the simulated-distance fallback instead of blocking the person.
+          setGpsStatus("denied");
+          setWalkPoints(pts=>pts.length?pts:[{lat:BASE_LAT,lng:BASE_LNG}]);
+        },
+        {enableHighAccuracy:true, maximumAge:2000, timeout:12000}
+      );
+    } else {
+      setGpsStatus("unsupported");
+      setWalkPoints([{lat:BASE_LAT,lng:BASE_LNG}]);
+    }
   };
 
   const stopWalk=()=>{
     const secs=walkElapsed;
+    const distanceMi=liveDistanceMi;
     const entry={
       date:new Date().toLocaleDateString(),
       time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),
       duration:fmtDuration(secs),
-      distanceMi:simDistanceMi(secs),
-      pace:simPace(secs),
+      distanceMi,
+      pace:livePace(secs,distanceMi),
       points:[...walkPoints],
+      gpsSource:usingRealGps?"device-gps":"estimated",
       appleHealthSynced:true,
     };
     setWalkLog&&setWalkLog(l=>[entry,...l]);
+    // Save the completed walk to the pet's profile so it shows up in the Pet Life Record.
+    setPetData&&setPetData(d=>({
+      ...d,
+      walkLog:[entry, ...(d?.walkLog||[])],
+      totalWalks:(d?.totalWalks||0)+1,
+      totalWalkMiles:parseFloat((((d?.totalWalkMiles||0))+entry.distanceMi).toFixed(2)),
+    }));
+    clearGpsWatch();
+    setGpsStatus("idle");
     setWalkActive(false);
     setWalkStart(null);
     setWalkElapsed(0);
@@ -383,6 +596,8 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
   };
 
   const cancelWalk=()=>{
+    clearGpsWatch();
+    setGpsStatus("idle");
     setWalkActive(false);
     setWalkStart(null);
     setWalkElapsed(0);
@@ -392,18 +607,8 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
   const restartWalk=()=>{
     setWalkStart(Date.now());
     setWalkElapsed(0);
-    setWalkPoints([{lat:BASE_LAT,lng:BASE_LNG}]);
+    setWalkPoints(usingRealGps?[]:[{lat:BASE_LAT,lng:BASE_LNG}]);
   };
-  const icons=[
-    {id:"dashboard",label:"Home",icon:"🏠"},
-    {id:"live",label:"Live",icon:"❤️"},
-    {id:"bond",label:"Bond",icon:"🤝"},
-    {id:"plus",label:"",icon:null,center:true},
-    {id:"learn",label:"Learn",icon:"🧠"},
-    {id:"share",label:"Share",icon:"🐾"},
-    {id:"store",label:"Shop",icon:"🛍️"},
-  ];
-
   const handleFileUpload=(type)=>{
     const input=document.createElement("input");
     input.type="file";
@@ -434,19 +639,25 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"8px"}}>
             <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
               <div style={{width:"9px",height:"9px",borderRadius:"50%",background:"#4caf7d",boxShadow:"0 0 0 4px rgba(76,175,125,.3)",animation:"pulse 1.5s infinite",flexShrink:0}}/>
-              <p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase"}}>Walk in Progress</p>
+              <div>
+                <p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase"}}>Walk in Progress</p>
+                <p style={{fontSize:"9.5px",color:"rgba(255,255,255,.55)",marginTop:"1px",display:"flex",alignItems:"center",gap:"3px"}}>
+                  <Icon name="pin" size={9}/>
+                  {gpsStatus==="active"?"Live GPS tracking":gpsStatus==="locating"?"Finding your location…":gpsStatus==="denied"?"Location unavailable — estimating distance":gpsStatus==="unsupported"?"GPS not supported here — estimating distance":"Starting…"}
+                </p>
+              </div>
             </div>
             <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
-              <button onClick={restartWalk} style={{padding:"6px 11px",background:"rgba(176,141,87,.18)",border:"1.5px solid rgba(176,141,87,.6)",borderRadius:"9px",color:"#c9a870",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}} title="Restart walk timer">↺ Restart</button>
-              <button onClick={cancelWalk} style={{padding:"6px 11px",background:"rgba(28,38,54,.4)",border:"1.5px solid rgba(216,198,174,.3)",borderRadius:"9px",color:"rgba(216,198,174,.7)",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}} title="Cancel walk without saving">✕ Cancel</button>
+              <button onClick={restartWalk} style={{padding:"6px 11px",background:"rgba(176,141,87,.18)",border:"1.5px solid rgba(176,141,87,.6)",borderRadius:"9px",color:"#c9a870",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px"}} title="Restart walk timer"><Icon name="refresh" size={11}/>Restart</button>
+              <button onClick={cancelWalk} style={{padding:"6px 11px",background:"rgba(28,38,54,.4)",border:"1.5px solid rgba(216,198,174,.3)",borderRadius:"9px",color:"rgba(216,198,174,.7)",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}} title="Cancel walk without saving"><Icon name="x" size={11} style={{marginRight:"2px"}}/>Cancel</button>
               <button onClick={stopWalk} style={{padding:"6px 11px",background:"rgba(224,122,95,.18)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"11px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Stop & Log</button>
             </div>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px"}}>
             {[
               {label:"Duration",value:fmtDuration(walkElapsed)},
-              {label:"Distance",value:`${simDistanceMi(walkElapsed)} mi`},
-              {label:"Pace",value:simPace(walkElapsed)},
+              {label:"Distance",value:`${liveDistanceMi} mi`},
+              {label:"Pace",value:livePace(walkElapsed,liveDistanceMi)},
             ].map(({label,value})=>(
               <div key={label} style={{background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px 10px",textAlign:"center"}}>
                 <p style={{fontSize:"9px",color:"rgba(255,255,255,.5)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"2px"}}>{label}</p>
@@ -467,7 +678,7 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
           {!quickType&&(
             <>
               {[
-                {id:"walk",label:"🐕 Start a Walk",desc:"Track walk duration"},
+                {id:"walk",label:"Start a Walk",desc:"Track walk duration",icon:"dog"},
                 {id:"homework",label:"Homework Assignment"},
                 {id:"progress",label:"Progress Notes"},
                 ...(plan==="pro"?[{id:"trainer",label:"Message a Trainer"}]:[]),
@@ -479,7 +690,7 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
                     setQuickType(item.id);
                   }}
                   style={{display:"block",width:"100%",textAlign:"left",padding:"10px 0",background:"none",border:"none",borderBottom:`1px solid ${T.divider}`,color:item.id==="walk"?"#4caf7d":T.text,fontSize:"13.5px",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontWeight:item.id==="walk"?"700":"400"}}>
-                  {item.label}
+                  {item.icon&&<Icon name={item.icon} size={12} style={{marginRight:"5px"}}/>}{item.label}
                 </button>
               ))}
             </>
@@ -501,24 +712,37 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
             </div>
           )}
 
-          {!quickType&&<button onClick={()=>setShowPlus(false)} style={{marginTop:"10px",background:"none",border:"none",color:T.textFaint,fontSize:"12px",cursor:"pointer"}}>✕ Close</button>}
+          {!quickType&&<button onClick={()=>setShowPlus(false)} style={{marginTop:"10px",background:"none",border:"none",color:T.textFaint,fontSize:"12px",cursor:"pointer"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Close</button>}
         </div>
         </>
       )}
-      {/* Nav bar is always navy #1C2636 — the brand's signature color */}
-      <div style={{display:"flex",alignItems:"center",background:"#1C2636",borderTop:"2px solid rgba(176,141,87,0.3)",padding:"5px 0 8px",transition:"background .4s"}}>
-        {icons.map(({id,label,icon,center})=>
-          center?(
-            <div key="plus" style={{flex:1,display:"flex",justifyContent:"center"}}>
-              <button onClick={()=>{setShowPlus(v=>!v);setQuickType(null);setQuickNote("");}} style={{width:"46px",height:"46px",borderRadius:"50%",background:`linear-gradient(135deg,${T.gold},${T.brown})`,border:"3px solid #1C2636",fontSize:"24px",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 4px 16px rgba(176,141,87,.45)",marginTop:"-16px",transition:"all .2s"}} onMouseEnter={e=>e.currentTarget.style.transform="scale(1.08)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>＋</button>
-            </div>
-          ):(
-            <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?"#B08D57":"rgba(216,198,174,0.85)",transition:"color .2s"}}>
-              <span style={{fontSize:"17px"}}>{icon}</span>
-              <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
-            </button>
-          )
-        )}
+      {/* Nav bar with labels, plus the quick-add button centered in the middle */}
+      <div style={{display:"flex",alignItems:"center",background:T.navBarBg,borderTop:`2px solid ${T.mode==="dark"?"rgba(176,141,87,0.3)":"rgba(28,38,54,0.15)"}`,padding:"6px 0 8px",transition:"background .4s"}}>
+        {[
+          {id:"dashboard",label:"Home",icon:"home"},
+          {id:"live",label:"Live",icon:"heart"},
+          {id:"bond",label:"Bond",icon:"handshake"},
+        ].map(({id,label,icon})=>(
+          <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
+            <Icon name={icon} size={18}/>
+            <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
+          </button>
+        ))}
+        <div style={{flex:1,display:"flex",justifyContent:"center"}}>
+          <button onClick={()=>{setShowPlus(v=>!v);setQuickType(null);setQuickNote("");}} title="Quick add" style={{width:"46px",height:"46px",borderRadius:"50%",background:`linear-gradient(135deg,${T.gold},${T.brown})`,border:`3px solid ${T.navBarBg}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 4px 16px rgba(176,141,87,.45)",marginTop:"-16px",transition:"all .2s",color:"#fff"}} onMouseEnter={e=>e.currentTarget.style.transform="scale(1.08)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+            <Icon name="plus" size={20} strokeWidth={2.5}/>
+          </button>
+        </div>
+        {[
+          {id:"learn",label:"Learn",icon:"brain"},
+          {id:"share",label:"Share",icon:"paw"},
+          {id:"store",label:"Shop",icon:"bag"},
+        ].map(({id,label,icon})=>(
+          <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
+            <Icon name={icon} size={18}/>
+            <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -547,6 +771,11 @@ const checkPasswordRequirements = (pw="") => ({
   special:/[^A-Za-z0-9]/.test(pw),
   number: /[0-9]/.test(pw),
 });
+// Auto-capitalizes the first letter of each word as the person types — handles
+// hyphenated and apostrophe names reasonably (e.g. "mary-jane" → "Mary-Jane").
+const capitalizeName = (str="") =>
+  str.replace(/(^|[\s\-'])([a-zà-ÿ])/g, (m, sep, ch) => sep + ch.toUpperCase());
+
 const isPasswordValid = (pw="") => {
   const r = checkPasswordRequirements(pw);
   return r.length && r.upper && r.special && r.number;
@@ -608,7 +837,7 @@ const PasswordChecklist = ({pw}) => {
       {items.map((it,i)=>(
         <div key={i} style={{display:"flex",alignItems:"center",gap:"7px"}}>
           <span style={{width:"14px",height:"14px",borderRadius:"50%",border:`1.5px solid ${it.ok?"#4caf7d":T.chipBorder}`,background:it.ok?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-            {it.ok && <span style={{color:"#fff",fontSize:"9px",fontWeight:"900",lineHeight:1}}>✓</span>}
+            {it.ok && <Icon name="check" size={9} color="#fff" strokeWidth={3}/>}
           </span>
           <span style={{fontSize:"11px",color:it.ok?T.textMuted:T.textFaint}}>{it.label}</span>
         </div>
@@ -623,7 +852,7 @@ const GeneratePasswordBtn = ({onGenerate}) => {
   return (
     <button type="button" onClick={onGenerate}
       style={{marginTop:"8px",background:"none",border:"none",cursor:"pointer",color:T.gold,fontSize:"11.5px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"5px",padding:0}}>
-      🎲 Generate secure password
+      <Icon name="dice" size={12} style={{marginRight:"4px"}}/>Generate secure password
     </button>
   );
 };
@@ -631,6 +860,11 @@ const GeneratePasswordBtn = ({onGenerate}) => {
 // ─── SAVED CREDENTIALS HELPERS ───────────────────────────────────────────────
 const SAVED_CREDS_KEY = "gp_saved_creds";
 const SESSION_KEY     = "gp_session";
+const SESSION_EXPIRED_FLAG_KEY = "gp_session_expired";
+// How long the person can be inactive before they're automatically signed out —
+// same idea as a banking app. A page refresh is NOT inactivity (it re-touches
+// the session on load), only walking away / leaving the app idle counts.
+const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
 
 function saveCredentials(email, pw) {
   try {
@@ -652,16 +886,133 @@ function clearSavedCredentials() {
   try { localStorage.removeItem(SAVED_CREDS_KEY); } catch {}
 }
 
+// Sessions live in localStorage (not sessionStorage) so a page refresh — or even
+// closing and reopening the tab — keeps you signed in. What signs you out is
+// inactivity: every session carries a `lastActivity` timestamp that gets bumped
+// while the person is using the app, and is checked whenever the session is read.
 function saveSession(email) {
-  try { sessionStorage.setItem(SESSION_KEY, btoa(email)); } catch {}
+  try { localStorage.setItem(SESSION_KEY, btoa(JSON.stringify({ email, lastActivity: Date.now() }))); } catch {}
 }
 
-function loadSession() {
+// Bumps the "last active" timestamp on the current session without changing
+// who's signed in. Called on user interaction (clicks, key presses, scrolling)
+// while the app is open, and on page load, so refreshing never counts as idle.
+function touchSession() {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    return raw ? atob(raw) : null;
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return;
+    const data = JSON.parse(atob(raw));
+    localStorage.setItem(SESSION_KEY, btoa(JSON.stringify({ ...data, lastActivity: Date.now() })));
+  } catch {}
+}
+
+// Reads the session without touching/extending it — used for periodic inactivity
+// checks, where "checking the clock" must never itself count as activity.
+function peekSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(atob(raw));
+    if (!data?.email) return null;
+    if (Date.now() - (data.lastActivity||0) > INACTIVITY_LIMIT_MS) {
+      clearSession();
+      try { sessionStorage.setItem(SESSION_EXPIRED_FLAG_KEY, "1"); } catch {}
+      return null;
+    }
+    return data.email;
   } catch { return null; }
 }
+
+// Returns the signed-in email if there's a valid, non-expired session, or null.
+// A session that's been inactive longer than INACTIVITY_LIMIT_MS is treated as
+// signed out (and cleared) — this is what actually logs someone out, not a refresh.
+// Unlike peekSession(), a successful read here DOES count as activity (used on
+// initial page load / the sign-in screen's mount check).
+function loadSession() {
+  const email = peekSession();
+  if (email) touchSession(); // opening/refreshing the app counts as activity
+  return email;
+}
+
+function clearSession() {
+  try { localStorage.removeItem(SESSION_KEY); } catch {}
+}
+
+// One-time flag read by the sign-in screen to show "signed out due to inactivity"
+// after an automatic (not user-initiated) sign-out. Cleared once read.
+function consumeSessionExpiredFlag() {
+  try {
+    const flagged = sessionStorage.getItem(SESSION_EXPIRED_FLAG_KEY) === "1";
+    if (flagged) sessionStorage.removeItem(SESSION_EXPIRED_FLAG_KEY);
+    return flagged;
+  } catch { return false; }
+}
+
+// ─── COUNTRY / PHONE VALIDATION ──────────────────────────────────────────────
+// Dial code + expected national significant-number length (digits only, not
+// counting the country code) for common countries. The person picks their
+// country first so we know which format to validate their phone number against.
+const COUNTRIES = [
+  {code:"US",name:"United States",dial:"+1",digits:10},
+  {code:"CA",name:"Canada",dial:"+1",digits:10},
+  {code:"GB",name:"United Kingdom",dial:"+44",digits:10},
+  {code:"AU",name:"Australia",dial:"+61",digits:9},
+  {code:"NZ",name:"New Zealand",dial:"+64",digits:9},
+  {code:"IE",name:"Ireland",dial:"+353",digits:9},
+  {code:"MX",name:"Mexico",dial:"+52",digits:10},
+  {code:"DE",name:"Germany",dial:"+49",digits:10},
+  {code:"FR",name:"France",dial:"+33",digits:9},
+  {code:"ES",name:"Spain",dial:"+34",digits:9},
+  {code:"IT",name:"Italy",dial:"+39",digits:10},
+  {code:"NL",name:"Netherlands",dial:"+31",digits:9},
+  {code:"PT",name:"Portugal",dial:"+351",digits:9},
+  {code:"SE",name:"Sweden",dial:"+46",digits:9},
+  {code:"NO",name:"Norway",dial:"+47",digits:8},
+  {code:"DK",name:"Denmark",dial:"+45",digits:8},
+  {code:"IN",name:"India",dial:"+91",digits:10},
+  {code:"JP",name:"Japan",dial:"+81",digits:10},
+  {code:"CN",name:"China",dial:"+86",digits:11},
+  {code:"BR",name:"Brazil",dial:"+55",digits:11},
+  {code:"ZA",name:"South Africa",dial:"+27",digits:9},
+  {code:"SG",name:"Singapore",dial:"+65",digits:8},
+  {code:"PH",name:"Philippines",dial:"+63",digits:10},
+];
+const findCountry = (code) => COUNTRIES.find(c=>c.code===code) || COUNTRIES[0];
+
+// Email needs an "@" and a "." after it, with something on either side.
+const isValidEmail = (email="") => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+// Phone number just needs to have exactly the number of digits expected for
+// the chosen country (ignoring spaces, dashes, parentheses, etc).
+const isValidPhone = (phone="", countryCode="US") => {
+  const digits = (phone||"").replace(/\D/g,"");
+  const country = findCountry(countryCode);
+  return digits.length === country.digits;
+};
+
+// Reusable "choose country, then enter phone number" field with inline
+// format validation. Used at initial account setup and in Settings.
+const PhoneField = ({label="Phone Number", countryCode, onCountryChange, phone, onPhoneChange, error, onFocusClear}) => {
+  const T=useTheme();
+  const country = findCountry(countryCode);
+  return (
+    <div>
+      <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:error?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{label}</label>
+      <div style={{display:"flex",gap:"8px"}}>
+        <select value={countryCode} onChange={e=>{onCountryChange(e.target.value);onFocusClear&&onFocusClear();}}
+          style={{width:"128px",flexShrink:0,padding:"11px 8px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}>
+          {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.name} ({c.dial})</option>)}
+        </select>
+        <input type="tel" value={phone} placeholder={`${country.digits}-digit number`}
+          onChange={e=>{onPhoneChange(e.target.value.replace(/[^\d\s\-()]/g,""));onFocusClear&&onFocusClear();}}
+          style={{flex:1,minWidth:0,padding:"11px 14px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+      </div>
+      {error
+        ? <p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {error}</p>
+        : <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>Enter as {country.dial} followed by {country.digits} digits, e.g. {country.dial} {phone||"5551234567"}</p>}
+    </div>
+  );
+};
 
 const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
   const T = useTheme();
@@ -680,16 +1031,21 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
   const [shake, setShake] = useState(false);
   const [savedUser, setSavedUser] = useState(null); // pre-filled saved credential display
   const [autoLogging, setAutoLogging] = useState(false);
+  const [expiredNotice, setExpiredNotice] = useState(false);
 
   // ── On mount: load saved credentials or active session ──
   useState(() => {
-    // 1. Active session this browser tab (page refresh) → auto sign in
+    // 1. Active session this browser tab (survives refresh — and even closing/
+    // reopening the tab, since it's now backed by localStorage) → auto sign in
     const session = loadSession();
     if (session) {
       setAutoLogging(true);
       setTimeout(() => { setAutoLogging(false); onSignIn(); }, 800);
       return;
     }
+    // 1b. No active session — check whether that's because it just expired from
+    // inactivity (as opposed to a normal, deliberate sign-out) and let the person know.
+    if (consumeSessionExpiredFlag()) setExpiredNotice(true);
     // 2. Remembered credentials → pre-fill form
     const saved = loadSavedCredentials();
     if (saved) {
@@ -786,7 +1142,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
 
         {mode==="forgot_sent" ? (
           <div className="s1" style={{textAlign:"center",paddingTop:"20px"}}>
-            <div style={{width:"70px",height:"70px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"32px",margin:"0 auto 18px",boxShadow:`0 0 0 10px rgba(76,175,125,.1)`}}>✉️</div>
+            <div style={{width:"70px",height:"70px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px",boxShadow:`0 0 0 10px rgba(76,175,125,.1)`,color:"#fff"}}><Icon name="mail" size={32}/></div>
             <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"10px"}}>Check your inbox</h2>
             <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>We sent a password reset link to:</p>
             <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"22px"}}>{forgotEmail}</p>
@@ -797,7 +1153,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
         ) : (
           <>
             <div className="s1" style={{textAlign:"center",marginBottom:"24px",paddingTop:"10px"}}>
-              <div style={{fontSize:"40px",marginBottom:"10px"}}>🔑</div>
+              <div style={{marginBottom:"10px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="key" size={40}/></div>
               <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reset Password</h2>
               <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.55}}>Enter your email and we'll send you a reset link.</p>
             </div>
@@ -830,7 +1186,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
             <LogoImg size={72}/>
           </div>
           <div style={{textAlign:"center"}}>
-            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Welcome back! 🐾</h2>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Welcome back! <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
             <p style={{fontSize:"13px",color:T.textMuted}}>Signing you in…</p>
           </div>
           <span style={{width:"22px",height:"22px",border:"3px solid rgba(176,141,87,.3)",borderTopColor:T.gold,borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>
@@ -868,16 +1224,24 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
             {["LIVE","BOND","LEARN"].map((w,i)=>(
               <span key={w} style={{display:"flex",alignItems:"center",gap:"6px"}}>
                 <span style={{fontSize:"11px",fontWeight:"900",letterSpacing:".2em",color:T.gold}}>{w}</span>
-                {i<2&&<span style={{fontSize:"13px",lineHeight:1,filter:T.mode==="dark"?"brightness(0) saturate(100%) invert(72%) sepia(60%) saturate(400%) hue-rotate(340deg) brightness(110%)":"none"}}>🐾</span>}
+                {i<2&&<Icon name="paw" size={13} color={T.gold}/>}
               </span>
             ))}
           </div>
         </div>
 
+        {/* Signed out due to inactivity (not a manual sign-out) */}
+        {expiredNotice && (
+          <div className="s1" style={{background:"rgba(224,122,95,.1)",border:"1px solid rgba(224,122,95,.3)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
+            <Icon name="clock" size={16} color="#e07a5f" style={{flexShrink:0}}/>
+            <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"600",lineHeight:1.4}}>You've been signed out after a period of inactivity, for your security. Please sign in again.</p>
+          </div>
+        )}
+
         {/* Saved user greeting */}
         {savedUser && (
           <div className="s1" style={{background:"rgba(176,141,87,.09)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
-            <div style={{width:"34px",height:"34px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px",flexShrink:0}}>🐾</div>
+            <div style={{width:"34px",height:"34px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff"}}><Icon name="paw" size={17}/></div>
             <div style={{flex:1,minWidth:0}}>
               <p style={{fontSize:"11px",color:T.textFaint,marginBottom:"1px"}}>Signing in as</p>
               <p style={{fontSize:"13px",fontWeight:"700",color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{savedUser}</p>
@@ -893,7 +1257,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
 
         {/* Demo hint */}
         <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",marginBottom:"16px",display:"flex",gap:"8px",alignItems:"flex-start"}}>
-          <span style={{fontSize:"14px",flexShrink:0}}>💡</span>
+          <Icon name="bulb" size={14} style={{flexShrink:0}} color={T.gold}/>
           <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>
             <strong style={{color:T.gold}}>Demo:</strong> use <strong style={{color:T.text}}>demo@guidingpaw.com</strong> / <strong style={{color:T.text}}>Training1!</strong> — or try wrong credentials to see error states.
           </p>
@@ -902,7 +1266,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
         {/* Auth error banner */}
         {errors.auth&&(
           <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",display:"flex",gap:"8px",alignItems:"flex-start",animation:shake?"shake .4s":"none"}}>
-            <span style={{fontSize:"15px",flexShrink:0}}>{isLocked?"🔒":"⚠️"}</span>
+            <span style={{fontSize:"15px",flexShrink:0}}><Icon name={isLocked?"lock":"alert"} size={15}/></span>
             <div>
               <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"700",marginBottom:isLocked?3:0}}>{errors.auth}</p>
               {isLocked&&<p style={{fontSize:"11px",color:T.textMuted}}>Try again in <strong style={{color:T.gold}}>{lockSecs}s</strong></p>}
@@ -917,7 +1281,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
             <input type="email" value={email} placeholder="you@example.com" onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined,auth:undefined}));}}
               style={inputStyle("email")}
               onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
-            {errors.email&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}>⚠ {errors.email}</p>}
+            {errors.email&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
           </div>
 
           {/* Password with show/hide */}
@@ -929,17 +1293,17 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
                 style={{...inputStyle("pw"),paddingRight:"44px"}}
                 onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
               <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>
-                {showPw?"🙈":"👁️"}
+                <Icon name={showPw?"eyeOff":"eye"} size={16}/>
               </button>
             </div>
-            {errors.pw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}>⚠ {errors.pw}</p>}
+            {errors.pw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
           </div>
 
           {/* Remember me + Forgot password */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
             <label style={{display:"flex",alignItems:"center",gap:"7px",cursor:"pointer"}}>
               <div onClick={()=>setRememberMe(v=>!v)} style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${rememberMe?T.gold:T.inputBorder}`,background:rememberMe?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s",cursor:"pointer"}}>
-                {rememberMe&&<span style={{color:T.gold,fontSize:"11px",fontWeight:"900",lineHeight:1}}>✓</span>}
+                {rememberMe&&<Icon name="check" size={11} color={T.gold} strokeWidth={3}/>}
               </div>
               <span style={{fontSize:"12px",color:T.textMuted,userSelect:"none"}}>Remember me</span>
             </label>
@@ -957,7 +1321,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
             display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",transition:"all .2s",
           }}>
             {isLocked
-              ? `🔒 Locked (${lockSecs}s)`
+              ? <><Icon name="lock" size={13}/>{`Locked (${lockSecs}s)`}</>
               : loading
                 ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Signing in…</>
                 : "Sign In"}
@@ -996,6 +1360,8 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
   const [firstName, setFirstName] = useState("");
   const [lastName,  setLastName]  = useState("");
   const [email,     setEmail]     = useState("");
+  const [countryCode, setCountryCode] = useState("US");
+  const [phone,     setPhone]     = useState("");
   const [pw,        setPw]        = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [showPw,    setShowPw]    = useState(false);
@@ -1019,7 +1385,8 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
     const e = {};
     if(!firstName.trim())                      e.firstName = "First name is required.";
     if(!lastName.trim())                       e.lastName  = "Last name is required.";
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) e.email = "Please enter a valid email.";
+    if(!isValidEmail(email))                   e.email     = "Please enter a valid email (needs an @ and a .).";
+    if(!isValidPhone(phone,countryCode))        e.phone     = `Please enter a valid ${findCountry(countryCode).digits}-digit phone number for ${findCountry(countryCode).name}.`;
     if(!isPasswordValid(pw))                   e.pw        = `Password must be at least ${PASSWORD_MIN_LENGTH} characters and include a capital letter, a number, and a special character.`;
     if(confirmPw !== pw)                       e.confirmPw = "Passwords do not match.";
     if(!allAgreed)                             e.legal     = "You must agree to all policies to continue.";
@@ -1027,14 +1394,26 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
     return Object.keys(e).length === 0;
   };
 
+  const [sendError, setSendError] = useState("");
+
   const handleContinue = () => {
     if(!validate()) return;
     setLoading(true);
-    // Simulate account creation + email dispatch (1.2s)
-    setTimeout(() => {
-      setLoading(false);
-      onVerify({ firstName, lastName, email, pw });
-    }, 1200);
+    setSendError("");
+    fetch("/api/send-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: email.trim() }),
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("send failed")))
+      .then(() => {
+        setLoading(false);
+        onVerify({ firstName, lastName, email, phone, countryCode, pw });
+      })
+      .catch(() => {
+        setLoading(false);
+        setSendError("We couldn't send the verification email right now. Please try again in a moment.");
+      });
   };
 
   const inputStyle = (field) => ({
@@ -1072,10 +1451,10 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
               {key:"lastName", label:"Last Name", val:lastName, set:setLastName, ph:"Smith"}].map(f=>(
               <div key={f.key}>
                 <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors[f.key]?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{f.label}</label>
-                <input value={f.val} placeholder={f.ph} onChange={e=>{f.set(e.target.value);setErrors(r=>({...r,[f.key]:undefined}));}}
+                <input value={f.val} placeholder={f.ph} onChange={e=>{f.set(capitalizeName(e.target.value));setErrors(r=>({...r,[f.key]:undefined}));}}
                   style={inputStyle(f.key)}
                   onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors[f.key]?T.brown:T.inputBorder}/>
-                {errors[f.key]&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {errors[f.key]}</p>}
+                {errors[f.key]&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors[f.key]}</p>}
               </div>
             ))}
           </div>
@@ -1087,7 +1466,13 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
               onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined}));}}
               style={inputStyle("email")}
               onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
-            {errors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {errors.email}</p>}
+            {errors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
+          </div>
+
+          {/* Phone (country selector first, so we know which number format to validate) */}
+          <div style={{marginBottom:"14px"}}>
+            <PhoneField countryCode={countryCode} onCountryChange={setCountryCode} phone={phone} onPhoneChange={setPhone}
+              error={errors.phone} onFocusClear={()=>setErrors(r=>({...r,phone:undefined}))}/>
           </div>
 
           {/* Password */}
@@ -1098,9 +1483,9 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
                 onChange={e=>{setPw(e.target.value);setErrors(r=>({...r,pw:undefined}));}}
                 style={{...inputStyle("pw"),paddingRight:"44px"}}
                 onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
-              <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>{showPw?"🙈":"👁️"}</button>
+              <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showPw?"eyeOff":"eye"} size={16}/></button>
             </div>
-            {errors.pw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {errors.pw}</p>}
+            {errors.pw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
             <PasswordStrengthMeter pw={pw}/>
             <GeneratePasswordBtn onGenerate={handleGeneratePw}/>
             <PasswordChecklist pw={pw}/>
@@ -1114,10 +1499,10 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
                 onChange={e=>{setConfirmPw(e.target.value);setErrors(r=>({...r,confirmPw:undefined}));}}
                 style={{...inputStyle("confirmPw"),paddingRight:"44px"}}
                 onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.confirmPw?T.brown:T.inputBorder}/>
-              <button onClick={()=>setShowConfirmPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>{showConfirmPw?"🙈":"👁️"}</button>
+              <button onClick={()=>setShowConfirmPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmPw?"eyeOff":"eye"} size={16}/></button>
             </div>
-            {errors.confirmPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {errors.confirmPw}</p>}
-            {!errors.confirmPw && confirmPw.length>0 && confirmPw===pw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}>✓ Passwords match</p>}
+            {errors.confirmPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.confirmPw}</p>}
+            {!errors.confirmPw && confirmPw.length>0 && confirmPw===pw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
           </div>
 
           {/* Legal agreements — required checkboxes */}
@@ -1130,7 +1515,7 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
             ].map(({key,label,url,agreed,set})=>(
               <div key={key} style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"10px",cursor:"pointer"}} onClick={()=>{set(v=>!v);setErrors(r=>({...r,legal:undefined}));}}>
                 <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${agreed?T.gold:T.inputBorder}`,background:agreed?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px",transition:"all .2s"}}>
-                  {agreed&&<span style={{color:T.gold,fontSize:"12px",fontWeight:"900",lineHeight:1}}>✓</span>}
+                  {agreed&&<Icon name="check" size={12} color={T.gold} strokeWidth={3}/>}
                 </div>
                 <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,userSelect:"none"}}>
                   I have read and agree to the{" "}
@@ -1140,10 +1525,11 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
                 </p>
               </div>
             ))}
-            {errors.legal&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginTop:"4px"}}>⚠ {errors.legal}</p>}
+            {errors.legal&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginTop:"4px"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.legal}</p>}
           </div>
 
           {/* CTA */}
+          {sendError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginBottom:"10px",textAlign:"center"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {sendError}</p>}
           <button onClick={handleContinue} disabled={loading} style={{
             width:"100%",padding:"13px",borderRadius:"11px",border:"none",
             background:loading?"rgba(176,141,87,.4)":allAgreed?T.gold:"rgba(176,141,87,.35)",
@@ -1214,17 +1600,25 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
     if(entered.length < 6){ setCodeError(true); return; }
     setVerifying(true);
     setCodeError(false);
-    setTimeout(()=>{
-      // Demo: any 6-digit code works, or specifically 123456
-      if(entered.length===6){
+    fetch("/api/verify-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: userData.email, code: entered }),
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error("verify failed")))
+      .then(({valid}) => {
         setVerifying(false);
-        setPhase("verified");
-        setTimeout(()=>onVerified(), 2000);
-      } else {
+        if(valid){
+          setPhase("verified");
+          setTimeout(()=>onVerified(), 2000);
+        } else {
+          setCodeError(true);
+        }
+      })
+      .catch(() => {
         setVerifying(false);
         setCodeError(true);
-      }
-    },1100);
+      });
   };
 
   const handleResend = () => {
@@ -1232,13 +1626,18 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
     startCooldown();
     setCodeDigits(["","","","","",""]);
     setCodeError(false);
+    fetch("/api/send-code", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ email: userData.email }),
+    }).catch(()=>{ /* resend is best-effort; user can just try again */ });
   };
 
   if(phase==="verified") return (
     <PhoneShell>
       <TopBanner/>
       <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
-        <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"36px",marginBottom:"20px",animation:"successPop .5s cubic-bezier(.22,1,.36,1) both",boxShadow:`0 0 0 12px rgba(76,175,125,.1),0 0 0 24px rgba(76,175,125,.05)`}}>✓</div>
+        <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"20px",animation:"successPop .5s cubic-bezier(.22,1,.36,1) both",boxShadow:`0 0 0 12px rgba(76,175,125,.1),0 0 0 24px rgba(76,175,125,.05)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
         <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px",animation:"fadeUp .4s .3s both"}}>Email Verified!</h2>
         <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,animation:"fadeUp .4s .5s both"}}>Welcome, <strong style={{color:T.gold}}>{userData.firstName}</strong>! Taking you to setup…</p>
         <div style={{marginTop:"20px",display:"flex",gap:"6px",animation:"fadeUp .4s .7s both"}}>
@@ -1258,12 +1657,12 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
 
       <ScrollBody>
         <div className="s1" style={{textAlign:"center",marginBottom:"28px",paddingTop:"12px"}}>
-          <div style={{fontSize:"52px",marginBottom:"14px",animation:"fadeUp .5s both"}}>✉️</div>
+          <div style={{marginBottom:"14px",animation:"fadeUp .5s both",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="mail" size={52}/></div>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Check your email</h2>
           <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"4px"}}>We sent a 6-digit verification code to:</p>
           <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"16px"}}>{userData.email}</p>
           <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",display:"inline-block"}}>
-            <p style={{fontSize:"11px",color:T.textMuted}}>💡 Demo: any 6 digits work — try <strong style={{color:T.gold}}>123456</strong></p>
+            <p style={{fontSize:"11px",color:T.textMuted,display:"flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={11}/>Check your inbox (and spam folder) — the code can take a minute to arrive.</p>
           </div>
         </div>
 
@@ -1292,7 +1691,7 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
               />
             ))}
           </div>
-          {codeError&&<p style={{textAlign:"center",fontSize:"11px",color:"#e07a5f",fontWeight:"700"}}>⚠ Invalid code. Please try again.</p>}
+          {codeError&&<p style={{textAlign:"center",fontSize:"11px",color:"#e07a5f",fontWeight:"700",display:"flex",alignItems:"center",justifyContent:"center",gap:"4px"}}><Icon name="alert" size={11}/> Invalid code. Please try again.</p>}
         </div>
 
         {/* Verify button */}
@@ -1318,7 +1717,7 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
 
         <div style={{marginTop:"20px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px"}}>
           <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.6}}>
-            📬 <strong style={{color:T.text}}>Can't find it?</strong> Check your spam or promotions folder. The email comes from <span style={{color:T.gold,fontWeight:"700"}}>noreply@guidingpaw.com</span>
+            <Icon name="mail" size={12} style={{marginRight:"3px"}}/><strong style={{color:T.text}}>Can't find it?</strong> Check your spam or promotions folder. The email comes from <span style={{color:T.gold,fontWeight:"700"}}>noreply@guidingpaw.com</span>
           </p>
         </div>
       </ScrollBody>
@@ -1333,13 +1732,12 @@ const OnboardingScreen = ({userData, onGoToPayment, darkMode, setDarkMode}) => {
   const T=useTheme();
   const [step,setStep]=useState(0);
   const [data,setData]=useState({
-    role:[],rescue:null,petType:null,gender:null,age:"",weight:"",birthday:"",breed:"",name:"",
-    knows:[],issues:[],trainTime:[],trainHour:"7",trainAmPm:"AM",trainMin:"00",lifestyle:[],plan:"annual",petType:"dog",
+    role:[],rescue:null,petType:"dog",gender:null,age:"",weight:"",birthday:"",breed:"",name:"",
+    knows:[],issues:[],trainTime:[],trainHour:"7",trainAmPm:"AM",trainMin:"00",plan:"annual",
     additionalPets:false,additionalPetsList:[],
     // pre-fill from registration
-    name:(userData?.firstName||"")+" "+(userData?.lastName||""),
     firstName:userData?.firstName||"", lastName:userData?.lastName||"",
-    email:userData?.email||"", pw:userData?.pw||""
+    email:userData?.email||"", phone:userData?.phone||"", countryCode:userData?.countryCode||"US", pw:userData?.pw||""
   });
   const set=(k,v)=>setData(d=>({...d,[k]:v}));
   const toggle=(k,v,single)=>{ if(single){set(k,v);return;} set(k,data[k].includes(v)?data[k].filter(x=>x!==v):[...data[k],v]); };
@@ -1405,23 +1803,23 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
       <div style={{padding:"10px 18px 0",display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
         <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"20px",padding:"2px 6px 2px 0"}}>‹</button>
         <p style={{fontSize:"11px",fontWeight:"700",color:T.textMuted,letterSpacing:".12em",textTransform:"uppercase"}}>Secure Checkout</p>
-        <span style={{marginLeft:"auto",fontSize:"13px"}}>🔒</span>
+        <Icon name="lock" size={13} style={{marginLeft:"auto"}}/>
       </div>
       <ScrollBody pad="18px 22px">
 
         {/* Order summary */}
         <div className="s1" style={{background:T.green,borderRadius:"16px",padding:"16px",marginBottom:"18px",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",right:"12px",top:"10px",fontSize:"40px",opacity:.12}}>🐾</div>
+          <div style={{position:"absolute",right:"12px",top:"10px",opacity:.12}}><Icon name="paw" size={40}/></div>
           <p style={{fontSize:"9px",fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",color:"rgba(255,255,255,.5)",marginBottom:"6px"}}>Order Summary</p>
           <p style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"4px"}}>Guiding Paw {pd.name}</p>
           <div style={{display:"flex",alignItems:"baseline",gap:"4px",marginBottom:"10px"}}>
-            <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL}}>{promoApplied?"🏷️ "+pd.price:pd.price}</span>
+            <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL,display:"inline-flex",alignItems:"center",gap:"5px"}}>{promoApplied&&<Icon name="tag" size={20}/>}{pd.price}</span>
             <span style={{fontSize:"13px",color:"rgba(255,255,255,.5)"}}>{pd.per}</span>
             {promoApplied&&<span style={{fontSize:"11px",color:T.success,fontWeight:"700",marginLeft:"4px"}}>−10% applied!</span>}
           </div>
           <p style={{fontSize:"11px",color:"rgba(255,255,255,.45)",lineHeight:1.5}}>{pd.trial}</p>
           <div style={{display:"flex",gap:"10px",marginTop:"10px",flexWrap:"wrap"}}>
-            {["✓ Cancel anytime","✓ No contracts","✓ 7-day free trial"].map(r=><span key={r} style={{fontSize:"10px",color:T.success,fontWeight:"700"}}>{r}</span>)}
+            {["Cancel anytime","No contracts","7-day free trial"].map(r=><span key={r} style={{fontSize:"10px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
           </div>
         </div>
 
@@ -1473,8 +1871,8 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
               style={{flex:1,padding:"11px 13px",background:T.inputBg,border:`1px solid ${promoError?T.brown:promoApplied?T.success:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
             <button onClick={applyPromo} style={{padding:"11px 15px",borderRadius:"10px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Lato',sans-serif"}}>Apply</button>
           </div>
-          {promoApplied&&<p style={{fontSize:"11px",color:T.success,fontWeight:"700",marginTop:"5px"}}>✓ Code applied — 10% off your first payment!</p>}
-          {promoError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"700",marginTop:"5px"}}>✗ Invalid code. Try PAWS10 for a demo.</p>}
+          {promoApplied&&<p style={{fontSize:"11px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Code applied — 10% off your first payment!</p>}
+          {promoError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"700",marginTop:"5px"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Invalid code. Try PAWS10 for a demo.</p>}
         </div>
 
         {/* Pay button */}
@@ -1514,7 +1912,7 @@ const SuccessScreen = ({petData, onContinue}) => {
         {/* Animated checkmark ring */}
         <div style={{position:"relative",marginBottom:"24px"}}>
           <div style={{width:"90px",height:"90px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 0 12px rgba(76,175,125,.12), 0 0 0 24px rgba(76,175,125,.06)`,animation:"successPop .5s cubic-bezier(.22,1,.36,1) both"}}>
-            <span style={{fontSize:"42px",animation:"checkIn .4s .2s both",display:"block"}}>✓</span>
+            <span style={{animation:"checkIn .4s .2s both",display:"block"}}><Icon name="check" size={42} color={T.success} strokeWidth={3}/></span>
           </div>
         </div>
 
@@ -1525,13 +1923,13 @@ const SuccessScreen = ({petData, onContinue}) => {
 
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"24px",textAlign:"left"}}>
             {[
-              {icon:"🐾",label:"Plan",val:pd.name},
-              {icon:"💳",label:"Billed",val:pd.price+pd.per},
-              {icon:"📅",label:"Trial ends",val:"Mar 16, 2026"},
-              {icon:"✉️",label:"Receipt sent to",val:"you@example.com"},
+              {icon:"paw",label:"Plan",val:pd.name},
+              {icon:"card",label:"Billed",val:pd.price+pd.per},
+              {icon:"calendar",label:"Trial ends",val:"Mar 16, 2026"},
+              {icon:"mail",label:"Receipt sent to",val:"you@example.com"},
             ].map(({icon,label,val})=>(
               <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"12px",color:T.textMuted}}>{icon} {label}</span>
+                <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name={icon} size={11}/>{label}</span>
                 <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{val}</span>
               </div>
             ))}
@@ -1539,7 +1937,7 @@ const SuccessScreen = ({petData, onContinue}) => {
         </div>
 
         <div style={{width:"100%",animation:phase>=2?"fadeUp .45s .05s both":"none",opacity:phase>=2?1:0}}>
-          <GoldBtn onClick={onContinue}>Let's Get Started 🐾</GoldBtn>
+          <GoldBtn onClick={onContinue}>Let's Get Started <Icon name="paw" size={13} style={{marginLeft:"2px"}}/></GoldBtn>
         </div>
       </div>
     </PhoneShell>
@@ -1557,7 +1955,7 @@ const WelcomeDashboard = ({petData, plan, onDismiss}) => {
     <ScrollBody>
       {/* Hero welcome banner */}
       <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"22px 18px",marginBottom:"18px",textAlign:"center",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",right:"-10px",top:"-10px",fontSize:"80px",opacity:.08}}>🐾</div>
+        <div style={{position:"absolute",right:"-10px",top:"-10px",opacity:.08}}><Icon name="paw" size={80}/></div>
         <LogoImg size={52}/>
         <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:"#fff",margin:"12px 0 6px",lineHeight:1.25}}>Welcome, {petName}!</h2>
         <p style={{fontSize:"13px",color:"rgba(255,255,255,.6)",lineHeight:1.55,marginBottom:"14px"}}>Your training journey starts today. Here's everything ready for you.</p>
@@ -1571,9 +1969,9 @@ const WelcomeDashboard = ({petData, plan, onDismiss}) => {
       {/* Quick-start cards */}
       <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,marginBottom:"10px"}} className="s2">Your First Steps</p>
       {[
-        {icon:"📋",title:"Complete Today's Assignment",desc:"Your first lesson is ready and waiting.",cta:"Start Lesson",color:T.gold},
-        {icon:"🐾",title:"Set Up Pet Profile",desc:breed?`We've saved ${breed} — you can add more details anytime.`:"Add your pet's breed to unlock personalized training tips.",cta:"Go to Settings",color:T.goldL},
-        {icon:"🗓️",title:"Build Your Daily Routine",desc:"Set your training schedule for maximum consistency.",cta:"Build Routine",color:T.success},
+        {icon:"clipboard",title:"Complete Today's Assignment",desc:"Your first lesson is ready and waiting.",cta:"Start Lesson",color:T.gold},
+        {icon:"paw",title:"Set Up Pet Profile",desc:breed?`We've saved ${breed} — you can add more details anytime.`:"Add your pet's breed to unlock personalized training tips.",cta:"Go to Settings",color:T.goldL},
+        {icon:"calendar",title:"Build Your Daily Routine",desc:"Set your training schedule for maximum consistency.",cta:"Build Routine",color:T.success},
       ].map(({icon,title,desc,cta,color},i)=>(
         <div key={title} className={`s${i+3}`} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"10px",display:"flex",gap:"12px",alignItems:"flex-start"}}>
           <span style={{fontSize:"24px",flexShrink:0}}>{icon}</span>
@@ -1599,11 +1997,11 @@ function buildSteps(data,set,toggle,T){
   // Dog only — cat training removed
   // Auto-set petType to dog for all new users
   // Additional pets in household
-  steps.push({content:(<><SectionTitle>Any additional pets in the home?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"14px"}}>Check this box if you have more than one pet — you can fill out a profile for each one.</p><div style={{display:"flex",alignItems:"center",gap:"12px",padding:"14px 16px",border:`1px solid ${data.additionalPets?T.gold:T.chipBorder}`,borderRadius:"12px",background:data.additionalPets?"rgba(176,141,87,.1)":T.chipBg,cursor:"pointer"}} onClick={()=>set("additionalPets",!data.additionalPets)}><div style={{width:"22px",height:"22px",borderRadius:"6px",border:`2px solid ${data.additionalPets?T.gold:T.inputBorder}`,background:data.additionalPets?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{data.additionalPets&&<span style={{color:T.gold,fontSize:"13px",fontWeight:"900"}}>✓</span>}</div><span style={{fontSize:"14px",fontWeight:"700",color:data.additionalPets?T.goldLight:T.text}}>Yes, I have additional pets</span></div>{data.additionalPets&&<p style={{fontSize:"11.5px",color:T.textMuted,marginTop:"12px",lineHeight:1.5}}>After completing this questionnaire you'll be able to add profiles for your other pets in the Profile section.</p>}</>)});
+  steps.push({content:(<><SectionTitle>Any additional pets in the home?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"14px"}}>Check this box if you have more than one pet — you can fill out a profile for each one.</p><div style={{display:"flex",alignItems:"center",gap:"12px",padding:"14px 16px",border:`1px solid ${data.additionalPets?T.gold:T.chipBorder}`,borderRadius:"12px",background:data.additionalPets?"rgba(176,141,87,.1)":T.chipBg,cursor:"pointer"}} onClick={()=>set("additionalPets",!data.additionalPets)}><div style={{width:"22px",height:"22px",borderRadius:"6px",border:`2px solid ${data.additionalPets?T.gold:T.inputBorder}`,background:data.additionalPets?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>{data.additionalPets&&<Icon name="check" size={13} color={T.gold} strokeWidth={3}/>}</div><span style={{fontSize:"14px",fontWeight:"700",color:data.additionalPets?T.goldLight:T.text}}>Yes, I have additional pets</span></div>{data.additionalPets&&<p style={{fontSize:"11.5px",color:T.textMuted,marginTop:"12px",lineHeight:1.5}}>After completing this questionnaire you'll be able to add profiles for your other pets in the Profile section.</p>}</>)});
   // Gender
-  steps.push({content:(<><SectionTitle>Boy or girl?</SectionTitle><ChipGroup options={[{value:"boy",label:"Boy 💙"},{value:"girl",label:"Girl 💗"}]} selected={data.gender} onToggle={v=>set("gender",v)} single/></>)});
+  steps.push({content:(<><SectionTitle>Boy or girl?</SectionTitle><ChipGroup options={[{value:"boy",label:"Boy",emoji:"heart"},{value:"girl",label:"Girl",emoji:"heart"}]} selected={data.gender} onToggle={v=>set("gender",v)} single/></>)});
   // Details
-  steps.push({content:(<><SectionTitle>Tell us about your dog</SectionTitle>{["name","age","weight","birthday","breed"].map(k=><div key={k} style={{marginBottom:"11px"}}><label style={{fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,fontWeight:"700",display:"block",marginBottom:"5px"}}>{k==="birthday"?"Birthday (MM/DD/YYYY)":k.charAt(0).toUpperCase()+k.slice(1)}</label><input value={data[k]} onChange={e=>set(k,e.target.value)} placeholder={k==="age"?"e.g. 2 years":k==="weight"?"lbs":k==="birthday"?"MM/DD/YYYY":k==="name"?"e.g. Luna":"e.g. Labrador Retriever"} style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none"}}/></div>)}</>)});
+  steps.push({content:(<><SectionTitle>Tell us about your dog</SectionTitle>{["name","age","weight","birthday","breed"].map(k=><div key={k} style={{marginBottom:"11px"}}><label style={{fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,fontWeight:"700",display:"block",marginBottom:"5px"}}>{k==="birthday"?"Birthday (MM/DD/YYYY)":k.charAt(0).toUpperCase()+k.slice(1)}</label><input value={data[k]} onChange={e=>set(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={k==="age"?"e.g. 2 years":k==="weight"?"lbs":k==="birthday"?"MM/DD/YYYY":k==="name"?"e.g. Luna":"e.g. Labrador Retriever"} style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none"}}/></div>)}</>)});
   // Knows — dog only
   steps.push({content:(<><SectionTitle>What does your dog know?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]} selected={data.knows} onToggle={v=>toggle("knows",v,false)}/></>)});
   steps.push({content:(<><SectionTitle>Behavior issues to work on?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]} selected={data.issues} onToggle={v=>toggle("issues",v,false)}/></>)});
@@ -1629,10 +2027,6 @@ function buildSteps(data,set,toggle,T){
       <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>set("trainAmPm",ap)} style={{padding:"10px 14px",borderRadius:"8px",fontWeight:"700",fontSize:"13px",border:`1px solid ${data.trainAmPm===ap?T.gold:T.inputBorder}`,background:data.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:data.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
     </div>
   </div></>)});
-  // Lifestyle
-  const lifeOpts=["Outdoorsy","Active","Fast-paced lifestyle","Nomadic / Travel often","Love having people over","I have kids","Sometimes I'm a couch potato","Want my dog to be my service / emotional support animal"];
-  steps.push({content:(<><SectionTitle>Your lifestyle?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={lifeOpts} selected={data.lifestyle} onToggle={v=>toggle("lifestyle",v,false)}/></>)});
-
   // CHANGE 6: Plan selection only — payment handled on dedicated screen
   steps.push({content:(
     <>
@@ -1652,7 +2046,7 @@ function buildSteps(data,set,toggle,T){
               <div style={{flex:1}}>
                 <p style={{fontSize:p.highlight?"15px":"13.5px",fontWeight:"700",color:data.plan===p.id?T.gold:p.highlight?T.goldLight:T.text,marginBottom:"3px"}}>{p.name}</p>
                 <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.4}}>{p.desc}</p>
-                {p.savings&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700",marginTop:"5px"}}>✓ {p.savings}</p>}
+                {p.savings&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>{p.savings}</p>}
               </div>
               <div style={{textAlign:"right",marginLeft:"10px"}}>
                 <span style={{fontSize:p.highlight?"20px":"16px",fontWeight:"900",color:T.gold}}>{p.price}</span>
@@ -1663,7 +2057,7 @@ function buildSteps(data,set,toggle,T){
         ))}
       </div>
       <div style={{display:"flex",justifyContent:"center",gap:"14px",marginBottom:"4px",flexWrap:"wrap"}}>
-        {["Cancel anytime","No contracts"].map(r=><span key={r} style={{fontSize:"11px",color:T.success,fontWeight:"700"}}>✓ {r}</span>)}
+        {["Cancel anytime","No contracts"].map(r=><span key={r} style={{fontSize:"11px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
       </div>
     </>
   ),nextLabel:"Continue to Payment →"});
@@ -1674,51 +2068,51 @@ function buildSteps(data,set,toggle,T){
 // ─── BREED DATA LIBRARY ────────────────────────────────────────────────────────
 const BREED_DATA = {
   // Retrievers
-  "labrador retriever":   { tendency:"Labs are highly food-motivated and eager to please, but can be easily distracted by scent and surroundings.", tip:"Use high-value treats to keep focus. Keep sessions short — Labs can mentally fatigue faster than they look.", exercise:"Labs need 60–90 min of vigorous activity daily. Today's walk should be brisk, not leisurely." },
-  "golden retriever":     { tendency:"Goldens are sensitive and bond deeply with their handler. Harsh corrections backfire — they shut down quickly.", tip:"Use a warm, encouraging tone during e-collar intro. Celebrate every correct response enthusiastically.", exercise:"45–60 min of active exercise today. A game of fetch after training reinforces your bond." },
+  "labrador retriever":   { tendency:"Labs are highly food-motivated and eager to please, but can be easily distracted by scent and surroundings.", tip:"Use high-value treats to keep focus. Keep sessions short — Labs can mentally fatigue faster than they look.", exercise:"Labs need 60–90 min of vigorous activity daily. Today's walk should be brisk, not leisurely.", enrichment:"A treat-dispensing puzzle feeder or a frozen stuffed Kong — Labs' food drive makes food-based puzzles their favorite enrichment." },
+  "golden retriever":     { tendency:"Goldens are sensitive and bond deeply with their handler. Harsh corrections backfire — they shut down quickly.", tip:"Use a warm, encouraging tone during e-collar intro. Celebrate every correct response enthusiastically.", exercise:"45–60 min of active exercise today. A game of fetch after training reinforces your bond.", enrichment:"A soft retrieve toy for gentle 'find it' games, or a snuffle mat — Goldens enjoy enrichment that involves carrying or gathering." },
   // Working/Sport
-  "german shepherd":      { tendency:"GSD's are highly intelligent and can anticipate commands — which means they'll also anticipate corrections.", tip:"Keep your timing razor sharp. GSD's read body language intensely, so stay calm and deliberate.", exercise:"GSD's need structured mental + physical work. Add a 15-min structured heel to today's walk." },
-  "belgian malinois":     { tendency:"Malinois have an extremely high drive and need mental stimulation as much as physical. Boredom = destruction.", tip:"Keep sessions intense and reward-driven. This breed thrives on precision — reward exact responses only.", exercise:"Malinois need 90+ min of exercise. Include a run or high-intensity game before today's training session." },
-  "dutch shepherd":       { tendency:"Dutch Shepherds are driven, athletic, and loyal. They respond well to clear structure and dislike inconsistency.", tip:"Be consistent with every command. Inconsistency frustrates this breed more than most.", exercise:"High energy — aim for 60–90 min. A structured off-leash run before training will improve focus." },
-  "rottweiler":           { tendency:"Rottweilers are calm and confident but can be stubborn. They need a handler who is equally calm and clear.", tip:"Give commands once, clearly. Repeating yourself teaches a Rottweiler that the first command is optional.", exercise:"45–60 min daily. Today include a weighted or structured walk to satisfy their working dog instincts." },
-  "doberman pinscher":    { tendency:"Dobermans are alert, sensitive, and fast. They pick up on handler energy — anxiety or frustration transfers instantly.", tip:"Project confidence and calm. Dobermans thrive with clarity; vague cues cause anxiety.", exercise:"60–90 min recommended. An off-leash sprint or structured jog is ideal before today's session." },
-  "great dane":           { tendency:"Great Danes are gentle giants — often unaware of their size. They can be slow to mature but respond well to patience.", tip:"Keep sessions short (10–15 min max). Great Danes tire of repetition quickly. One skill per session.", exercise:"30–45 min of moderate walking. Avoid intense exercise until fully grown (18–24 months)." },
+  "german shepherd":      { tendency:"GSD's are highly intelligent and can anticipate commands — which means they'll also anticipate corrections.", tip:"Keep your timing razor sharp. GSD's read body language intensely, so stay calm and deliberate.", exercise:"GSD's need structured mental + physical work. Add a 15-min structured heel to today's walk.", enrichment:"A DIY scent-discrimination game (hide toys/treats around a room) — GSDs thrive on 'work' style enrichment that uses their nose and brain together." },
+  "belgian malinois":     { tendency:"Malinois have an extremely high drive and need mental stimulation as much as physical. Boredom = destruction.", tip:"Keep sessions intense and reward-driven. This breed thrives on precision — reward exact responses only.", exercise:"Malinois need 90+ min of exercise. Include a run or high-intensity game before today's training session.", enrichment:"A flirt pole or tug-based puzzle — Malinois need enrichment that channels drive, not just a passive chew toy." },
+  "dutch shepherd":       { tendency:"Dutch Shepherds are driven, athletic, and loyal. They respond well to clear structure and dislike inconsistency.", tip:"Be consistent with every command. Inconsistency frustrates this breed more than most.", exercise:"High energy — aim for 60–90 min. A structured off-leash run before training will improve focus.", enrichment:"A structured tracking or find-it game in the yard — this breed does best with enrichment tied to a clear 'job.'" },
+  "rottweiler":           { tendency:"Rottweilers are calm and confident but can be stubborn. They need a handler who is equally calm and clear.", tip:"Give commands once, clearly. Repeating yourself teaches a Rottweiler that the first command is optional.", exercise:"45–60 min daily. Today include a weighted or structured walk to satisfy their working dog instincts.", enrichment:"A weighted or tug-resistant chew toy paired with a short obedience-style puzzle — Rottweilers enjoy enrichment with a clear task and payoff." },
+  "doberman pinscher":    { tendency:"Dobermans are alert, sensitive, and fast. They pick up on handler energy — anxiety or frustration transfers instantly.", tip:"Project confidence and calm. Dobermans thrive with clarity; vague cues cause anxiety.", exercise:"60–90 min recommended. An off-leash sprint or structured jog is ideal before today's session.", enrichment:"A snuffle mat or slow-scent trail — enrichment that's calm and focused suits a Doberman's sensitivity to overstimulation." },
+  "great dane":           { tendency:"Great Danes are gentle giants — often unaware of their size. They can be slow to mature but respond well to patience.", tip:"Keep sessions short (10–15 min max). Great Danes tire of repetition quickly. One skill per session.", exercise:"30–45 min of moderate walking. Avoid intense exercise until fully grown (18–24 months).", enrichment:"A large, soft puzzle feeder used at floor level — keep sessions short since Danes tire of repetition quickly." },
   // Herding
-  "border collie":        { tendency:"Border Collies are exceptionally fast learners — which means they get bored faster than any other breed.", tip:"Rotate exercises every 3–4 reps to prevent anticipation. Channel herding instinct into structured games.", exercise:"90+ min is ideal. Include both physical and mental challenges — puzzle toy after training is a must." },
-  "australian shepherd":  { tendency:"Aussies are high-drive, high-intelligence, and prone to anxiety if understimulated. They need a job.", tip:"Structure every interaction as part of their 'job.' Reward calm behavior as much as correct responses.", exercise:"60–90 min daily. Include directional work or frisbee to satisfy their herding drive." },
-  "australian cattle dog":{ tendency:"ACDs are tenacious, independent thinkers. They'll test you, and if you're inconsistent, they'll exploit it.", tip:"Be crystal clear with every expectation. This breed respects confidence and loses respect for weakness.", exercise:"90+ min. High-intensity fetch, frisbee, or structured running is ideal before today's session." },
-  "corgi":                { tendency:"Corgis were bred to herd cattle and are surprisingly bold for their size. They can be vocal and opinionated.", tip:"Use firm, clear corrections. Corgis can ignore soft cues. Keep training sessions engaging — they bore quickly.", exercise:"45–60 min including mental stimulation. A structured walk and short training burst works well." },
+  "border collie":        { tendency:"Border Collies are exceptionally fast learners — which means they get bored faster than any other breed.", tip:"Rotate exercises every 3–4 reps to prevent anticipation. Channel herding instinct into structured games.", exercise:"90+ min is ideal. Include both physical and mental challenges — puzzle toy after training is a must.", enrichment:"A shape-sorting or herding-style puzzle toy (rolling treat balls work well) — rotate toys often since Border Collies master puzzles fast." },
+  "australian shepherd":  { tendency:"Aussies are high-drive, high-intelligence, and prone to anxiety if understimulated. They need a job.", tip:"Structure every interaction as part of their 'job.' Reward calm behavior as much as correct responses.", exercise:"60–90 min daily. Include directional work or frisbee to satisfy their herding drive.", enrichment:"A treat maze or directional 'send-away' game — Aussies do best with enrichment that mimics having a job to do." },
+  "australian cattle dog":{ tendency:"ACDs are tenacious, independent thinkers. They'll test you, and if you're inconsistent, they'll exploit it.", tip:"Be crystal clear with every expectation. This breed respects confidence and loses respect for weakness.", exercise:"90+ min. High-intensity fetch, frisbee, or structured running is ideal before today's session.", enrichment:"A durable rubber puzzle toy that requires nudging or flipping — ACDs like enrichment with some physical resistance built in." },
+  "corgi":                { tendency:"Corgis were bred to herd cattle and are surprisingly bold for their size. They can be vocal and opinionated.", tip:"Use firm, clear corrections. Corgis can ignore soft cues. Keep training sessions engaging — they bore quickly.", exercise:"45–60 min including mental stimulation. A structured walk and short training burst works well.", enrichment:"A low-to-the-ground snuffle mat or rolling treat toy — keep it engaging since Corgis bore quickly." },
   // Terriers
-  "american pit bull terrier":{ tendency:"Pit Bulls are people-pleasers with high drive. Their strength and tenacity means you need excellent leash skills.", tip:"Prioritize loose-leash walking and impulse control. Their strength amplifies any training gap.", exercise:"60–90 min of vigorous exercise. Today's walk should include structured heel work, not free-sniffing." },
-  "american staffordshire terrier":{ tendency:"AmStaffs are strong-willed and physically powerful. They thrive with a clear pack structure and consistent rules.", tip:"Set rules and enforce them every time — AmStaffs notice when you let things slide and will push further.", exercise:"60–90 min. Include strength-building activities like tug or weighted walks alongside today's training." },
-  "bull terrier":         { tendency:"Bull Terriers are clown-like and stubborn. They have selective hearing and will test your patience on purpose.", tip:"Keep sessions fun and short. Use play as a reward — Bull Terriers respond to play more than food.", exercise:"45–60 min. Energy must be out before training — a tired Bull Terrier is a more compliant one." },
-  "jack russell terrier": { tendency:"Jack Russells have massive prey drive and very high energy. They are not naturally wired to sit still.", tip:"Train in a distraction-free zone first. Their threshold for stimulation is very low.", exercise:"60+ min including both mental and physical exercise. Puzzle feeders before training help settle them." },
+  "american pit bull terrier":{ tendency:"Pit Bulls are people-pleasers with high drive. Their strength and tenacity means you need excellent leash skills.", tip:"Prioritize loose-leash walking and impulse control. Their strength amplifies any training gap.", exercise:"60–90 min of vigorous exercise. Today's walk should include structured heel work, not free-sniffing.", enrichment:"A tug or spring-pole style enrichment toy — channel their strength and drive into an appropriate outlet." },
+  "american staffordshire terrier":{ tendency:"AmStaffs are strong-willed and physically powerful. They thrive with a clear pack structure and consistent rules.", tip:"Set rules and enforce them every time — AmStaffs notice when you let things slide and will push further.", exercise:"60–90 min. Include strength-building activities like tug or weighted walks alongside today's training.", enrichment:"A durable chew/puzzle combo toy that rewards persistence — AmStaffs enjoy enrichment they have to work hard for." },
+  "bull terrier":         { tendency:"Bull Terriers are clown-like and stubborn. They have selective hearing and will test your patience on purpose.", tip:"Keep sessions fun and short. Use play as a reward — Bull Terriers respond to play more than food.", exercise:"45–60 min. Energy must be out before training — a tired Bull Terrier is a more compliant one.", enrichment:"A rolling, unpredictable-motion toy (like a Kong Wobbler) — the erratic movement matches this breed's playful, clownish energy." },
+  "jack russell terrier": { tendency:"Jack Russells have massive prey drive and very high energy. They are not naturally wired to sit still.", tip:"Train in a distraction-free zone first. Their threshold for stimulation is very low.", exercise:"60+ min including both mental and physical exercise. Puzzle feeders before training help settle them.", enrichment:"A hidden-treat digging box or a squeaky puzzle toy — high-energy scent and chase-style enrichment suits their prey drive." },
   // Scent Hounds
-  "beagle":               { tendency:"Beagles are nose-first dogs. Once a scent is found, recall becomes nearly impossible without solid foundation work.", tip:"Work recall in a low-distraction area first. Never trust an off-leash Beagle near open space without a long line.", exercise:"45–60 min including scent-based enrichment like a sniff walk or find-it game." },
-  "bloodhound":           { tendency:"Bloodhounds are single-minded on a trail. They require a patient handler who accepts that this breed isn't naturally obedient.", tip:"Use scent games as reward. Make training feel like nose work — it motivates them far more than praise.", exercise:"45–60 min of moderate exercise. Avoid intense heat — their extra skin makes them prone to overheating." },
-  "basset hound":         { tendency:"Bassets are gentle and stubborn in equal measure. Motivation is everything — they won't work for free.", tip:"Find their highest-value reward and use it only in training. Bassets shut down when bored or when corrections are too harsh.", exercise:"30–45 min moderate walk. Not built for high intensity — keep exercise steady and consistent." },
+  "beagle":               { tendency:"Beagles are nose-first dogs. Once a scent is found, recall becomes nearly impossible without solid foundation work.", tip:"Work recall in a low-distraction area first. Never trust an off-leash Beagle near open space without a long line.", exercise:"45–60 min including scent-based enrichment like a sniff walk or find-it game.", enrichment:"A snuffle mat or scattered 'find it' scent game — Beagles are nose-first, so scent-based enrichment is the most effective kind." },
+  "bloodhound":           { tendency:"Bloodhounds are single-minded on a trail. They require a patient handler who accepts that this breed isn't naturally obedient.", tip:"Use scent games as reward. Make training feel like nose work — it motivates them far more than praise.", exercise:"45–60 min of moderate exercise. Avoid intense heat — their extra skin makes them prone to overheating.", enrichment:"A long scent trail laid with treats across the yard — nose work is this breed's favorite and most natural form of enrichment." },
+  "basset hound":         { tendency:"Bassets are gentle and stubborn in equal measure. Motivation is everything — they won't work for free.", tip:"Find their highest-value reward and use it only in training. Bassets shut down when bored or when corrections are too harsh.", exercise:"30–45 min moderate walk. Not built for high intensity — keep exercise steady and consistent.", enrichment:"A low-profile snuffle mat with high-value treats — Bassets need enrichment that's worth the effort for a food-motivated dog." },
   // Toy / Small
-  "chihuahua":            { tendency:"Chihuahuas are bold, opinionated, and often treated like accessories — which causes most of their behavior problems.", tip:"Train them exactly like a big dog. No baby talk, no exceptions for size. Consistency is everything.", exercise:"20–30 min. Short burst walks and indoor training sessions satisfy them well." },
-  "french bulldog":       { tendency:"Frenchies are stubborn but food-motivated. Their flat faces mean they tire quickly and can overheat.", tip:"Keep training sessions under 10 min. End before they disengage — stopping at a win keeps them eager.", exercise:"20–30 min in cool conditions. Avoid midday heat entirely. Morning or evening sessions only." },
-  "pomeranian":           { tendency:"Pomeranians are clever, loud, and often spoiled. They learn fast — for good or bad habits alike.", tip:"Don't repeat commands. Poms learn quickly that waiting you out pays off if you ask twice.", exercise:"20–30 min. Structured leash walks prevent the 'tiny dog who rules the house' syndrome." },
-  "shih tzu":             { tendency:"Shih Tzus were bred as lap companions — obedience is not in their DNA. They need extra motivation to engage.", tip:"Use high-value food rewards and keep energy light and fun. Harsh corrections cause them to shut down entirely.", exercise:"20–30 min gentle walk. Avoid heat and humidity — their flat faces make breathing harder when hot." },
+  "chihuahua":            { tendency:"Chihuahuas are bold, opinionated, and often treated like accessories — which causes most of their behavior problems.", tip:"Train them exactly like a big dog. No baby talk, no exceptions for size. Consistency is everything.", exercise:"20–30 min. Short burst walks and indoor training sessions satisfy them well.", enrichment:"A small treat-dispensing puzzle sized for tiny mouths — short indoor enrichment sessions suit their size and energy." },
+  "french bulldog":       { tendency:"Frenchies are stubborn but food-motivated. Their flat faces mean they tire quickly and can overheat.", tip:"Keep training sessions under 10 min. End before they disengage — stopping at a win keeps them eager.", exercise:"20–30 min in cool conditions. Avoid midday heat entirely. Morning or evening sessions only.", enrichment:"A low-effort lick mat or slow-feeder puzzle — keep enrichment calm and short given their tendency to overheat." },
+  "pomeranian":           { tendency:"Pomeranians are clever, loud, and often spoiled. They learn fast — for good or bad habits alike.", tip:"Don't repeat commands. Poms learn quickly that waiting you out pays off if you ask twice.", exercise:"20–30 min. Structured leash walks prevent the 'tiny dog who rules the house' syndrome.", enrichment:"A small rolling puzzle toy — Poms enjoy quick-win enrichment that keeps their clever mind occupied." },
+  "shih tzu":             { tendency:"Shih Tzus were bred as lap companions — obedience is not in their DNA. They need extra motivation to engage.", tip:"Use high-value food rewards and keep energy light and fun. Harsh corrections cause them to shut down entirely.", exercise:"20–30 min gentle walk. Avoid heat and humidity — their flat faces make breathing harder when hot.", enrichment:"A soft lick mat or gentle treat-hiding game — low-pressure enrichment that motivates without frustrating them." },
   // Sporting
-  "vizsla":               { tendency:"Vizslas are velcro dogs — sensitive, attached, and prone to separation anxiety without proper structure.", tip:"Build independence slowly. Practice place and out-of-sight stays early to prevent anxiety from setting in.", exercise:"60–90 min of vigorous activity. Vizslas are marathon runners — they need real exertion, not a stroll." },
-  "weimaraner":           { tendency:"Weims are high-drive, strong-willed, and prone to destruction when under-exercised. Exercise is not optional.", tip:"Exercise first, always. A Weimaraner who hasn't run today won't train well today.", exercise:"60–90 min minimum. Running, swimming, or fetch are ideal. Today's walk alone is not enough." },
-  "english springer spaniel":{ tendency:"Springers are enthusiastic, biddable, and prone to overexcitement. They need an outlet for their energy and drive.", tip:"Use calm transitions between exercises to prevent excitement spilling into frantic behavior.", exercise:"45–60 min including fetch or off-leash running to satisfy their sporting instincts." },
+  "vizsla":               { tendency:"Vizslas are velcro dogs — sensitive, attached, and prone to separation anxiety without proper structure.", tip:"Build independence slowly. Practice place and out-of-sight stays early to prevent anxiety from setting in.", exercise:"60–90 min of vigorous activity. Vizslas are marathon runners — they need real exertion, not a stroll.", enrichment:"A snuffle mat or long-line scent trail followed by tug play — Vizslas need enrichment that also satisfies their need for closeness." },
+  "weimaraner":           { tendency:"Weims are high-drive, strong-willed, and prone to destruction when under-exercised. Exercise is not optional.", tip:"Exercise first, always. A Weimaraner who hasn't run today won't train well today.", exercise:"60–90 min minimum. Running, swimming, or fetch are ideal. Today's walk alone is not enough.", enrichment:"A durable puzzle feeder used after exercise, not before — enrichment works best once their energy is already spent." },
+  "english springer spaniel":{ tendency:"Springers are enthusiastic, biddable, and prone to overexcitement. They need an outlet for their energy and drive.", tip:"Use calm transitions between exercises to prevent excitement spilling into frantic behavior.", exercise:"45–60 min including fetch or off-leash running to satisfy their sporting instincts.", enrichment:"A flushing-style hide-and-seek game with a favorite toy — taps into their natural sporting instincts." },
   // Guardian / Giant
-  "cane corso":           { tendency:"Cane Corsos are dominant, deeply loyal, and require a handler who is calm but absolutely consistent.", tip:"Never lose your composure. A Cane Corso respects calmness above everything else. React — don't overreact.", exercise:"45–60 min structured walk. Leash manners are critical — their strength makes pulling dangerous." },
-  "kangal":               { tendency:"Kangals are independent livestock guardians. They were not bred to look to humans for direction — they were bred to think for themselves.", tip:"Build a relationship before asking for compliance. Trust must be established before commands will land.", exercise:"60–90 min of open-space exercise. Kangals need room to roam — a yard walk doesn't cut it." },
-  "boerboel":             { tendency:"Boerboels are confident, territorial, and incredibly strong. Handler authority must be established early and maintained consistently.", tip:"Never allow behavior you wouldn't accept from a 150lb dog — because that's what you're going to have.", exercise:"45–60 min of structured exercise. Include leash work to build handler relationship alongside physical fitness." },
+  "cane corso":           { tendency:"Cane Corsos are dominant, deeply loyal, and require a handler who is calm but absolutely consistent.", tip:"Never lose your composure. A Cane Corso respects calmness above everything else. React — don't overreact.", exercise:"45–60 min structured walk. Leash manners are critical — their strength makes pulling dangerous.", enrichment:"A heavy-duty puzzle feeder or structured chew — enrichment should be calm, low-arousal, and supervised." },
+  "kangal":               { tendency:"Kangals are independent livestock guardians. They were not bred to look to humans for direction — they were bred to think for themselves.", tip:"Build a relationship before asking for compliance. Trust must be established before commands will land.", exercise:"60–90 min of open-space exercise. Kangals need room to roam — a yard walk doesn't cut it.", enrichment:"An open-space scatter-feed in the yard — Kangals do best with enrichment that lets them patrol and investigate independently." },
+  "boerboel":             { tendency:"Boerboels are confident, territorial, and incredibly strong. Handler authority must be established early and maintained consistently.", tip:"Never allow behavior you wouldn't accept from a 150lb dog — because that's what you're going to have.", exercise:"45–60 min of structured exercise. Include leash work to build handler relationship alongside physical fitness.", enrichment:"A sturdy, weighted puzzle toy — this breed needs enrichment tough enough to match their strength." },
   // Sighthounds
-  "greyhound":            { tendency:"Greyhounds are gentle, quiet, and fast. They are sighthound-wired — movement triggers chase instinct instantly.", tip:"Long-line recall work is essential before any off-leash freedom. Do not trust recall near open space.", exercise:"Short sprints rather than long walks. 2–3 daily short sessions of activity suits them better than one long walk." },
-  "whippet":              { tendency:"Whippets are sensitive, affectionate, and surprisingly fast. Like Greyhounds, prey drive is hard-wired.", tip:"Use gentle, encouraging tones. Whippets are emotionally sensitive and respond poorly to harsh handling.", exercise:"45–60 min including a safe off-leash sprint in an enclosed area — they need to run." },
+  "greyhound":            { tendency:"Greyhounds are gentle, quiet, and fast. They are sighthound-wired — movement triggers chase instinct instantly.", tip:"Long-line recall work is essential before any off-leash freedom. Do not trust recall near open space.", exercise:"Short sprints rather than long walks. 2–3 daily short sessions of activity suits them better than one long walk.", enrichment:"A slow-scent trail or lick mat — Greyhounds are sprinters, not workers, so low-key enrichment suits them better than puzzles." },
+  "whippet":              { tendency:"Whippets are sensitive, affectionate, and surprisingly fast. Like Greyhounds, prey drive is hard-wired.", tip:"Use gentle, encouraging tones. Whippets are emotionally sensitive and respond poorly to harsh handling.", exercise:"45–60 min including a safe off-leash sprint in an enclosed area — they need to run.", enrichment:"A soft snuffle toy or gentle scent game — keep enrichment low-pressure to match their sensitive temperament." },
   // Doodles / Mixed
-  "goldendoodle":         { tendency:"Goldendoodles combine retriever eagerness with poodle intelligence. They can be easily excitable and distracted.", tip:"Channel their enthusiasm — use their energy as a reward. Play after a good session beats food for many Doodles.", exercise:"45–60 min. Include both physical activity and a mental challenge like a puzzle or hide-and-seek game." },
-  "labradoodle":          { tendency:"Labradoodles are clever, energetic, and social. Without direction, that intelligence turns into mischief.", tip:"Keep training sessions varied and fast-paced. Repetitive drills bore Labradoodles into non-compliance.", exercise:"45–60 min. Structured fetch or swimming gives them the outlet they need before focused training." },
-  "bernedoodle":          { tendency:"Bernedoodles are gentle and laid-back like Berners, with Poodle sharpness. They are sensitive to conflict and change.", tip:"Keep your energy steady and calm. Bernedoodles absorb handler stress easily — stay composed.", exercise:"30–45 min at a moderate pace. They enjoy outdoor exploration more than intense structured exercise." },
+  "goldendoodle":         { tendency:"Goldendoodles combine retriever eagerness with poodle intelligence. They can be easily excitable and distracted.", tip:"Channel their enthusiasm — use their energy as a reward. Play after a good session beats food for many Doodles.", exercise:"45–60 min. Include both physical activity and a mental challenge like a puzzle or hide-and-seek game.", enrichment:"A treat-dispensing puzzle ball — Doodles enjoy mentally engaging enrichment that keeps their excitable energy focused." },
+  "labradoodle":          { tendency:"Labradoodles are clever, energetic, and social. Without direction, that intelligence turns into mischief.", tip:"Keep training sessions varied and fast-paced. Repetitive drills bore Labradoodles into non-compliance.", exercise:"45–60 min. Structured fetch or swimming gives them the outlet they need before focused training.", enrichment:"A rotating variety of puzzle feeders — Labradoodles bore of repetition, so switch it up often." },
+  "bernedoodle":          { tendency:"Bernedoodles are gentle and laid-back like Berners, with Poodle sharpness. They are sensitive to conflict and change.", tip:"Keep your energy steady and calm. Bernedoodles absorb handler stress easily — stay composed.", exercise:"30–45 min at a moderate pace. They enjoy outdoor exploration more than intense structured exercise.", enrichment:"A calm snuffle mat or lick mat — Bernedoodles enjoy relaxed, low-arousal enrichment over high-energy games." },
   // Default fallback
-  "default":              { tendency:"Every dog is an individual shaped by genetics, history, and environment.", tip:"Read your dog's body language throughout the session. Adjust your energy and pace to match what they need today.", exercise:"Aim for at least 30 min of exercise today before your training session for best results." },
+  "default":              { tendency:"Every dog is an individual shaped by genetics, history, and environment.", tip:"Read your dog's body language throughout the session. Adjust your energy and pace to match what they need today.", exercise:"Aim for at least 30 min of exercise today before your training session for best results.", enrichment:"A snuffle mat, treat-dispensing puzzle toy, or a short scent 'find it' game — great general enrichment for any dog." },
 };
 
 const getBreedData = (breedInput) => {
@@ -1748,6 +2142,11 @@ const ageInWeeks = (birthdayStr) => {
 // Set this to false before launching to real, paying customers — otherwise the intended
 // weekly pacing (a real part of the training program) will never actually apply.
 const TESTING_MODE = true;
+
+// ─── SHOP / AMAZON STOREFRONT ────────────────────────────────────────────────────
+// One link controls every "Shop" button in the app. Update this single line once a
+// dedicated Guiding Paw storefront exists — no other changes needed.
+const AMAZON_STOREFRONT_URL = "https://www.amazon.com/shop/influencer-cf5629f9?ref_=cm_sw_r_cp_ud_aipsfshop_aipsfinfluencer-cf5629f9_APSTZ0ADCMY623JYZ1MS_1&ccs_id=d8e6cd3e-a740-4f8f-9e8c-651f81fc1e58";
 
 // ─── VIDEO HOSTING CONFIG ───────────────────────────────────────────────────────
 // This ONE line controls where every video in the app is loaded from.
@@ -1961,22 +2360,23 @@ const PUPPY_CURRICULUM = [
     ],
     mistakes:["Expecting too much","Allowing overstimulation","Not taking breaks"],
     lessons:["Socializing in the outside world","Visit a different type of store than last week"]},
-  {id:"pp12", label:"Week 12 🎓", sublabel:"Dog Neutrality",
+  {id:"pp12", label:"Week 12", sublabel:"Dog Neutrality",
     goal:"Learn to be neutral around other dogs, strengthen focus despite distractions, build long term habits.",
+    note:"Tasks marked with * — see handout for explanations.",
     tasks:[
-      {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
-      {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
-      {name:"Recall with long leash",               sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
-      {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
-      {name:"Sit and Down",                         sessionsPerDay:"1-4", sessionLength:"5 min each"},
+      {name:"Alone Time *",                         sessionsPerDay:"1-3", sessionLength:"1-5 min"},
+      {name:"Kennel *",                             sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Name Game *",                          sessionsPerDay:"1-2", sessionLength:"5 min"},
+      {name:"Recall with long leash *",             sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
+      {name:"Grooming Desensitizing *",             sessionsPerDay:"1-2", sessionLength:"5 min"},
+      {name:"Sit and Down *",                       sessionsPerDay:"1-4", sessionLength:"5 min each"},
       {name:"Threshold Boundaries",                 sessionsPerDay:"2-4", sessionLength:"5 min"},
       {name:"Settling / Do Nothing",                sessionsPerDay:"1",   sessionLength:"5 min"},
       {name:"Leash Games",                          sessionsPerDay:"1",   sessionLength:"1-5 min"},
-      {name:"Loose leash walking",                  sessionsPerDay:"1",   sessionLength:"10+ min"},
-      {name:"Socializing — 1-2 park visits with moderate distractions", sessionsPerDay:"1-2", sessionLength:"5 min"},
+      {name:"Loose leash walking *",                sessionsPerDay:"1",   sessionLength:"10+ min"},
+      {name:"Socializing (1-2 park and store visits with moderate distractions) *", sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Intro to dog neutrality",              sessionsPerDay:"1",   sessionLength:"5 min"},
-      {name:"Structured Calm - Place",              sessionsPerDay:"1-3", sessionLength:"10-15 min"},
+      {name:"Structured Calm - Place *",            sessionsPerDay:"1-3", sessionLength:"10-15 min"},
     ],
     mistakes:["Being inconsistent","Allowing unwanted interactions","Expecting perfection"],
     lessons:["Dog neutrality training","Graduation ceremony"], graduation:true},
@@ -1985,106 +2385,106 @@ const PUPPY_CURRICULUM = [
 // Daily timed schedules for each puppy week — shown on the Dashboard
 const PUPPY_DAILY_SCHEDULE = {
   pp1: [
-    {time:"7:00 AM",  task:"Morning tether & feeding",       detail:"Keep pup tethered to you. Feed breakfast in crate.",             emoji:"🌅"},
-    {time:"8:00 AM",  task:"Potty break",                    detail:"Straight outside immediately after eating.",                    emoji:"🌿"},
-    {time:"9:00 AM",  task:"Supervised free time",           detail:"30 min tethered exploration in one room.",                     emoji:"🏠"},
-    {time:"10:00 AM", task:"Nap time in crate",              detail:"45–60 min crate rest. No exceptions.",                         emoji:"😴"},
-    {time:"12:00 PM", task:"Midday potty & lunch",           detail:"Potty, then feed in crate.",                                   emoji:"🥣"},
-    {time:"2:00 PM",  task:"Schedule review",                detail:"Write out and submit your puppy schedule for Pro feedback.",   emoji:"📋"},
-    {time:"5:00 PM",  task:"Evening tether & play",          detail:"30 min tethered play with appropriate toys.",                  emoji:"🎾"},
-    {time:"6:00 PM",  task:"Dinner & evening potty",         detail:"Feed in crate, immediate potty break after.",                  emoji:"🌙"},
-    {time:"9:00 PM",  task:"Final potty & bedtime",          detail:"Crate for the night. Keep crate near your bed.",               emoji:"🛏️"},
+    {time:"7:00 AM",  task:"Morning tether & feeding",       detail:"Keep pup tethered to you. Feed breakfast in crate.",             emoji:"sun"},
+    {time:"8:00 AM",  task:"Potty break",                    detail:"Straight outside immediately after eating.",                    emoji:"leaf"},
+    {time:"9:00 AM",  task:"Supervised free time",           detail:"30 min tethered exploration in one room.",                     emoji:"home"},
+    {time:"10:00 AM", task:"Nap time in crate",              detail:"45–60 min crate rest. No exceptions.",                         emoji:"sleep"},
+    {time:"12:00 PM", task:"Midday potty & lunch",           detail:"Potty, then feed in crate.",                                   emoji:"bowl"},
+    {time:"2:00 PM",  task:"Schedule review",                detail:"Write out and submit your puppy schedule for Pro feedback.",   emoji:"clipboard"},
+    {time:"5:00 PM",  task:"Evening tether & play",          detail:"30 min tethered play with appropriate toys.",                  emoji:"ball"},
+    {time:"6:00 PM",  task:"Dinner & evening potty",         detail:"Feed in crate, immediate potty break after.",                  emoji:"moon"},
+    {time:"9:00 PM",  task:"Final potty & bedtime",          detail:"Crate for the night. Keep crate near your bed.",               emoji:"bed"},
   ],
   pp2: [
-    {time:"7:00 AM",  task:"Morning routine",                detail:"Potty → feed → crate nap.",                                   emoji:"🌅"},
-    {time:"9:00 AM",  task:"Name game session",              detail:"10 reps: say name → treat when they look. 2 min max.",        emoji:"🎯"},
-    {time:"10:00 AM", task:"Marker word intro",              detail:"Say 'Yes!' → treat 15 times. Build the association.",         emoji:"✅"},
-    {time:"11:00 AM", task:"Socialization outing",           detail:"15 min outside — new sounds, surfaces, gentle people.",       emoji:"🌍"},
-    {time:"12:00 PM", task:"Midday potty & nap",             detail:"Crate nap 45–60 min after lunch.",                           emoji:"😴"},
-    {time:"3:00 PM",  task:"'Good' marker practice",         detail:"Say 'Good!' during calm behavior. 5 min session.",            emoji:"🟡"},
-    {time:"5:00 PM",  task:"Name game round 2",              detail:"10 more reps in a new location.",                             emoji:"🎯"},
-    {time:"7:00 PM",  task:"Socialization log",              detail:"Write down 3 new things your puppy encountered today.",       emoji:"📝"},
+    {time:"7:00 AM",  task:"Morning routine",                detail:"Potty → feed → crate nap.",                                   emoji:"sun"},
+    {time:"9:00 AM",  task:"Name game session",              detail:"10 reps: say name → treat when they look. 2 min max.",        emoji:"target"},
+    {time:"10:00 AM", task:"Marker word intro",              detail:"Say 'Yes!' → treat 15 times. Build the association.",         emoji:"checkCircle"},
+    {time:"11:00 AM", task:"Socialization outing",           detail:"15 min outside — new sounds, surfaces, gentle people.",       emoji:"globe"},
+    {time:"12:00 PM", task:"Midday potty & nap",             detail:"Crate nap 45–60 min after lunch.",                           emoji:"sleep"},
+    {time:"3:00 PM",  task:"'Good' marker practice",         detail:"Say 'Good!' during calm behavior. 5 min session.",            emoji:"dot"},
+    {time:"5:00 PM",  task:"Name game round 2",              detail:"10 more reps in a new location.",                             emoji:"target"},
+    {time:"7:00 PM",  task:"Socialization log",              detail:"Write down 3 new things your puppy encountered today.",       emoji:"pencil"},
   ],
   pp3: [
-    {time:"7:30 AM",  task:"Morning potty & energy burn",    detail:"10 min outside sniff walk before training.",                  emoji:"🌿"},
-    {time:"9:00 AM",  task:"Sit lure session #1",            detail:"Hold treat at nose → move slowly up. 5 reps, mark 'Yes!'.",  emoji:"🎯"},
-    {time:"9:05 AM",  task:"Play break",                     detail:"2 min play reward after session.",                            emoji:"🎾"},
-    {time:"11:00 AM", task:"Sit lure session #2",            detail:"5 reps in a new spot (kitchen vs living room).",              emoji:"🎯"},
-    {time:"12:00 PM", task:"Lunch & crate nap",              detail:"Feed in crate. 60 min rest.",                                 emoji:"😴"},
-    {time:"3:00 PM",  task:"Sit lure session #3",            detail:"5 reps. Try fading lure: fake lure hand, treat from pocket.", emoji:"🎯"},
-    {time:"5:30 PM",  task:"Free shaping play",              detail:"Let pup explore. Mark and treat any voluntary sits.",         emoji:"🐾"},
+    {time:"7:30 AM",  task:"Morning potty & energy burn",    detail:"10 min outside sniff walk before training.",                  emoji:"leaf"},
+    {time:"9:00 AM",  task:"Sit lure session #1",            detail:"Hold treat at nose → move slowly up. 5 reps, mark 'Yes!'.",  emoji:"target"},
+    {time:"9:05 AM",  task:"Play break",                     detail:"2 min play reward after session.",                            emoji:"ball"},
+    {time:"11:00 AM", task:"Sit lure session #2",            detail:"5 reps in a new spot (kitchen vs living room).",              emoji:"target"},
+    {time:"12:00 PM", task:"Lunch & crate nap",              detail:"Feed in crate. 60 min rest.",                                 emoji:"sleep"},
+    {time:"3:00 PM",  task:"Sit lure session #3",            detail:"5 reps. Try fading lure: fake lure hand, treat from pocket.", emoji:"target"},
+    {time:"5:30 PM",  task:"Free shaping play",              detail:"Let pup explore. Mark and treat any voluntary sits.",         emoji:"paw"},
   ],
   pp4: [
-    {time:"8:00 AM",  task:"Morning sit practice",           detail:"5 reps sit from lure. Start adding verbal cue 'Sit'.",       emoji:"🎯"},
-    {time:"9:30 AM",  task:"Indoor socialization",           detail:"New object (bag, box, umbrella) — let pup investigate.",     emoji:"📦"},
-    {time:"11:00 AM", task:"Sit stay attempt",               detail:"Ask for sit, pause 1 sec, mark & treat. Build to 3 sec.",    emoji:"⏱️"},
-    {time:"12:00 PM", task:"Lunch & nap",                    detail:"Crate nap 45–60 min.",                                       emoji:"😴"},
-    {time:"3:00 PM",  task:"Sit with verbal only",           detail:"Try 'Sit' without lure hand. Reward if they get it.",        emoji:"🗣️"},
-    {time:"5:00 PM",  task:"Indoor socialization #2",        detail:"New visitor or unfamiliar sound (vacuum, blender).",         emoji:"👥"},
+    {time:"8:00 AM",  task:"Morning sit practice",           detail:"5 reps sit from lure. Start adding verbal cue 'Sit'.",       emoji:"target"},
+    {time:"9:30 AM",  task:"Indoor socialization",           detail:"New object (bag, box, umbrella) — let pup investigate.",     emoji:"box"},
+    {time:"11:00 AM", task:"Sit stay attempt",               detail:"Ask for sit, pause 1 sec, mark & treat. Build to 3 sec.",    emoji:"timer"},
+    {time:"12:00 PM", task:"Lunch & nap",                    detail:"Crate nap 45–60 min.",                                       emoji:"sleep"},
+    {time:"3:00 PM",  task:"Sit with verbal only",           detail:"Try 'Sit' without lure hand. Reward if they get it.",        emoji:"message"},
+    {time:"5:00 PM",  task:"Indoor socialization #2",        detail:"New visitor or unfamiliar sound (vacuum, blender).",         emoji:"users"},
   ],
   pp5: [
-    {time:"8:00 AM",  task:"Sit review",                     detail:"5 quick sits to warm up. Verbal cue only.",                  emoji:"✅"},
-    {time:"9:00 AM",  task:"Down lure session #1",           detail:"Sit → lure nose to floor slowly. Mark the moment elbows hit.",emoji:"🎯"},
-    {time:"10:00 AM", task:"Indoor socialization",           detail:"Invite pup to approach different textures (tile, rug, mat).",emoji:"🏠"},
-    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest 60 min.",                                         emoji:"😴"},
-    {time:"2:00 PM",  task:"Down lure session #2",           detail:"5 reps. Try 'Down' verbal cue before lure.",                 emoji:"🎯"},
-    {time:"4:00 PM",  task:"Socialization walk",             detail:"On-leash walk in yard. New sounds, smells.",                  emoji:"🌿"},
-    {time:"6:00 PM",  task:"Down lure session #3",           detail:"5 reps. Try luring from stand.",                             emoji:"🎯"},
+    {time:"8:00 AM",  task:"Sit review",                     detail:"5 quick sits to warm up. Verbal cue only.",                  emoji:"checkCircle"},
+    {time:"9:00 AM",  task:"Down lure session #1",           detail:"Sit → lure nose to floor slowly. Mark the moment elbows hit.",emoji:"target"},
+    {time:"10:00 AM", task:"Indoor socialization",           detail:"Invite pup to approach different textures (tile, rug, mat).",emoji:"home"},
+    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest 60 min.",                                         emoji:"sleep"},
+    {time:"2:00 PM",  task:"Down lure session #2",           detail:"5 reps. Try 'Down' verbal cue before lure.",                 emoji:"target"},
+    {time:"4:00 PM",  task:"Socialization walk",             detail:"On-leash walk in yard. New sounds, smells.",                  emoji:"leaf"},
+    {time:"6:00 PM",  task:"Down lure session #3",           detail:"5 reps. Try luring from stand.",                             emoji:"target"},
   ],
   pp6: [
-    {time:"8:00 AM",  task:"Down review",                    detail:"5 reps verbal cue only indoors.",                            emoji:"✅"},
-    {time:"9:30 AM",  task:"First outdoor training session", detail:"5 sit reps + 5 down reps outside on your driveway.",        emoji:"🌤️"},
-    {time:"11:00 AM", task:"Outdoor socialization",          detail:"Meet a neighbor. Practice calm greeting.",                   emoji:"👋"},
-    {time:"12:00 PM", task:"Lunch & nap",                    detail:"Crate rest.",                                                emoji:"😴"},
-    {time:"3:00 PM",  task:"Outdoor down practice",          detail:"5 downs on grass. New surface challenge.",                   emoji:"🎯"},
-    {time:"5:00 PM",  task:"Socialization log",              detail:"Record 3 new outdoor things pup encountered.",               emoji:"📝"},
+    {time:"8:00 AM",  task:"Down review",                    detail:"5 reps verbal cue only indoors.",                            emoji:"checkCircle"},
+    {time:"9:30 AM",  task:"First outdoor training session", detail:"5 sit reps + 5 down reps outside on your driveway.",        emoji:"sun"},
+    {time:"11:00 AM", task:"Outdoor socialization",          detail:"Meet a neighbor. Practice calm greeting.",                   emoji:"wave"},
+    {time:"12:00 PM", task:"Lunch & nap",                    detail:"Crate rest.",                                                emoji:"sleep"},
+    {time:"3:00 PM",  task:"Outdoor down practice",          detail:"5 downs on grass. New surface challenge.",                   emoji:"target"},
+    {time:"5:00 PM",  task:"Socialization log",              detail:"Record 3 new outdoor things pup encountered.",               emoji:"pencil"},
   ],
   pp7: [
-    {time:"8:00 AM",  task:"Leash introduction",             detail:"Put leash on in yard. Let pup drag it for 5 min.",           emoji:"🪢"},
-    {time:"9:00 AM",  task:"Leash game: follow me",          detail:"Walk away, reward when pup catches up. 5 min.",              emoji:"🎯"},
-    {time:"10:00 AM", task:"Threshold manners practice",     detail:"Stop at every doorway. Wait for pup to pause before going.", emoji:"🚪"},
-    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest.",                                                emoji:"😴"},
-    {time:"2:00 PM",  task:"Leash game: check-ins",          detail:"Walk, stop randomly. Reward eye contact.",                   emoji:"👁️"},
-    {time:"4:30 PM",  task:"Door threshold practice",        detail:"Practice front door, back door, and car door exits.",        emoji:"🚗"},
+    {time:"8:00 AM",  task:"Leash introduction",             detail:"Put leash on in yard. Let pup drag it for 5 min.",           emoji:"link"},
+    {time:"9:00 AM",  task:"Leash game: follow me",          detail:"Walk away, reward when pup catches up. 5 min.",              emoji:"target"},
+    {time:"10:00 AM", task:"Threshold manners practice",     detail:"Stop at every doorway. Wait for pup to pause before going.", emoji:"door"},
+    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest.",                                                emoji:"sleep"},
+    {time:"2:00 PM",  task:"Leash game: check-ins",          detail:"Walk, stop randomly. Reward eye contact.",                   emoji:"eye"},
+    {time:"4:30 PM",  task:"Door threshold practice",        detail:"Practice front door, back door, and car door exits.",        emoji:"car"},
   ],
   pp8: [
-    {time:"8:00 AM",  task:"Leash warm-up",                  detail:"Leash games in yard: 5 min direction changes.",              emoji:"🔄"},
-    {time:"9:00 AM",  task:"First real walk",                detail:"10 min neighborhood walk. Reward check-ins every 30 sec.",   emoji:"🚶"},
-    {time:"11:00 AM", task:"Loose leash practice",           detail:"Stop dead when pup pulls. Reward any slack.",                emoji:"🪢"},
-    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest after activity.",                                 emoji:"😴"},
-    {time:"3:00 PM",  task:"Walking session #2",             detail:"10 min walk. Focus on attention, not destination.",          emoji:"🚶"},
-    {time:"5:00 PM",  task:"Review & log",                   detail:"How many steps had loose leash? Track progress.",            emoji:"📊"},
+    {time:"8:00 AM",  task:"Leash warm-up",                  detail:"Leash games in yard: 5 min direction changes.",              emoji:"refresh"},
+    {time:"9:00 AM",  task:"First real walk",                detail:"10 min neighborhood walk. Reward check-ins every 30 sec.",   emoji:"footprints"},
+    {time:"11:00 AM", task:"Loose leash practice",           detail:"Stop dead when pup pulls. Reward any slack.",                emoji:"link"},
+    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest after activity.",                                 emoji:"sleep"},
+    {time:"3:00 PM",  task:"Walking session #2",             detail:"10 min walk. Focus on attention, not destination.",          emoji:"footprints"},
+    {time:"5:00 PM",  task:"Review & log",                   detail:"How many steps had loose leash? Track progress.",            emoji:"chart"},
   ],
   pp9: [
-    {time:"8:00 AM",  task:"Home commands review",           detail:"Sit + Down + Name game in yard.",                           emoji:"🏠"},
-    {time:"10:00 AM", task:"Park outing",                    detail:"Drive to a park. Sit at distance from other dogs/people.",   emoji:"🌳"},
-    {time:"10:20 AM", task:"Park training session",          detail:"5 sits + 5 downs at the park. Raise criteria slowly.",      emoji:"🎯"},
-    {time:"10:40 AM", task:"Park socialization",             detail:"Controlled greet of 1–2 calm dogs (if safe).",              emoji:"🐕"},
-    {time:"12:00 PM", task:"Post-outing nap",                detail:"Long crate rest after stimulating outing.",                 emoji:"😴"},
-    {time:"4:00 PM",  task:"Generalization session",         detail:"Practice commands in backyard or new indoor room.",          emoji:"🔁"},
+    {time:"8:00 AM",  task:"Home commands review",           detail:"Sit + Down + Name game in yard.",                           emoji:"home"},
+    {time:"10:00 AM", task:"Park outing",                    detail:"Drive to a park. Sit at distance from other dogs/people.",   emoji:"leaf"},
+    {time:"10:20 AM", task:"Park training session",          detail:"5 sits + 5 downs at the park. Raise criteria slowly.",      emoji:"target"},
+    {time:"10:40 AM", task:"Park socialization",             detail:"Controlled greet of 1–2 calm dogs (if safe).",              emoji:"dog"},
+    {time:"12:00 PM", task:"Post-outing nap",                detail:"Long crate rest after stimulating outing.",                 emoji:"sleep"},
+    {time:"4:00 PM",  task:"Generalization session",         detail:"Practice commands in backyard or new indoor room.",          emoji:"refresh"},
   ],
   pp10: [
-    {time:"9:00 AM",  task:"Morning commands review",        detail:"Sit + Down + Walk check-ins before outing.",                emoji:"✅"},
-    {time:"10:00 AM", task:"Store visit #1",                 detail:"Pet-friendly store. Sit at entry, walk calmly inside.",     emoji:"🛒"},
-    {time:"10:30 AM", task:"Store training reps",            detail:"Ask for sits + downs inside store. Reward calm behavior.",  emoji:"🎯"},
-    {time:"12:00 PM", task:"Post-outing rest",               detail:"Long crate nap after public outing.",                      emoji:"😴"},
-    {time:"4:00 PM",  task:"Debrief & plan",                 detail:"What went well? What needs work? Plan next store visit.",   emoji:"📋"},
+    {time:"9:00 AM",  task:"Morning commands review",        detail:"Sit + Down + Walk check-ins before outing.",                emoji:"checkCircle"},
+    {time:"10:00 AM", task:"Store visit #1",                 detail:"Pet-friendly store. Sit at entry, walk calmly inside.",     emoji:"bag"},
+    {time:"10:30 AM", task:"Store training reps",            detail:"Ask for sits + downs inside store. Reward calm behavior.",  emoji:"target"},
+    {time:"12:00 PM", task:"Post-outing rest",               detail:"Long crate nap after public outing.",                      emoji:"sleep"},
+    {time:"4:00 PM",  task:"Debrief & plan",                 detail:"What went well? What needs work? Plan next store visit.",   emoji:"clipboard"},
   ],
   pp11: [
-    {time:"9:00 AM",  task:"Pre-outing commands",            detail:"Warm up sits + downs at home before leaving.",              emoji:"✅"},
-    {time:"10:00 AM", task:"Store visit #2 (different type)",detail:"Hardware store, garden center, or outdoor retail.",         emoji:"🏪"},
-    {time:"10:30 AM", task:"New environment training",       detail:"Practice sit, down, name game in this new store.",          emoji:"🎯"},
-    {time:"11:00 AM", task:"Outdoor socialization",          detail:"Sit near busy sidewalk or parking lot.",                    emoji:"🌆"},
-    {time:"12:00 PM", task:"Crate nap",                      detail:"Recovery rest after public exposure.",                     emoji:"😴"},
-    {time:"4:00 PM",  task:"Progress review",                detail:"Compare to Week 10. Celebrate improvements!",              emoji:"🎉"},
+    {time:"9:00 AM",  task:"Pre-outing commands",            detail:"Warm up sits + downs at home before leaving.",              emoji:"checkCircle"},
+    {time:"10:00 AM", task:"Store visit #2 (different type)",detail:"Hardware store, garden center, or outdoor retail.",         emoji:"bag"},
+    {time:"10:30 AM", task:"New environment training",       detail:"Practice sit, down, name game in this new store.",          emoji:"target"},
+    {time:"11:00 AM", task:"Outdoor socialization",          detail:"Sit near busy sidewalk or parking lot.",                    emoji:"sun"},
+    {time:"12:00 PM", task:"Crate nap",                      detail:"Recovery rest after public exposure.",                     emoji:"sleep"},
+    {time:"4:00 PM",  task:"Progress review",                detail:"Compare to Week 10. Celebrate improvements!",              emoji:"party"},
   ],
   pp12: [
-    {time:"9:00 AM",  task:"Full commands review",           detail:"Sit, Down, Walk, Name — all from verbal cue only.",        emoji:"✅"},
-    {time:"10:00 AM", task:"Dog neutrality outing",          detail:"Walk past calm dogs at distance. Reward neutral response.", emoji:"🐕"},
-    {time:"10:30 AM", task:"Parallel walking",               detail:"Walk alongside a calm dog 10ft apart. Reward focus.",      emoji:"🚶"},
-    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest before graduation.",                            emoji:"😴"},
-    {time:"3:00 PM",  task:"Graduation preparation",         detail:"Final walk + commands demo for photos/video.",             emoji:"🎓"},
-    {time:"5:00 PM",  task:"Graduation ceremony",            detail:"Celebrate! Generate certificate and share with trainer.",  emoji:"🏅"},
+    {time:"9:00 AM",  task:"Full commands review",           detail:"Sit, Down, Walk, Name — all from verbal cue only.",        emoji:"checkCircle"},
+    {time:"10:00 AM", task:"Dog neutrality outing",          detail:"Walk past calm dogs at distance. Reward neutral response.", emoji:"dog"},
+    {time:"10:30 AM", task:"Parallel walking",               detail:"Walk alongside a calm dog 10ft apart. Reward focus.",      emoji:"footprints"},
+    {time:"12:00 PM", task:"Nap",                            detail:"Crate rest before graduation.",                            emoji:"sleep"},
+    {time:"3:00 PM",  task:"Graduation preparation",         detail:"Final walk + commands demo for photos/video.",             emoji:"gradCap"},
+    {time:"5:00 PM",  task:"Graduation ceremony",            detail:"Celebrate! Generate certificate and share with trainer.",  emoji:"medal"},
   ],
 };
 
@@ -2106,26 +2506,26 @@ const ShareScreen = () => {
     setCopied(true); setTimeout(()=>setCopied(false),2200);
   };
 
-  const shareText=`🐾 I've been using Guiding Paw Training and my dog's behavior has completely transformed! Check it out: ${REFERRAL_LINK}`;
+  const shareText=`I've been using Guiding Paw Training and my dog's behavior has completely transformed! Check it out: ${REFERRAL_LINK}`;
 
   const socials=[
-    {name:"Facebook",  emoji:"📘", color:"#1877f2",
-      url:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(REFERRAL_LINK)}&quote=${encodeURIComponent("My dog is crushing it with Guiding Paw Training! 🐾")}` },
-    {name:"Instagram", emoji:"📸", color:"#e1306c",
+    {name:"Facebook",  emoji:"bookOpen", color:"#1877f2",
+      url:`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(REFERRAL_LINK)}&quote=${encodeURIComponent("My dog is crushing it with Guiding Paw Training!")}` },
+    {name:"Instagram", emoji:"camera", color:"#e1306c",
       url:null, note:"Copy link → paste in your bio or story" },
-    {name:"X / Twitter",emoji:"🐦", color:"#1da1f2",
+    {name:"X / Twitter",emoji:"bird", color:"#1da1f2",
       url:`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}` },
-    {name:"SMS / Text",emoji:"💬", color:"#4caf7d",
+    {name:"SMS / Text",emoji:"message", color:"#4caf7d",
       url:`sms:?body=${encodeURIComponent(shareText)}` },
-    {name:"Email",     emoji:"✉️", color:"#B08D57",
+    {name:"Email",     emoji:"mail", color:"#B08D57",
       url:`mailto:?subject=${encodeURIComponent("You need to try this dog training app!")}&body=${encodeURIComponent(shareText)}` },
-    {name:"WhatsApp",  emoji:"🟢", color:"#25d366",
+    {name:"WhatsApp",  emoji:"chat", color:"#25d366",
       url:`https://wa.me/?text=${encodeURIComponent(shareText)}` },
   ];
 
   const handleNativeShare=()=>{
     if(navigator.share){
-      navigator.share({ title:"Guiding Paw Training", text:"My dog is crushing it! 🐾", url:REFERRAL_LINK }).catch(()=>{});
+      navigator.share({ title:"Guiding Paw Training", text:"My dog is crushing it!", url:REFERRAL_LINK }).catch(()=>{});
     } else {
       handleCopy(shareText);
     }
@@ -2135,7 +2535,7 @@ const ShareScreen = () => {
     <ScrollBody>
       <div className="s1" style={{marginBottom:"18px"}}>
         <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Share & Refer</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Spread the Word 🐾</h2>
+        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Spread the Word <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
         <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px",lineHeight:1.55}}>Know someone whose dog could use some help? Share Guiding Paw and help them transform their relationship with their pup.</p>
       </div>
 
@@ -2146,7 +2546,7 @@ const ShareScreen = () => {
         <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Friends who use your code get a special welcome — and you're helping someone give their dog a better life.</p>
         <button onClick={()=>handleCopy(REFERRAL_CODE)}
           style={{background:T.gold,border:"none",borderRadius:"10px",padding:"10px 24px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",letterSpacing:".06em",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
-          {copied?"✓ Copied!":"Copy Code"}
+          {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Code"}
         </button>
       </div>
 
@@ -2159,7 +2559,7 @@ const ShareScreen = () => {
           </div>
           <button onClick={()=>handleCopy(REFERRAL_LINK)}
             style={{background:T.gold,border:"none",borderRadius:"9px",padding:"9px 14px",fontSize:"12px",fontWeight:"700",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0,transition:"all .2s"}}>
-            {copied?"✓":"Copy"}
+            {copied?<Icon name="check" size={11} strokeWidth={3}/>:"Copy"}
           </button>
         </div>
       </div>
@@ -2167,7 +2567,7 @@ const ShareScreen = () => {
       {/* Native share button */}
       <button onClick={handleNativeShare} className="btn-gold"
         style={{width:"100%",padding:"13px",background:T.gold,color:"#fff",border:"none",borderRadius:"11px",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'Lato',sans-serif",cursor:"pointer",boxShadow:"0 4px 18px rgba(176,141,87,.28)",marginBottom:"14px",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
-        <span style={{fontSize:"16px"}}>📤</span> Share Guiding Paw
+        <Icon name="link" size={15} style={{marginRight:"3px"}}/> Share Guiding Paw
       </button>
 
       {/* Social platform buttons */}
@@ -2180,7 +2580,7 @@ const ShareScreen = () => {
               style={{background:T.mode==="dark"?`${color}18`:`${color}12`,border:`1px solid ${color}44`,borderRadius:"12px",padding:"12px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:"9px",transition:"all .18s",textAlign:"left"}}
               onMouseEnter={e=>{e.currentTarget.style.background=`${color}28`;e.currentTarget.style.borderColor=`${color}88`;}}
               onMouseLeave={e=>{e.currentTarget.style.background=T.mode==="dark"?`${color}18`:`${color}12`;e.currentTarget.style.borderColor=`${color}44`;}}>
-              <span style={{fontSize:"20px",flexShrink:0}}>{emoji}</span>
+              <span style={{flexShrink:0,color:T.text,display:"flex",alignItems:"center"}}><Icon name={emoji} size={19}/></span>
               <div style={{minWidth:0}}>
                 <p style={{fontSize:"12px",fontWeight:"700",color:T.text,lineHeight:1.2}}>{name}</p>
                 {note&&<p style={{fontSize:"9.5px",color:T.textFaint,lineHeight:1.3,marginTop:"1px"}}>{note}</p>}
@@ -2188,8 +2588,9 @@ const ShareScreen = () => {
             </button>
           ))}
         </div>
-        {shareMsg&&<p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"700",textAlign:"center",marginTop:"10px"}}>{shareMsg}</p>}
       </div>
+
+      {shareMsg&&<p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"700",textAlign:"center",marginTop:"10px"}}>{shareMsg}</p>}
 
       {/* Pre-written message */}
       <div className="s5" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"14px"}}>
@@ -2199,7 +2600,7 @@ const ShareScreen = () => {
         </div>
         <button onClick={()=>handleCopy(shareText)}
           style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",fontSize:"12px",fontWeight:"700",color:T.gold,cursor:"pointer",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
-          {copied?"✓ Copied!":"Copy Message"}
+          {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Message"}
         </button>
       </div>
 
@@ -2208,13 +2609,13 @@ const ShareScreen = () => {
         <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Follow Guiding Paw</p>
         <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,marginBottom:"10px"}}>Stay connected for training tips, success stories, and community support.</p>
         {[
-          {name:"Instagram",emoji:"📸",handle:"@guidingpawtraining",url:"https://instagram.com/guidingpawtraining"},
-          {name:"Facebook", emoji:"📘",handle:"Guiding Paw Training",url:"https://facebook.com/guidingpawtraining"},
-          {name:"TikTok",   emoji:"🎵",handle:"@guidingpawtraining",url:"https://tiktok.com/@guidingpawtraining"},
+          {name:"Instagram",emoji:"camera",handle:"@guidingpawtraining",url:"https://instagram.com/guidingpawtraining"},
+          {name:"Facebook", emoji:"bookOpen",handle:"Guiding Paw Training",url:"https://facebook.com/guidingpawtraining"},
+          {name:"TikTok",   emoji:"music",handle:"@guidingpawtraining",url:"https://tiktok.com/@guidingpawtraining"},
         ].map(({name,emoji,handle,url})=>(
           <a key={name} href={url} target="_blank" rel="noopener noreferrer"
             style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:name!=="TikTok"?`1px solid ${T.divider}`:"none",textDecoration:"none"}}>
-            <span style={{fontSize:"18px",width:"24px",textAlign:"center"}}>{emoji}</span>
+            <span style={{width:"24px",display:"flex",justifyContent:"center",color:T.text}}><Icon name={emoji} size={17}/></span>
             <div style={{flex:1}}>
               <p style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{name}</p>
               <p style={{fontSize:"11px",color:T.textFaint}}>{handle}</p>
@@ -2227,22 +2628,39 @@ const ShareScreen = () => {
   );
 };
 
-const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,stdCompleted,graduated,onOpenHandout,onOpenVideo}) => {
+// ─── SHARED "CURRENT WEEK" LOGIC ───────────────────────────────────────────────
+// Both the Dashboard and the Learn screen need to agree on exactly which week the
+// person is currently on for each program, so whichever week shows on the Dashboard
+// is the same one that's front-and-center (auto-opened) in Learn. Centralizing the
+// math here means there's only one place that can ever disagree with itself.
+function getCurrentStdWeek(stdCompleted={}){
+  const stdCurriculum = STANDARD_CURRICULUM;
+  const isGraduated = stdCurriculum.filter(w=>!w.graduation).every(w=>
+    w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`])
+  );
+  const idx = isGraduated
+    ? stdCurriculum.length - 1
+    : stdCurriculum.findIndex((w)=> !w.graduation && !w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]));
+  const safeIdx = Math.max(0, idx);
+  return { isGraduated, idx: safeIdx, week: stdCurriculum[safeIdx] };
+}
+function getCurrentPuppyWeek(puppyWeekDone={}){
+  const idx = PUPPY_CURRICULUM.findIndex(w=>!puppyWeekDone?.[w.id]);
+  // If every week is marked done, "current" is the last week rather than looping
+  // back to week 1.
+  const safeIdx = idx===-1 ? PUPPY_CURRICULUM.length-1 : idx;
+  return { idx: safeIdx, week: PUPPY_CURRICULUM[safeIdx] };
+}
+
+const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,stdCompleted,graduated,onOpenHandout,onOpenVideo,pottyTimer,onOpenPottyTimer,assignDone={},setAssignDone=()=>{},routineDone={},setRoutineDone=()=>{}}) => {
   const T=useTheme();
   const petName=petData?.name||"Luna";
   const breed=petData?.breed||"";
   const bd=getBreedData(breed);
-  const [assignDone,setAssignDone]=useState({});
-  const [routineDone,setRoutineDone]=useState({});
-  const routineItems=[
-    {emoji:"🚶",label:"Walk",detail:"25 minutes"},
-    {emoji:"🎮",label:"Engagement Game",detail:"5 minutes"},
-    {emoji:"🎯",label:"Training Exercise",detail:"Recall"},
-    {emoji:"🧩",label:"Enrichment",detail:"Puzzle Toy"},
-  ];
+  const [showGameInfo,setShowGameInfo]=useState(false);
 
-  // Daily tip — changes each login session
-  const dailyTip = getSessionTip();
+  // Daily tip — same tip for everyone on a given calendar day, on any device
+  const dailyTip = getDailyTip();
 
   // Detect puppy program
   const birthday=petData?.birthday||"";
@@ -2250,28 +2668,23 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   const isPuppy=weeksOld!==null&&weeksOld<20;
 
   // ── Standard program: find current week from completed lessons ──
+  // (shared with the Learn screen via getCurrentStdWeek, so the two screens can
+  // never show different "current" weeks)
   const stdCurriculum = STANDARD_CURRICULUM;
-  const isGraduated = graduated || stdCurriculum.filter(w=>!w.graduation).every(w=>
-    w.lessons.every(l=>!!(stdCompleted||{})[`${w.id}::${l}`])
-  );
-  // Current week = first non-graduation week where not all lessons are done
-  const currentStdWeekIdx = isGraduated
-    ? stdCurriculum.length - 1 // graduation week
-    : stdCurriculum.findIndex((w,i) =>
-        !w.graduation && !w.lessons.every(l=>!!(stdCompleted||{})[`${w.id}::${l}`])
-      );
-  const currentStdWeek = stdCurriculum[Math.max(0, currentStdWeekIdx)];
+  const stdCurrent = getCurrentStdWeek(stdCompleted||{});
+  const isGraduated = graduated || stdCurrent.isGraduated;
+  const currentStdWeekIdx = stdCurrent.idx;
+  const currentStdWeek = stdCurrent.week;
   const stdProgress = isGraduated ? 100 : Math.round(
     (stdCurriculum.filter(w=>!w.graduation).filter(w=>
       w.lessons.every(l=>!!(stdCompleted||{})[`${w.id}::${l}`])
     ).length / stdCurriculum.filter(w=>!w.graduation).length) * 100
   );
 
-  // Puppy
-  const currentPuppyWeekIdx=isPuppy
-    ? Math.min(PUPPY_CURRICULUM.findIndex(w=>!puppyWeekDone?.[w.id]), PUPPY_CURRICULUM.length-1)
-    : 0;
-  const currentPuppyWeek=PUPPY_CURRICULUM[Math.max(0,currentPuppyWeekIdx)];
+  // Puppy (shared with the Learn screen via getCurrentPuppyWeek)
+  const puppyCurrent = getCurrentPuppyWeek(puppyWeekDone||{});
+  const currentPuppyWeekIdx = isPuppy ? puppyCurrent.idx : 0;
+  const currentPuppyWeek = isPuppy ? puppyCurrent.week : PUPPY_CURRICULUM[0];
   const puppyProgress=isPuppy
     ? Math.round((Object.keys(puppyWeekDone||{}).filter(k=>puppyWeekDone[k]).length / PUPPY_CURRICULUM.length)*100)
     : 0;
@@ -2280,28 +2693,80 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   const [streak,setStreak]=useState(()=>loadStreak()||0);
 
   const handleAssignComplete=(taskName)=>{
-    if(assignDone[taskName]) return; // don't double-count
-    setAssignDone(d=>({...d,[taskName]:true}));
-    const newStreak=updateStreakOnActivity();
-    setStreak(newStreak);
+    const alreadyDone=!!assignDone[taskName];
+    setAssignDone(d=>({...d,[taskName]:!alreadyDone}));
+    // Only bump the streak the first time a task is checked off, not when
+    // unchecking it (e.g. if it was checked by mistake).
+    if(!alreadyDone){
+      const newStreak=updateStreakOnActivity();
+      setStreak(newStreak);
+    }
   };
 
   // Maintenance tasks for graduation
   const MAINTENANCE_TASKS = isGraduated ? (currentStdWeek?.tasks||[]) : [];
 
+  // ── CHANGE 6: Training Exercise reflects the pup's real current focus — the
+  // active week's tasks, or graduation/maintenance work once the program is done ──
+  const graduationWeek = STANDARD_CURRICULUM[STANDARD_CURRICULUM.length-1];
+  const trainingFocusTasks = isGraduated
+    ? (graduationWeek?.tasks||[])
+    : isPuppy
+      ? (currentPuppyWeek?.tasks||[])
+      : (currentStdWeek?.tasks||[]);
+  const trainingFocusLabel = isGraduated
+    ? "Graduation & Beyond"
+    : isPuppy
+      ? `${currentPuppyWeek?.label}: ${currentPuppyWeek?.sublabel}`
+      : (currentStdWeek?.label || "This Week");
+  const trainingFocusDetail = trainingFocusTasks.length
+    ? trainingFocusTasks.slice(0,2).map(t=>t.name).join(" · ")
+    : "Recall";
+
+  // ── CHANGE 5: Enrichment suggestion pulled from the pup's breed profile ──
+  const enrichmentDetail = bd.enrichment || "Puzzle toy or scent-based sniff game";
+
+  // ── Engagement Game: a real, named game with instructions, not a placeholder ──
+  const featuredGame = getDailyEngagementGame();
+
+  const routineItems=[
+    {icon:"footprints",label:"Walk",detail:"25 minutes"},
+    {icon:"controller",label:"Engagement Game",detail:featuredGame.name,sub:`${featuredGame.time} · ${featuredGame.level}`},
+    {icon:"target",label:"Training Exercise",detail:trainingFocusDetail,sub:trainingFocusLabel},
+    {icon:"puzzle",label:"Enrichment",detail:enrichmentDetail},
+  ];
+
+  const pottyRemaining=usePottyRemaining(pottyTimer||IDLE_POTTY_TIMER);
+  const pottyActive=pottyTimer&&pottyTimer.status!=="idle";
+  const pottyDone=pottyActive&&pottyRemaining===0;
+
   return (
     <ScrollBody>
-      <div className="s1" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
+      <div className="s1" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",gap:"10px"}}>
         <div>
           <p style={{fontSize:"11px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase"}}>Welcome</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>{petName}'s Dashboard</h2>
         </div>
-        <LogoImg size={38}/>
+        <div style={{display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
+          {/* Small live potty-timer badge — visible from the dashboard while the timer runs */}
+          {pottyActive&&(
+            <button onClick={onOpenPottyTimer} title="Potty timer"
+              style={{display:"flex",alignItems:"center",gap:"5px",padding:"5px 10px",borderRadius:"20px",cursor:"pointer",fontFamily:"'Lato',sans-serif",
+                background:pottyDone?"rgba(224,122,95,.14)":"rgba(176,141,87,.14)",
+                border:`1px solid ${pottyDone?"#e07a5f":T.gold}`}}>
+              <Icon name="droplet" size={12} color={pottyDone?"#e07a5f":T.gold}/>
+              <span style={{fontSize:"11px",fontWeight:"900",color:pottyDone?"#e07a5f":T.gold,fontVariantNumeric:"tabular-nums"}}>
+                {pottyDone?"GO NOW!":fmtPottyTime(pottyRemaining)}
+              </span>
+            </button>
+          )}
+          <LogoImg size={38}/>
+        </div>
       </div>
 
       {/* Daily Trainer Tip */}
       <div className="s1" style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"14px",padding:"13px 15px",marginBottom:"13px",display:"flex",gap:"11px",alignItems:"flex-start"}}>
-        <span style={{fontSize:"22px",flexShrink:0,marginTop:"1px"}}>{dailyTip.emoji}</span>
+        <span style={{flexShrink:0,marginTop:"1px",color:T.gold}}><Icon name={dailyTip.emoji} size={22}/></span>
         <div>
           <p style={{fontSize:"9px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Trainer Tip of the Day</p>
           <p style={{fontSize:"12.5px",color:T.text,lineHeight:1.6,fontStyle:"italic"}}>"{dailyTip.tip}"</p>
@@ -2311,7 +2776,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
       {/* Streak + Progress */}
       <div className="s2" style={{display:"flex",gap:"10px",marginBottom:"13px"}}>
         <div style={{width:"84px",flexShrink:0,background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"14px",padding:"12px 8px",textAlign:"center"}}>
-          <div style={{fontSize:"22px",marginBottom:"2px"}}>{isGraduated?"🏆":"🔥"}</div>
+          <div style={{marginBottom:"2px",display:"flex",color:isGraduated?T.gold:"#e07a5f"}}><Icon name={isGraduated?"trophy":"flame"} size={22}/></div>
           <div style={{fontSize:"22px",fontWeight:"900",color:T.gold,lineHeight:1}}>{streak}</div>
           <div style={{fontSize:"8px",color:T.textMuted,letterSpacing:".07em",textTransform:"uppercase",marginTop:"3px",lineHeight:1.3}}>{isGraduated?"Day\nStreak":"Active\nDays"}</div>
         </div>
@@ -2327,13 +2792,13 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
             {isPuppy
               ? <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentPuppyWeek.label} — {currentPuppyWeek.sublabel}</span></>
               : isGraduated
-                ? <span style={{color:"#4caf7d",fontWeight:"700"}}>🎓 Program Complete — Maintenance Mode</span>
+                ? <span style={{color:"#4caf7d",fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="gradCap" size={12}/>Program Complete — Maintenance Mode</span>
                 : <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentStdWeek?.label}</span></>
             }
           </p>
           {!isPuppy && !isGraduated && streak > 0 && (
             <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>
-              🔥 {streak}-day streak — keep going!
+              <Icon name="flame" size={12} style={{marginRight:"3px"}}/>{streak}-day streak — keep going!
             </p>
           )}
         </div>
@@ -2361,7 +2826,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
                 <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}><Linkify text={item.task} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
                 <p style={{fontSize:"10.5px",color:T.textMuted}}><Linkify text={item.detail} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
               </div>
-              <span style={{fontSize:"16px",flexShrink:0}}>{item.emoji}</span>
+              <span style={{flexShrink:0}}><Icon name={item.emoji} size={16}/></span>
             </div>
           ))}
         </div>
@@ -2391,7 +2856,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
                 <div key={ti} onClick={()=>handleAssignComplete(task.name)}
                   style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(176,141,87,.05)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(176,141,87,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
                   <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                    {done&&<span style={{color:"white",fontSize:"10px",fontWeight:"900"}}>✓</span>}
+                    {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
@@ -2406,7 +2871,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
           <div style={{background:T.mode==="dark"?"rgba(176,141,87,.07)":"rgba(176,141,87,.06)",border:`1px solid rgba(176,141,87,.22)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px"}}>
             <div style={{display:"flex",alignItems:"center",gap:"7px",marginBottom:"7px"}}>
               <div style={{background:T.gold,borderRadius:"6px",padding:"3px 9px"}}>
-                <span style={{fontSize:"9px",fontWeight:"900",color:"#fff",letterSpacing:".1em",textTransform:"uppercase"}}>🐕 {breed}</span>
+                <span style={{fontSize:"9px",fontWeight:"900",color:"#fff",letterSpacing:".1em",textTransform:"uppercase",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="dog" size={10}/>{breed}</span>
               </div>
               <span style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".08em",textTransform:"uppercase"}}>Breed Insights</span>
             </div>
@@ -2414,12 +2879,12 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
           </div>
         ) : (
           <div style={{background:T.mode==="dark"?"rgba(176,141,87,.06)":"rgba(176,141,87,.04)",border:`1px solid rgba(176,141,87,.15)`,borderRadius:"10px",padding:"10px 13px",marginBottom:"12px"}}>
-            <p style={{fontSize:"11.5px",color:T.textFaint,lineHeight:1.5}}>💡 Add your dog's breed in <span style={{color:T.gold,fontWeight:"700"}}>Settings → Pet Profile</span> for breed-specific tips.</p>
+            <p style={{fontSize:"11.5px",color:T.textFaint,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0}}/><span>Add your dog's breed in <span style={{color:T.gold,fontWeight:"700"}}>Settings → Pet Profile</span> for breed-specific tips.</span></p>
           </div>
         )}
         {Object.keys(assignDone).length > 0 && (
           <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
-            <span style={{fontSize:"16px"}}>🔥</span>
+            <Icon name="flame" size={16} color="#e07a5f"/>
             <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>
               {Object.values(assignDone).filter(Boolean).length}/{currentStdWeek.tasks.length} tasks done today — streak: {streak} day{streak!==1?"s":""}!
             </p>
@@ -2433,12 +2898,12 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
       <div className="s3" style={{background:T.assignCard,border:`1px solid rgba(76,175,125,.35)`,borderLeft:`4px solid #4caf7d`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(76,175,125,.1)":"0 4px 20px rgba(76,175,125,.15)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
           <div style={{flex:1}}>
-            <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>🎓 Maintenance Plan</p>
+            <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}><Icon name="gradCap" size={10} style={{marginRight:"3px"}}/>Maintenance Plan</p>
             <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,lineHeight:1.2}}>Graduation & Beyond</p>
             <p style={{fontSize:"11px",color:T.textMuted,marginTop:"4px",lineHeight:1.5}}>Keep skills sharp with daily integration. Your streak tracks how often you log in and stay active.</p>
           </div>
           <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
-            <div style={{fontSize:"16px"}}>🏆</div>
+            <Icon name="trophy" size={16} color={T.gold}/>
             <div style={{fontSize:"8px",fontWeight:"700",color:"#4caf7d",marginTop:"2px"}}>GRAD</div>
           </div>
         </div>
@@ -2448,7 +2913,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
             <div key={ti} onClick={()=>handleAssignComplete(task.name)}
               style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(76,175,125,.04)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(76,175,125,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
               <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":"rgba(76,175,125,.4)"}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                {done&&<span style={{color:"white",fontSize:"10px",fontWeight:"900"}}>✓</span>}
+                {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
               </div>
               <div style={{flex:1,minWidth:0}}>
                 <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
@@ -2459,7 +2924,7 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
         })}
         {Object.keys(assignDone).length > 0 && (
           <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px",marginTop:"8px"}}>
-            <span style={{fontSize:"16px"}}>🏆</span>
+            <Icon name="trophy" size={16} color={T.gold}/>
             <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Active {streak} day{streak!==1?"s":""} — great maintenance!</p>
           </div>
         )}
@@ -2474,23 +2939,62 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
             <p style={{fontFamily:"'Inter',serif",fontSize:"14px",color:T.text,fontWeight:"700"}}>Today's Plan for {petName}</p>
           </div>
         </div>
-        {routineItems.map(({emoji,label,detail},i)=>{
+        {routineItems.map(({icon,label,detail,sub},i)=>{
           const done=!!routineDone[i];
+          const isGame=label==="Engagement Game";
           return (
             <div key={label} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<routineItems.length-1?`1px solid ${T.divider}`:"none",cursor:"pointer"}}
               onClick={()=>setRoutineDone(r=>({...r,[i]:!r[i]}))}>
-              <span style={{fontSize:"20px",width:"28px",textAlign:"center"}}>{emoji}</span>
-              <div style={{flex:1}}>
+              <span style={{width:"28px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={19}/></span>
+              <div style={{flex:1,minWidth:0}}>
                 <p style={{fontSize:"13px",fontWeight:"700",color:done?T.textMuted:T.text,textDecoration:done?"line-through":"none"}}>{label}</p>
-                <p style={{fontSize:"11px",color:T.textFaint}}>{detail}</p>
+                <p style={{fontSize:"11px",color:T.textFaint,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{detail}</p>
+                {sub&&<p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",marginTop:"1px"}}>{sub}</p>}
               </div>
+              {isGame&&(
+                <button onClick={(e)=>{e.stopPropagation();setShowGameInfo(true);}} title="How to play"
+                  style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"4px",cursor:"pointer",flexShrink:0,color:T.gold,fontSize:"10px",fontWeight:"700",fontFamily:"'Lato',sans-serif"}}>
+                  <Icon name="info" size={12}/>How to Play
+                </button>
+              )}
               <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                {done&&<span style={{color:"white",fontSize:"11px",fontWeight:"900"}}>✓</span>}
+                {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* How-to-play instructions for today's featured Engagement Game */}
+      {showGameInfo&&(
+        <>
+          <div onClick={()=>setShowGameInfo(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
+          <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(360px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"20px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"6px"}}>
+              <div>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"4px"}}>Today's Engagement Game</p>
+                <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text}}>{featuredGame.name}</h3>
+              </div>
+              <button onClick={()=>setShowGameInfo(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="x" size={16}/></button>
+            </div>
+            <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"16px"}}>{featuredGame.time} · {featuredGame.level}</p>
+
+            <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
+            <p style={{fontSize:"13px",color:T.text,marginBottom:"16px"}}>{featuredGame.materials}</p>
+
+            <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
+            <ol style={{margin:0,paddingLeft:"18px",marginBottom:"16px"}}>
+              {featuredGame.steps.map((s,si)=>(
+                <li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.6,marginBottom:"6px"}}>{s}</li>
+              ))}
+            </ol>
+
+            <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
+              <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"5px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {featuredGame.tip}</span></p>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Quick stats */}
       <div className="s5" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px",marginBottom:"13px"}}>
@@ -2518,15 +3022,18 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
         onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,.28)";}}
         onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.18)";}}
       >
-        <div style={{position:"absolute",right:"12px",top:"8px",fontSize:"42px",opacity:.15}}>🐕</div>
-        <div style={{width:"44px",height:"44px",borderRadius:"50%",background:"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",flexShrink:0}}>🐾</div>
+        <div style={{width:"44px",height:"44px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold,overflow:"hidden"}}>
+          {petData?.photoUrl
+            ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+            : <Icon name="paw" size={22}/>}
+        </div>
         <div style={{flex:1}}>
           <p style={{fontSize:"10px",color:"rgba(255,255,255,.5)",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"3px"}}>Full Profile</p>
           <p style={{fontFamily:"'Inter',serif",fontSize:"15px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}'s Life Record</p>
           <div style={{display:"flex",gap:"10px"}}>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)"}}>🔥 7-day streak</span>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)"}}>💉 Vaccines ✓</span>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)"}}>🏃 1.2mi</span>
+            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="flame" size={10}/>7-day streak</span>
+            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="syringe" size={10}/>Vaccines <Icon name="check" size={10} strokeWidth={3}/></span>
+            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="run" size={10}/>1.2mi</span>
           </div>
         </div>
         <div style={{color:"rgba(255,255,255,.4)",fontSize:"18px",flexShrink:0}}>›</div>
@@ -2540,60 +3047,167 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: LIVE
 // ═══════════════════════════════════════════════════════════════════════════════
-// ─── POTTY SCHEDULE SCREEN ────────────────────────────────────────────────────
-const PottyScheduleScreen = () => {
+
+// ─── POTTY TIMER — shared helpers ──────────────────────────────────────────────
+// The potty timer's state lives in the App root (see <App/>) so it can tick down
+// in the background and stay visible as a small badge on the Dashboard even while
+// the person is on a different page — not just while the Potty Schedule tab is open.
+const IDLE_POTTY_TIMER = { status:"idle", endTime:null, remainingSecs:0, totalSecs:0 };
+
+function fmtPottyTime(s) {
+  const m = Math.floor(s/60), sec = s%60;
+  return `${m}:${sec.toString().padStart(2,"0")}`;
+}
+
+// Ticks once a second while the timer is running, and returns the live remaining seconds.
+function usePottyRemaining(pottyTimer) {
+  const [,forceTick] = useState(0);
+  useEffect(() => {
+    if (pottyTimer.status !== "running") return;
+    const id = setInterval(() => forceTick(t => t+1), 1000);
+    return () => clearInterval(id);
+  }, [pottyTimer.status, pottyTimer.endTime]);
+  if (pottyTimer.status === "running") {
+    return Math.max(0, Math.round((pottyTimer.endTime - Date.now())/1000));
+  }
+  return pottyTimer.remainingSecs || 0;
+}
+
+// ─── ROLLING TIME WHEEL — pick a duration by scrolling, like the iPhone timer ──
+const WheelColumn = ({values, selected, onChange}) => {
   const T=useTheme();
-  const INTERVALS=["30 min","1 hour","2 hours","3 hours","Custom"];
-  const [interval,setInterval]=useState("1 hour");
-  const [customMin,setCustomMin]=useState("90");
-  const [timerActive,setTimerActive]=useState(false);
-  const [timerStart,setTimerStart]=useState(null);
-  const [timerSecs,setTimerSecs]=useState(0);
-  const [totalSecs,setTotalSecs]=useState(60*60);
-  const [pottyLog,setPottyLog]=useState([
-    {time:"7:15 AM",type:"Pee",success:true,notes:"Right after breakfast"},
-    {time:"9:00 AM",type:"Poop",success:true,notes:""},
-    {time:"10:45 AM",type:"Pee",success:false,notes:"Accident in crate"},
-  ]);
+  const itemH=34, visible=3, pad=1;
+  const ref=useRef(null);
+  const skipNext=useRef(false);
+  const debounceRef=useRef(null);
+
+  useEffect(()=>{
+    if(!ref.current) return;
+    const idx=values.indexOf(selected);
+    skipNext.current=true;
+    ref.current.scrollTop=Math.max(0,idx)*itemH;
+    const t=setTimeout(()=>{skipNext.current=false;},60);
+    return ()=>clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+
+  const settleTo=(idx)=>{
+    const clamped=Math.max(0,Math.min(values.length-1,idx));
+    if(ref.current) ref.current.scrollTo({top:clamped*itemH,behavior:"smooth"});
+    if(values[clamped]!==selected) onChange(values[clamped]);
+  };
+
+  const handleScroll=()=>{
+    if(skipNext.current) return;
+    if(debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current=setTimeout(()=>{
+      if(!ref.current) return;
+      settleTo(Math.round(ref.current.scrollTop/itemH));
+    },110);
+  };
+
+  return (
+    <div style={{position:"relative",height:itemH*visible,width:"58px"}}>
+      <div style={{position:"absolute",top:itemH*pad,left:0,right:0,height:itemH,background:"rgba(176,141,87,.14)",borderTop:`1.5px solid ${T.gold}`,borderBottom:`1.5px solid ${T.gold}`,borderRadius:"7px",pointerEvents:"none"}}/>
+      <div ref={ref} onScroll={handleScroll} className="wheel-scroll"
+        style={{height:itemH*visible,overflowY:"auto",scrollSnapType:"y mandatory",WebkitOverflowScrolling:"touch"}}>
+        <div style={{height:itemH*pad}}/>
+        {values.map((v,i)=>(
+          <div key={v} onClick={()=>settleTo(i)}
+            style={{height:itemH,display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",fontSize:v===selected?"19px":"14px",fontWeight:v===selected?"900":"500",color:v===selected?T.text:T.textFaint,cursor:"pointer",transition:"color .15s,font-size .15s",fontVariantNumeric:"tabular-nums"}}>
+            {String(v).padStart(2,"0")}
+          </div>
+        ))}
+        <div style={{height:itemH*pad}}/>
+      </div>
+    </div>
+  );
+};
+
+const TimeWheelPicker = ({hours,minutes,onChangeHours,onChangeMinutes}) => {
+  const T=useTheme();
+  const HOUR_VALUES=[0,1,2,3,4];
+  const MIN_VALUES=Array.from({length:12},(_,i)=>i*5); // :00 – :55 in 5-minute steps
+  return (
+    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"center",gap:"10px",marginBottom:"6px"}}>
+      <div style={{textAlign:"center"}}>
+        <WheelColumn values={HOUR_VALUES} selected={hours} onChange={onChangeHours}/>
+        <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Hours</p>
+      </div>
+      <div style={{fontSize:"18px",fontWeight:"900",color:T.textFaint,marginTop:"12px"}}>:</div>
+      <div style={{textAlign:"center"}}>
+        <WheelColumn values={MIN_VALUES} selected={minutes} onChange={onChangeMinutes}/>
+        <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Minutes</p>
+      </div>
+    </div>
+  );
+};
+
+// ─── POTTY SCHEDULE SCREEN ────────────────────────────────────────────────────
+// Default demo entries shown the first time someone opens the Potty Schedule
+// before they've logged anything of their own to their pet's profile.
+const DEFAULT_POTTY_LOG = [
+  {time:"7:15 AM",type:"Pee",success:true,notes:"Right after breakfast"},
+  {time:"9:00 AM",type:"Poop",success:true,notes:""},
+  {time:"10:45 AM",type:"Pee",success:false,notes:"Accident in crate"},
+];
+
+const PottyScheduleScreen = ({pottyTimer,setPottyTimer,petData,setPetData}) => {
+  const T=useTheme();
+  // Wheel picker + alarm preference are saved to the pet's profile (petData.pottySettings)
+  // so they persist between visits instead of resetting every time this screen mounts.
+  const savedSettings = petData?.pottySettings || {};
+  const [wheelHours,setWheelHours]=useState(savedSettings.wheelHours ?? 1);
+  const [wheelMinutes,setWheelMinutes]=useState(savedSettings.wheelMinutes ?? 0);
+  const [alarmEnabled,setAlarmEnabled]=useState(savedSettings.alarmEnabled ?? true);
+  const persistSettings=(patch)=>{
+    setPetData&&setPetData(d=>({...d, pottySettings:{...(d?.pottySettings||{}), wheelHours, wheelMinutes, alarmEnabled, ...patch}}));
+  };
+  const handleWheelHours=(v)=>{ setWheelHours(v); persistSettings({wheelHours:v}); };
+  const handleWheelMinutes=(v)=>{ setWheelMinutes(v); persistSettings({wheelMinutes:v}); };
+  const handleAlarmToggle=()=>{ setAlarmEnabled(v=>{ const nv=!v; persistSettings({alarmEnabled:nv}); return nv; }); };
+  // Potty log is saved straight to the pet's profile (petData.pottyLog) so every entry
+  // shows up in the Pet Life Record and is still there next time the app is opened.
+  const pottyLog = petData?.pottyLog || DEFAULT_POTTY_LOG;
+  const setPottyLog=(updater)=>{
+    setPetData&&setPetData(d=>({
+      ...d,
+      pottyLog: typeof updater==="function" ? updater(d?.pottyLog||DEFAULT_POTTY_LOG) : updater,
+    }));
+  };
   const [logType,setLogType]=useState("Pee");
   const [logSuccess,setLogSuccess]=useState(true);
   const [logNotes,setLogNotes]=useState("");
   const [showAddLog,setShowAddLog]=useState(false);
-  const [alarmEnabled,setAlarmEnabled]=useState(true);
 
-  useState(()=>{
-    if(!timerActive||!timerStart) return;
-    const id=setInterval(()=>{
-      const elapsed=Math.floor((Date.now()-timerStart)/1000);
-      const remaining=Math.max(0,totalSecs-elapsed);
-      setTimerSecs(remaining);
-      if(remaining===0){ setTimerActive(false); }
-    },1000);
-    return()=>clearInterval(id);
-  });
+  const remaining=usePottyRemaining(pottyTimer);
+  const isRunning=pottyTimer.status==="running";
+  const isPaused=pottyTimer.status==="paused";
+  const isDone=(isRunning||isPaused)&&remaining===0;
 
   const startTimer=()=>{
-    let secs=3600;
-    if(interval==="30 min") secs=1800;
-    else if(interval==="1 hour") secs=3600;
-    else if(interval==="2 hours") secs=7200;
-    else if(interval==="3 hours") secs=10800;
-    else secs=parseInt(customMin||"60")*60;
-    setTotalSecs(secs);
-    setTimerSecs(secs);
-    setTimerStart(Date.now());
-    setTimerActive(true);
+    const secs=Math.max(60, wheelHours*3600 + wheelMinutes*60); // at least 1 minute
+    setPottyTimer({status:"running", endTime:Date.now()+secs*1000, remainingSecs:secs, totalSecs:secs});
   };
+  const pauseTimer=()=>{
+    setPottyTimer(p=>({...p, status:"paused", endTime:null, remainingSecs:remaining}));
+  };
+  const resumeTimer=()=>{
+    setPottyTimer(p=>({...p, status:"running", endTime:Date.now()+p.remainingSecs*1000}));
+  };
+  const cancelTimer=()=>setPottyTimer(IDLE_POTTY_TIMER);
 
-  const fmtTimer=(s)=>{ const m=Math.floor(s/60),sec=s%60; return `${m}:${sec.toString().padStart(2,"0")}`; };
-  const pct=totalSecs>0?((totalSecs-timerSecs)/totalSecs)*100:0;
+  const pct=pottyTimer.totalSecs>0?((pottyTimer.totalSecs-remaining)/pottyTimer.totalSecs)*100:0;
   const radius=44, circ=2*Math.PI*radius;
 
   const addLog=()=>{
     const entry={time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),type:logType,success:logSuccess,notes:logNotes};
     setPottyLog(l=>[entry,...l]);
     setLogNotes("");setShowAddLog(false);
-    if(timerActive){ setTimerSecs(totalSecs); setTimerStart(Date.now()); }
+    // Logging a potty break resets the running/paused timer for the next one
+    if(pottyTimer.status!=="idle"&&pottyTimer.totalSecs>0){
+      setPottyTimer({status:"running", endTime:Date.now()+pottyTimer.totalSecs*1000, remainingSecs:pottyTimer.totalSecs, totalSecs:pottyTimer.totalSecs});
+    }
   };
 
   return (
@@ -2608,44 +3222,39 @@ const PottyScheduleScreen = () => {
         <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"14px"}}>Next Potty Timer</p>
         <svg width="110" height="110" style={{display:"block",margin:"0 auto 14px"}}>
           <circle cx="55" cy="55" r={radius} fill="none" stroke={T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.15)"} strokeWidth="8"/>
-          <circle cx="55" cy="55" r={radius} fill="none" stroke={timerSecs===0?"#e07a5f":T.gold} strokeWidth="8"
+          <circle cx="55" cy="55" r={radius} fill="none" stroke={isDone?"#e07a5f":T.gold} strokeWidth="8"
             strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)}
             strokeLinecap="round" transform="rotate(-90 55 55)" style={{transition:"stroke-dashoffset .9s"}}/>
-          <text x="55" y="50" textAnchor="middle" fontSize="18" fontWeight="900" fill={T.mode==="dark"?"#D8C6AE":"#1C2636"} fontFamily="'Lato',sans-serif">{timerActive?fmtTimer(timerSecs):"--:--"}</text>
-          <text x="55" y="65" textAnchor="middle" fontSize="9" fill={timerSecs===0?"#e07a5f":T.textFaint} fontFamily="'Lato',sans-serif">{timerSecs===0?"GO NOW!":timerActive?"remaining":"paused"}</text>
+          <text x="55" y="50" textAnchor="middle" fontSize="18" fontWeight="900" fill={T.mode==="dark"?"#D8C6AE":"#1C2636"} fontFamily="'Lato',sans-serif">{isRunning||isPaused?fmtPottyTime(remaining):"--:--"}</text>
+          <text x="55" y="65" textAnchor="middle" fontSize="9" fill={isDone?"#e07a5f":T.textFaint} fontFamily="'Lato',sans-serif">{isDone?"GO NOW!":isRunning?"remaining":isPaused?"paused":"set a time"}</text>
         </svg>
 
-        {/* Interval selector */}
-        <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"center",marginBottom:"12px"}}>
-          {INTERVALS.map(iv=>(
-            <button key={iv} onClick={()=>setInterval(iv)} style={{padding:"5px 11px",borderRadius:"20px",border:`1px solid ${interval===iv?T.gold:T.chipBorder}`,background:interval===iv?"rgba(176,141,87,.18)":T.chipBg,color:interval===iv?T.goldLight:T.textMuted,fontSize:"11px",fontWeight:interval===iv?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{iv}</button>
-          ))}
-        </div>
-        {interval==="Custom"&&(
-          <div style={{display:"flex",alignItems:"center",gap:"8px",justifyContent:"center",marginBottom:"12px"}}>
-            <input type="number" value={customMin} onChange={e=>setCustomMin(e.target.value)} style={{width:"70px",padding:"8px 10px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"8px",fontSize:"14px",color:T.text,outline:"none",textAlign:"center",fontFamily:"'Lato',sans-serif"}}/>
-            <span style={{fontSize:"12px",color:T.textMuted}}>minutes</span>
-          </div>
+        {/* Rolling time-wheel duration picker — roll up/down like the iPhone timer */}
+        {!isRunning&&!isPaused&&(
+          <TimeWheelPicker hours={wheelHours} minutes={wheelMinutes} onChangeHours={handleWheelHours} onChangeMinutes={handleWheelMinutes}/>
         )}
 
         {/* Alarm toggle */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",marginBottom:"14px"}}>
-          <span style={{fontSize:"12px",color:T.textMuted}}>🔔 Alarm reminder</span>
-          <div onClick={()=>setAlarmEnabled(v=>!v)} style={{width:"36px",height:"20px",borderRadius:"10px",background:alarmEnabled?"rgba(176,141,87,.35)":"rgba(128,128,128,.2)",border:`1.5px solid ${alarmEnabled?T.gold:T.chipBorder}`,position:"relative",cursor:"pointer",transition:"all .3s"}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",margin:"10px 0 14px"}}>
+          <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="alert" size={11}/>Alarm reminder</span>
+          <div onClick={handleAlarmToggle} style={{width:"36px",height:"20px",borderRadius:"10px",background:alarmEnabled?"rgba(176,141,87,.35)":"rgba(128,128,128,.2)",border:`1.5px solid ${alarmEnabled?T.gold:T.chipBorder}`,position:"relative",cursor:"pointer",transition:"all .3s"}}>
             <div style={{position:"absolute",top:"2px",left:alarmEnabled?"16px":"2px",width:"14px",height:"14px",borderRadius:"50%",background:alarmEnabled?T.gold:"#888",transition:"left .3s"}}/>
           </div>
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-          <button onClick={timerActive?()=>{setTimerActive(false);}:startTimer}
-            style={{padding:"11px",background:timerActive?"rgba(224,122,95,.15)":T.gold,border:timerActive?"1.5px solid #e07a5f":"none",borderRadius:"10px",color:timerActive?"#e07a5f":"#fff",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-            {timerActive?"⏸ Pause":"▶ Start Timer"}
+          <button onClick={isRunning?pauseTimer:isPaused?resumeTimer:startTimer}
+            style={{padding:"11px",background:isRunning?"rgba(224,122,95,.15)":T.gold,border:isRunning?"1.5px solid #e07a5f":"none",borderRadius:"10px",color:isRunning?"#e07a5f":"#fff",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+            <Icon name={isRunning?"pause":"play"} size={12}/>{isRunning?"Pause":isPaused?"Resume":"Start Timer"}
           </button>
           <button onClick={()=>setShowAddLog(true)}
             style={{padding:"11px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
             + Log Potty
           </button>
         </div>
+        {(isRunning||isPaused)&&(
+          <button onClick={cancelTimer} style={{marginTop:"8px",background:"none",border:"none",color:T.textFaint,fontSize:"11px",cursor:"pointer"}}>Cancel timer</button>
+        )}
       </div>
 
       {/* Add log form */}
@@ -2658,8 +3267,8 @@ const PottyScheduleScreen = () => {
             ))}
           </div>
           <div style={{display:"flex",gap:"8px",marginBottom:"10px"}}>
-            {[{v:true,l:"✅ Success"},{v:false,l:"❌ Accident"}].map(({v,l})=>(
-              <button key={l} onClick={()=>setLogSuccess(v)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logSuccess===v?T.gold:T.chipBorder}`,background:logSuccess===v?"rgba(176,141,87,.18)":T.chipBg,color:logSuccess===v?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logSuccess===v?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{l}</button>
+            {[{v:true,l:"Success",ic:"checkCircle"},{v:false,l:"Accident",ic:"x"}].map(({v,l,ic})=>(
+              <button key={l} onClick={()=>setLogSuccess(v)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logSuccess===v?T.gold:T.chipBorder}`,background:logSuccess===v?"rgba(176,141,87,.18)":T.chipBg,color:logSuccess===v?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logSuccess===v?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"5px"}}><Icon name={ic} size={12}/>{l}</button>
             ))}
           </div>
           <input value={logNotes} onChange={e=>setLogNotes(e.target.value)} placeholder="Notes (optional)"
@@ -2677,7 +3286,7 @@ const PottyScheduleScreen = () => {
         {pottyLog.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"10px 0"}}>No entries yet — tap + Log Potty above.</p>}
         {pottyLog.map((e,i)=>(
           <div key={i} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<pottyLog.length-1?`1px solid ${T.divider}`:"none"}}>
-            <span style={{fontSize:"20px",flexShrink:0}}>{e.success?"✅":"❌"}</span>
+            <span style={{flexShrink:0,color:e.success?T.success:"#e07a5f"}}><Icon name={e.success?"checkCircle":"x"} size={20}/></span>
             <div style={{flex:1}}>
               <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{e.type} · {e.time}</p>
               {e.notes&&<p style={{fontSize:"11px",color:T.textFaint}}>{e.notes}</p>}
@@ -2739,10 +3348,27 @@ const WalkRouteMap = ({points,T}) => {
   );
 };
 
-const LiveScreen = ({walkLog=[]}) => {
+const LiveScreen = ({walkLog=[],pottyTimer,setPottyTimer,initialTab="activity",petData,setPetData}) => {
   const T=useTheme();
-  const [liveTab,setLiveTab]=useState("activity");
+  const [liveTab,setLiveTab]=useState(initialTab);
   const [expandedWalk,setExpandedWalk]=useState(null);
+  const [loggingGroomType,setLoggingGroomType]=useState(null); // which grooming type's log form is open
+  const [groomNotes,setGroomNotes]=useState("");
+  const groomingLog = petData?.groomingLog || [];
+
+  const saveGroomingLog=(type)=>{
+    const entry={type,date:new Date().toISOString(),notes:groomNotes};
+    setPetData&&setPetData(d=>({...d, groomingLog:[entry, ...(d?.groomingLog||[])]}));
+    setGroomNotes("");
+    setLoggingGroomType(null);
+  };
+
+  const lastGroomedFor=(type)=>{
+    const entry=groomingLog.find(e=>e.type===type);
+    if(!entry) return null;
+    const days=Math.floor((Date.now()-new Date(entry.date).getTime())/(1000*60*60*24));
+    return days<=0?"Today":days===1?"1 day ago":`${days} days ago`;
+  };
 
   return (
     <ScrollBody>
@@ -2753,22 +3379,50 @@ const LiveScreen = ({walkLog=[]}) => {
 
       {/* Tab selector */}
       <div style={{display:"flex",gap:"6px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"5px"}}>
-        {[{id:"activity",label:"Activity"},{id:"potty",label:"🐾 Potty Schedule"},{id:"grooming",label:"Grooming"}].map(t=>(
+        {[{id:"activity",label:"Activity"},{id:"potty",label:"Potty Schedule"},{id:"grooming",label:"Grooming"}].map(t=>(
           <button key={t.id} onClick={()=>setLiveTab(t.id)} style={{flex:1,padding:"7px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"10px",fontWeight:"700",transition:"all .2s",background:liveTab===t.id?T.gold:"transparent",color:liveTab===t.id?"#fff":T.textMuted}}>{t.label}</button>
         ))}
       </div>
 
-      {liveTab==="potty"&&<PottyScheduleScreen/>}
+      {liveTab==="potty"&&<PottyScheduleScreen pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} petData={petData} setPetData={setPetData}/>}
 
       {liveTab==="grooming"&&(
         <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px"}}>
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Grooming Schedule</p>
           {["Bath","Nail trim","Brushing","Ear cleaning"].map(g=>(
-            <div key={g} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
-              <span style={{fontSize:"13.5px",color:T.text}}>{g}</span>
-              <button style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>Log</button>
+            <div key={g}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:loggingGroomType===g?"none":`1px solid ${T.divider}`}}>
+                <div>
+                  <span style={{fontSize:"13.5px",color:T.text}}>{g}</span>
+                  {lastGroomedFor(g)&&<p style={{fontSize:"10px",color:T.textFaint,marginTop:"2px"}}>Last logged: {lastGroomedFor(g)}</p>}
+                </div>
+                <button onClick={()=>{setLoggingGroomType(loggingGroomType===g?null:g);setGroomNotes("");}}
+                  style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>
+                  {loggingGroomType===g?"Cancel":"Log"}
+                </button>
+              </div>
+              {loggingGroomType===g&&(
+                <div style={{padding:"0 0 12px",borderBottom:`1px solid ${T.divider}`}}>
+                  <input value={groomNotes} onChange={e=>setGroomNotes(e.target.value)} placeholder="Notes (optional)"
+                    style={{width:"100%",padding:"9px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}/>
+                  <GoldBtn onClick={()=>saveGroomingLog(g)} style={{padding:"9px",fontSize:"12px"}}>Save to {petData?.name||"Pet"}'s Profile</GoldBtn>
+                </div>
+              )}
             </div>
           ))}
+
+          {/* Recent grooming history — pulled from the pet's profile */}
+          {groomingLog.length>0&&(
+            <div style={{marginTop:"14px"}}>
+              <p style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Recent History</p>
+              {groomingLog.slice(0,5).map((e,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0"}}>
+                  <span style={{fontSize:"12px",color:T.text}}>{e.type}{e.notes?` · ${e.notes}`:""}</span>
+                  <span style={{fontSize:"10px",color:T.textFaint}}>{new Date(e.date).toLocaleDateString()}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -2781,14 +3435,20 @@ const LiveScreen = ({walkLog=[]}) => {
                 <p style={{fontSize:"10px",color:T.success,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"3px"}}>GPS Exercise Tracker</p>
                 <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>Today: {walkLog.filter(w=>w.date===new Date().toLocaleDateString()).reduce((s,w)=>s+w.distanceMi,0).toFixed(2)} mi</p>
               </div>
-              {/* Apple Health badge */}
-              <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
-                <span style={{fontSize:"13px"}}>❤️</span>
-                <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
+              {/* Health sync badges — Apple Health (iOS) and Health Connect (Android) */}
+              <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"flex-end"}}>
+                <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                  <Icon name="heart" size={13} color="#e07a5f"/>
+                  <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
+                </div>
+                <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.35)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                  <Icon name="heart" size={13} color={T.success}/>
+                  <span style={{fontSize:"10px",fontWeight:"700",color:T.success}}>Health Connect</span>
+                </div>
               </div>
             </div>
             <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
-              <p style={{color:T.textFaint,fontSize:"11px"}}>📍 Live map appears during walk · Use ＋ to start</p>
+              <p style={{color:T.textFaint,fontSize:"11px",display:"flex",alignItems:"center",gap:"4px"}}><Icon name="pin" size={11}/>Live map appears during walk · Use ＋ to start</p>
             </div>
             <div style={{display:"flex",gap:"8px"}}>
               {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d,i)=>(
@@ -2800,19 +3460,19 @@ const LiveScreen = ({walkLog=[]}) => {
             </div>
           </div>
 
-          {/* Apple Health sync info */}
-          <div style={{background:"rgba(255,59,48,.06)",border:"1px solid rgba(255,59,48,.2)",borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
-            <span style={{fontSize:"22px",flexShrink:0}}>❤️</span>
+          {/* Health sync info — works with Apple Health on iOS and Health Connect on Android */}
+          <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
+            <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
             <div>
-              <p style={{fontSize:"12px",fontWeight:"700",color:"#ff3b30",marginBottom:"2px"}}>Apple Health Sync Active</p>
-              <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk data (duration, distance, calories) is automatically written to Apple Health after each walk. Open the Health app to view your activity history.</p>
+              <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Health Sync Active</p>
+              <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk data (duration, distance, calories) is automatically written to Apple Health on iPhone or Health Connect on Android after each walk. Open your phone's Health app to view your activity history.</p>
             </div>
           </div>
 
           {/* Walk Log */}
           {walkLog.length>0&&(
             <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
-              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>🐕 Walk History</p>
+              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}><Icon name="dog" size={10} style={{marginRight:"3px"}}/>Walk History</p>
               {walkLog.map((w,i)=>(
                 <div key={i}>
                   <div onClick={()=>setExpandedWalk(expandedWalk===i?null:i)}
@@ -2820,13 +3480,13 @@ const LiveScreen = ({walkLog=[]}) => {
                     <div>
                       <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{w.date} · {w.time}</p>
                       <div style={{display:"flex",gap:"10px"}}>
-                        <span style={{fontSize:"11px",color:T.textMuted}}>⏱ {w.duration}</span>
-                        <span style={{fontSize:"11px",color:T.textMuted}}>📍 {w.distanceMi} mi</span>
-                        <span style={{fontSize:"11px",color:T.textMuted}}>⚡ {w.pace}/mi</span>
+                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="clock" size={10}/>{w.duration}</span>
+                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="pin" size={10}/>{w.distanceMi} mi</span>
+                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="zap" size={10}/>{w.pace}/mi</span>
                       </div>
                     </div>
                     <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
-                      {w.appleHealthSynced&&<span style={{fontSize:"10px",color:"#ff3b30",fontWeight:"700"}}>❤️</span>}
+                      {w.appleHealthSynced&&<Icon name="heart" size={10} color="#ff3b30"/>}
                       <span style={{color:T.textFaint,fontSize:"14px",transition:"transform .2s",transform:expandedWalk===i?"rotate(180deg)":"none"}}>▾</span>
                     </div>
                   </div>
@@ -2857,7 +3517,7 @@ const LiveScreen = ({walkLog=[]}) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: BOND — CHANGE 3 subtitle added
 // ═══════════════════════════════════════════════════════════════════════════════
-const BondScreen = () => {
+const BondScreen = ({onOpenGame}) => {
   const T=useTheme();
   return (
     <ScrollBody>
@@ -2868,20 +3528,34 @@ const BondScreen = () => {
       </div>
       <div className="s2" style={{marginBottom:"14px"}}>
         <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Engagement Games & Tricks</p>
-        {[{name:"The Name Game",time:"5 min",level:"Beginner"},{name:"Find It",time:"10 min",level:"Beginner"},{name:"Target Training",time:"10 min",level:"Intermediate"},{name:"Spin & Twist",time:"8 min",level:"Intermediate"},{name:"Bow",time:"10 min",level:"Advanced"}].map(t=>(
-          <div key={t.name} className="lesson-row" style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 10px",borderRadius:"10px",marginBottom:"6px",border:`1px solid ${T.divider}`,cursor:"pointer",transition:"opacity .2s"}}>
-            <div><p style={{fontSize:"14px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{t.name}</p><p style={{fontSize:"11px",color:T.textMuted}}>{t.time} · {t.level}</p></div>
-            <span style={{fontSize:"20px",color:T.textFaint}}>▶</span>
-          </div>
+        {ENGAGEMENT_GAMES.map(t=>(
+          <button key={t.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(t.id)}
+            style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",padding:"12px 13px",cursor:"pointer",transition:"opacity .2s",borderRadius:"10px",marginBottom:"6px",border:`1px solid ${T.divider}`,background:"none",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
+              <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={t.icon||"paw"} size={16}/></span>
+              <div style={{minWidth:0}}>
+                <p style={{fontSize:"14px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{t.name}</p>
+                <p style={{fontSize:"11px",color:T.textMuted}}>{t.time} · {t.level}</p>
+              </div>
+            </div>
+            <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
+          </button>
         ))}
       </div>
       <div className="s3">
         <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Socialization & Confidence</p>
-        {[{name:"New Surface Challenge",desc:"Introduce 3 new textures today"},{name:"Sound Desensitization",desc:"Play traffic sounds at low volume"},{name:"Stranger Greeting",desc:"Practice calm greetings with someone new"},{name:"Novel Object Exposure",desc:"Umbrella, skateboard, or bicycle"}].map(s=>(
-          <div key={s.name} style={{background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"8px"}}>
-            <p style={{fontSize:"13.5px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{s.name}</p>
-            <p style={{fontSize:"11.5px",color:T.textMuted}}>{s.desc}</p>
-          </div>
+        {SOCIALIZATION_GAMES.map(s=>(
+          <button key={s.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(s.id)}
+            style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",gap:"10px",background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"8px",cursor:"pointer",transition:"opacity .2s",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
+              <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={s.icon||"paw"} size={16}/></span>
+              <div style={{minWidth:0}}>
+                <p style={{fontSize:"13.5px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{s.name}</p>
+                <p style={{fontSize:"11.5px",color:T.textMuted}}>{s.time} · {s.level}</p>
+              </div>
+            </div>
+            <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
+          </button>
         ))}
       </div>
     </ScrollBody>
@@ -2892,13 +3566,170 @@ const BondScreen = () => {
 // SCREEN: LEARN — with progressive unlocking + puppy program
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// ─── ENGAGEMENT GAMES LIBRARY ──────────────────────────────────────────────────
+// Full how-to-play instructions for every game shown on the Bond screen and
+// referenced by the Dashboard's Daily Routine Builder.
+const ENGAGEMENT_GAMES = [
+  {id:"nameGameEngage", name:"The Name Game", time:"5 min", level:"Beginner", icon:"dog",
+    materials:"Small, high-value treats",
+    steps:[
+      "Say your dog's name once, in a happy, upbeat tone.",
+      "The instant they look at you, mark it with \"Yes!\" and reward.",
+      "Repeat 8–10 reps, gradually practicing with mild distractions nearby.",
+    ],
+    tip:"Never repeat the name over and over waiting for a response — say it once, then reward the moment they check in."},
+  {id:"findIt", name:"Find It", time:"10 min", level:"Beginner", icon:"footprints",
+    materials:"Treats or a favorite toy",
+    steps:[
+      "Say \"Find it!\" and toss a treat a few feet away so your dog watches it land.",
+      "Let them sniff it out and eat it, then repeat.",
+      "Once they've got it, start hiding treats in easy spots around the room, then trickier ones.",
+    ],
+    tip:"Great low-impact mental workout for rainy days or after a big outing."},
+  {id:"targetTraining", name:"Target Training", time:"10 min", level:"Intermediate", icon:"target",
+    materials:"Treats and your open palm (or a target stick)",
+    steps:[
+      "Hold your palm a few inches from your dog's nose.",
+      "The moment they sniff or touch it, mark and reward.",
+      "Once they're reliably touching your hand, add the verbal cue \"Touch.\"",
+    ],
+    tip:"This is the foundation for loose-leash redirection, recall games, and most tricks — well worth mastering."},
+  {id:"spinTwist", name:"Spin & Twist", time:"8 min", level:"Intermediate", icon:"refresh",
+    materials:"Treats",
+    steps:[
+      "Hold a treat at your dog's nose and slowly lure them in a full circle.",
+      "Mark and reward the instant they complete the turn.",
+      "Once reliable, add the cue \"Spin\" (one direction) and \"Twist\" (the other), then fade the food lure to a hand signal.",
+    ],
+    tip:"Practice both directions evenly so your dog doesn't develop a one-sided favorite."},
+  {id:"bow", name:"Bow", time:"10 min", level:"Advanced", icon:"star",
+    materials:"Treats",
+    steps:[
+      "Lure your dog's nose down toward their front paws while keeping their rear end up.",
+      "Mark the exact moment their elbows touch the ground.",
+      "Repeat until consistent, then add the verbal cue \"Bow.\"",
+    ],
+    tip:"Some dogs need their back end gently and briefly supported at first — never force the position."},
+];
+function getDailyEngagementGame() {
+  // Same deterministic-by-calendar-date approach as the daily trainer tip, so
+  // every device shows the same featured game on a given day.
+  const now = new Date();
+  const dayIndex = now.getFullYear()*372 + now.getMonth()*31 + now.getDate();
+  return ENGAGEMENT_GAMES[((dayIndex % ENGAGEMENT_GAMES.length) + ENGAGEMENT_GAMES.length) % ENGAGEMENT_GAMES.length];
+}
+
+// ─── SOCIALIZATION & CONFIDENCE LIBRARY ────────────────────────────────────────
+// Same shape as ENGAGEMENT_GAMES so both sections of the Bond screen can share
+// one instructions screen.
+const SOCIALIZATION_GAMES = [
+  {id:"newSurface", name:"New Surface Challenge", time:"5 min", level:"Beginner", icon:"footprints",
+    materials:"3 different textures (a bath mat, bubble wrap, a wobble cushion, gravel tray, etc.) and treats",
+    steps:[
+      "Lay one new-texture surface on the floor in a calm, familiar area.",
+      "Toss a treat onto the edge of the surface and let your dog choose to step on it — never drag or force them onto it.",
+      "Mark and reward every paw that touches the new surface, working up to all four paws standing on it calmly.",
+      "Repeat with the second and third textures, one at a time.",
+      "Finish the session as soon as your dog is confidently exploring — end on a win.",
+    ],
+    tip:"Confidence is built by choice. If your dog backs away, make the surface smaller/less intense (e.g. one sheet of bubble wrap instead of a full mat) and rebuild from there."},
+  {id:"soundDesens", name:"Sound Desensitization", time:"10 min", level:"Beginner", icon:"music",
+    materials:"A recording of the target sound (traffic, thunder, fireworks, vacuum, etc.) and high-value treats",
+    steps:[
+      "Play the sound at a very low volume — low enough that your dog notices but doesn't react.",
+      "The moment they hear it and stay relaxed, mark and reward.",
+      "Run 8–10 short reps at that volume across the session, keeping everything calm and upbeat.",
+      "Only increase the volume once your dog is consistently relaxed at the current level — small increments over multiple sessions, not one sitting.",
+      "Stop and drop back down in volume if your dog startles, paces, or refuses treats.",
+    ],
+    tip:"This is a slow-build exercise — rushing the volume is the most common mistake and can make sound sensitivity worse, not better."},
+  {id:"strangerGreeting", name:"Stranger Greeting", time:"5–10 min", level:"Intermediate", icon:"handshake",
+    materials:"Treats and a cooperative friend/neighbor the dog hasn't met",
+    steps:[
+      "Have the person stand a comfortable distance away and ignore your dog at first — no eye contact, no reaching out.",
+      "Reward your dog for staying calm near the stranger from a distance.",
+      "If your dog is relaxed, invite the person to toss a treat to your dog rather than reaching toward them.",
+      "Only allow a hands-on greeting if your dog is loose, wiggly, and clearly seeking contact — and keep it brief.",
+      "End the interaction while it's still going well, before your dog gets overexcited or overwhelmed.",
+    ],
+    tip:"Advocate for your dog — it's always OK to say \"no, we're training today\" and decline a greeting. See the Advocating for Your Dog handout for more."},
+  {id:"novelObject", name:"Novel Object Exposure", time:"5 min", level:"Beginner", icon:"box",
+    materials:"An unfamiliar object your dog hasn't seen before (umbrella, skateboard, bicycle, cardboard box, etc.) and treats",
+    steps:[
+      "Place the object at a distance where your dog notices it but is still comfortable — this might be across the yard, not right next to it.",
+      "Mark and reward calm attention toward the object.",
+      "Let your dog approach at their own pace; never pull or carry them toward it.",
+      "Gradually decrease distance over multiple short sessions as your dog stays relaxed.",
+      "If the object can move or make noise (umbrella opening, skateboard rolling), introduce that motion only once your dog is calm with the object still.",
+    ],
+    tip:"The goal isn't to make your dog love the object — it's for them to stay neutral and confident around anything new and unexpected."},
+];
+
+// Combined lookup so one instructions screen can serve both the Engagement
+// Games and the Socialization & Confidence sections of the Bond screen.
+const GAME_LIBRARY = [...ENGAGEMENT_GAMES, ...SOCIALIZATION_GAMES];
+const GAME_MAP = Object.fromEntries(GAME_LIBRARY.map(g=>[g.id,g]));
+
+// Dedicated "how to play" screen for a game — same pattern as HandoutScreen,
+// so tapping a game navigates to full instructions instead of just an inline
+// expand. Includes a hero icon graphic to give the instructions a visual anchor.
+const GameInstructionsScreen = ({id, onClose, onBack}) => {
+  const T=useTheme();
+  const g=GAME_MAP[id];
+  if(!g) return (
+    <ScrollBody>
+      <p style={{fontSize:"13px",color:T.textMuted}}>Game not found.</p>
+      <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
+    </ScrollBody>
+  );
+  return (
+    <ScrollBody>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
+        <div>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>How to Play</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{g.name}</h2>
+          <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{g.time} · {g.level}</p>
+        </div>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
+      </div>
+
+      {/* Hero graphic — gives the instructions a picture to anchor to */}
+      <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"26px",marginBottom:"16px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",inset:0,opacity:.08,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name={g.icon||"paw"} size={140} color="#fff"/></div>
+        <div style={{width:"84px",height:"84px",borderRadius:"50%",background:"rgba(255,255,255,.12)",border:"2px solid rgba(255,255,255,.35)",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+          <Icon name={g.icon||"paw"} size={40} color="#fff"/>
+        </div>
+      </div>
+
+      <div className="s2" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
+        <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
+        <p style={{fontSize:"13px",color:T.text,marginBottom:"16px",lineHeight:1.55}}>{g.materials}</p>
+
+        <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
+        <ol style={{margin:0,paddingLeft:"18px",marginBottom:g.tip?"16px":"0"}}>
+          {g.steps.map((s,si)=>(<li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.65,marginBottom:"7px"}}>{s}</li>))}
+        </ol>
+
+        {g.tip && (
+          <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
+            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,display:"flex",alignItems:"flex-start",gap:"6px"}}><Icon name="bulb" size={13} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {g.tip}</span></p>
+          </div>
+        )}
+      </div>
+
+      <BackBtn onClick={onBack||onClose}/>
+    </ScrollBody>
+  );
+};
+
 const STANDARD_CURRICULUM = [
   {id:"pre",  label:"Pre-Requisite", sublabel:"Foundation Skills",
     goal:"Ensure handler and dog have basic skills before starting the 6 week program. Introduce small boundaries and structure to prepare the dog for advancing skills.",
     tasks:[
-      {name:"Sit with marker words",        sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
-      {name:"Down with marker words",       sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
-      {name:"Threshold Boundaries (Wait) with marker words", sessionsPerDay:"1-2", sessionLength:"5 minutes"},
+      {name:"Sit with marker words and a lure",        sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Down with marker words and a lure",       sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Place with marker words and a lure",      sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Threshold Boundaries (Wait) with marker words and a lure", sessionsPerDay:"1-2", sessionLength:"5 minutes"},
       {name:"Kennel with threshold boundary (Wait before leaving kennel)", sessionsPerDay:"1-2", sessionLength:"30 minute duration"},
       {name:"Work for food",                sessionsPerDay:"1",   sessionLength:"During training sessions"},
     ],
@@ -2954,7 +3785,7 @@ const STANDARD_CURRICULUM = [
       {name:"Sit with E-collar",                   sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Down with E-collar",                  sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Threshold Boundaries (Wait) with E-collar", sessionsPerDay:"1-4", sessionLength:"2-5 minutes"},
-      {name:"Leash Games with E-collar",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Leash Games",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
       {name:"Loose Leash Walking with E-collar",   sessionsPerDay:"1-2", sessionLength:"15+ minutes"},
       {name:"Recall with E-collar",                sessionsPerDay:"1-2", sessionLength:"10-20 repetitions"},
     ],
@@ -2969,7 +3800,7 @@ const STANDARD_CURRICULUM = [
       {name:"Sit with E-collar",                   sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Down with E-collar",                  sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Threshold Boundaries (Wait) with E-collar", sessionsPerDay:"1-4", sessionLength:"2-5 minutes"},
-      {name:"Leash Games with E-collar",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Leash Games",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
       {name:"Loose Leash Walking with E-collar",   sessionsPerDay:"1-2", sessionLength:"15+ minutes"},
       {name:"Recall with E-collar",                sessionsPerDay:"1-2", sessionLength:"10-20 repetitions"},
     ],
@@ -3003,7 +3834,7 @@ const STANDARD_CURRICULUM = [
       {name:"Sit with E-collar",                   sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Down with E-collar",                  sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Threshold Boundaries (Wait) with E-collar", sessionsPerDay:"1-4", sessionLength:"2-5 minutes"},
-      {name:"Leash Games with E-collar",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
+      {name:"Leash Games",           sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
       {name:"Loose Leash Walking with E-collar",   sessionsPerDay:"1-2", sessionLength:"15+ minutes"},
       {name:"Recall with E-collar",                sessionsPerDay:"1-2", sessionLength:"10-20 repetitions"},
     ],
@@ -3013,54 +3844,42 @@ const STANDARD_CURRICULUM = [
 
 // ─── DAILY TRAINER TIPS ──────────────────────────────────────────────────────
 const DAILY_TIPS = [
-  {emoji:"🌟", tip:"Every rep counts — you're building a relationship, not just a behavior. Keep showing up!"},
-  {emoji:"🐾", tip:"Consistency is your superpower. Dogs thrive on structure, and you're giving that every single day."},
-  {emoji:"💪", tip:"Struggling today? That's normal. Progress isn't always linear — the fact you're here means you're winning."},
-  {emoji:"🎯", tip:"Short sessions work better than long ones. 10 focused minutes beats an hour of frustration every time."},
-  {emoji:"🔥", tip:"Your dog is learning even when you think nothing is happening. Trust the process — it's working."},
-  {emoji:"🌱", tip:"You're not just training commands — you're growing a deeper bond with your dog. That's priceless."},
-  {emoji:"🙌", tip:"Celebrate the small wins today. A better sit, a calmer threshold, a moment of eye contact. It all adds up."},
-  {emoji:"⚡", tip:"Integration training is genius. Every walk, every mealtime, every doorway is a rep. You've got this."},
-  {emoji:"🏆", tip:"The best dog trainers aren't perfect — they're persistent. And you keep coming back. That's everything."},
-  {emoji:"💡", tip:"If something isn't working, simplify it. Go back one step and make it easier to succeed. Progress loves momentum."},
-  {emoji:"🐕", tip:"Your dog is trying to figure out the rules of your world. The clearer you are, the faster they learn."},
-  {emoji:"🎉", tip:"Look how far you've both come! Your dog is lucky to have someone who cares this much."},
-  {emoji:"🧠", tip:"Remember: dogs don't generalize well. Practicing in a new spot isn't starting over — it's leveling up."},
-  {emoji:"☀️", tip:"A tired trainer makes for a frustrated dog. Be kind to yourself today — rest is part of the process."},
-  {emoji:"🚀", tip:"You're closer to your goal than you think. Stay consistent, stay patient, and trust the program."},
-  {emoji:"❤️", tip:"The relationship you're building through training will last a lifetime. Every session is an investment."},
-  {emoji:"🎓", tip:"Your dog doesn't need perfection — they need your patience. You have more than you think."},
-  {emoji:"🌊", tip:"Some days flow, some days you feel stuck. Both are part of training. Just keep showing up."},
-  {emoji:"🦮", tip:"Structure isn't restrictive — it's loving. Dogs feel safe when they know what to expect. You're giving that."},
-  {emoji:"✨", tip:"Integration training tip: next walk, practice one threshold. One moment. That's enough for today."},
-  {emoji:"🎵", tip:"Training should feel like a rhythm, not a chore. Find your groove and let it carry you."},
-  {emoji:"💬", tip:"Clear communication is a skill — and you're getting better at it every single day."},
-  {emoji:"🌙", tip:"End today knowing you did something for your dog. Even a 5-minute session is a 5-minute win."},
-  {emoji:"🏅", tip:"You don't need to be a professional trainer to have a great dog — you just need to be consistent. And you are."},
-  {emoji:"🤝", tip:"You and your dog are a team. Teams that train together trust each other more. Keep building that trust."},
-  {emoji:"🔑", tip:"The marker word is your dog's translator. The more consistent you are with it, the faster everything clicks."},
-  {emoji:"🌺", tip:"Patience isn't passive — it's active. It's choosing to breathe, reset, and try again. You do that beautifully."},
-  {emoji:"⭐", tip:"Every dog is different. Honor where your dog is today, not where you wish they were. Progress from here."},
+  {emoji:"star", tip:"Every rep counts — you're building a relationship, not just a behavior. Keep showing up!"},
+  {emoji:"paw", tip:"Consistency is your superpower. Dogs thrive on structure, and you're giving that every single day."},
+  {emoji:"muscle", tip:"Struggling today? That's normal. Progress isn't always linear — the fact you're here means you're winning."},
+  {emoji:"target", tip:"Short sessions work better than long ones. 10 focused minutes beats an hour of frustration every time."},
+  {emoji:"flame", tip:"Your dog is learning even when you think nothing is happening. Trust the process — it's working."},
+  {emoji:"leaf", tip:"You're not just training commands — you're growing a deeper bond with your dog. That's priceless."},
+  {emoji:"party", tip:"Celebrate the small wins today. A better sit, a calmer threshold, a moment of eye contact. It all adds up."},
+  {emoji:"zap", tip:"Integration training is genius. Every walk, every mealtime, every doorway is a rep. You've got this."},
+  {emoji:"trophy", tip:"The best dog trainers aren't perfect — they're persistent. And you keep coming back. That's everything."},
+  {emoji:"bulb", tip:"If something isn't working, simplify it. Go back one step and make it easier to succeed. Progress loves momentum."},
+  {emoji:"dog", tip:"Your dog is trying to figure out the rules of your world. The clearer you are, the faster they learn."},
+  {emoji:"party", tip:"Look how far you've both come! Your dog is lucky to have someone who cares this much."},
+  {emoji:"brain", tip:"Remember: dogs don't generalize well. Practicing in a new spot isn't starting over — it's leveling up."},
+  {emoji:"sun", tip:"A tired trainer makes for a frustrated dog. Be kind to yourself today — rest is part of the process."},
+  {emoji:"rocket", tip:"You're closer to your goal than you think. Stay consistent, stay patient, and trust the program."},
+  {emoji:"heart", tip:"The relationship you're building through training will last a lifetime. Every session is an investment."},
+  {emoji:"gradCap", tip:"Your dog doesn't need perfection — they need your patience. You have more than you think."},
+  {emoji:"wave", tip:"Some days flow, some days you feel stuck. Both are part of training. Just keep showing up."},
+  {emoji:"dog", tip:"Structure isn't restrictive — it's loving. Dogs feel safe when they know what to expect. You're giving that."},
+  {emoji:"star", tip:"Integration training tip: next walk, practice one threshold. One moment. That's enough for today."},
+  {emoji:"music", tip:"Training should feel like a rhythm, not a chore. Find your groove and let it carry you."},
+  {emoji:"message", tip:"Clear communication is a skill — and you're getting better at it every single day."},
+  {emoji:"moon", tip:"End today knowing you did something for your dog. Even a 5-minute session is a 5-minute win."},
+  {emoji:"medal", tip:"You don't need to be a professional trainer to have a great dog — you just need to be consistent. And you are."},
+  {emoji:"handshake", tip:"You and your dog are a team. Teams that train together trust each other more. Keep building that trust."},
+  {emoji:"key", tip:"The marker word is your dog's translator. The more consistent you are with it, the faster everything clicks."},
+  {emoji:"flower", tip:"Patience isn't passive — it's active. It's choosing to breathe, reset, and try again. You do that beautifully."},
+  {emoji:"star", tip:"Every dog is different. Honor where your dog is today, not where you wish they were. Progress from here."},
 ];
 
 function getDailyTip() {
-  const dayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
-  return DAILY_TIPS[dayIndex % DAILY_TIPS.length];
-}
-
-function getSessionTip() {
-  // Changes each login session
-  try {
-    const key = "gp_session_tip_idx";
-    let idx = parseInt(sessionStorage.getItem(key) || "-1");
-    if(idx < 0) {
-      idx = Math.floor(Math.random() * DAILY_TIPS.length);
-      sessionStorage.setItem(key, String(idx));
-    }
-    return DAILY_TIPS[idx % DAILY_TIPS.length];
-  } catch {
-    return getDailyTip();
-  }
+  // Deterministic on the local calendar date (not device/session-random), so
+  // every device shows the same tip on a given day, and it changes daily.
+  const now = new Date();
+  const dayIndex = now.getFullYear()*372 + now.getMonth()*31 + now.getDate();
+  return DAILY_TIPS[((dayIndex % DAILY_TIPS.length) + DAILY_TIPS.length) % DAILY_TIPS.length];
 }
 
 // ─── STREAK STORAGE HELPERS ───────────────────────────────────────────────────
@@ -3112,12 +3931,11 @@ function updateStreakOnActivity() {
   return streak;
 }
 
-const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo}) => {
+const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo, openWeek, setOpenWeek, weekCompletedAt, setWeekCompletedAt}) => {
   const T=useTheme();
-  const [openWeek,setOpenWeek]=useState(null);
-  // stdCompleted & setStdCompleted come from App (lifted state)
+  // openWeek & weekCompletedAt now come from App (lifted) so opening a lesson video
+  // and hitting Back returns to exactly this same week, instead of losing progress.
   const [programTab,setProgramTab]=useState("auto");
-  const [weekCompletedAt,setWeekCompletedAt]=useState({}); // weekId -> timestamp ms
 
   const birthday = petData?.birthday || "";
   const weeksOld = ageInWeeks(birthday);
@@ -3166,6 +3984,33 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
 
   const completed = isStandard ? stdCompleted : puppyCompleted;
 
+  // ── CHANGE: which week is "current" here uses the exact same math as the
+  // Dashboard (getCurrentStdWeek / getCurrentPuppyWeek), so whatever week shows
+  // as "This Week" on the Dashboard is the one that auto-opens here too. ──
+  const currentWeekId = isStandard
+    ? getCurrentStdWeek(stdCompleted||{}).week?.id
+    : getCurrentPuppyWeek(puppyWeekDone||{}).week?.id;
+
+  // Auto-open the person's actual current week the first time this screen (or this
+  // program tab) is shown, so Learn always lands on the same week the Dashboard is
+  // showing instead of leaving every week collapsed. It never fights a week the
+  // person already opened manually.
+  useEffect(()=>{
+    if(currentWeekId && openWeek==null){
+      setOpenWeek(currentWeekId);
+    }
+  },[effectiveTab, currentWeekId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scrolls the current week into view once it auto-opens, so the person doesn't
+  // have to hunt for it in a long curriculum list.
+  const currentWeekRef = useRef(null);
+  useEffect(()=>{
+    if(openWeek && openWeek===currentWeekId && currentWeekRef.current){
+      const t=setTimeout(()=>currentWeekRef.current?.scrollIntoView({behavior:"smooth",block:"center"}),80);
+      return ()=>clearTimeout(t);
+    }
+  },[openWeek, currentWeekId]);
+
   return (
     <ScrollBody>
       <div className="s1" style={{marginBottom:"14px"}}>
@@ -3190,7 +4035,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
       {/* Puppy notice */}
       {!isStandard && (
         <div style={{background:"rgba(76,175,125,.08)",border:"1px solid rgba(76,175,125,.25)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",gap:"9px",alignItems:"flex-start"}}>
-          <span style={{fontSize:"20px",flexShrink:0}}>🐶</span>
+          <Icon name="dog" size={20} style={{flexShrink:0}} color={T.gold}/>
           <div>
             <p style={{fontSize:"12px",fontWeight:"700",color:"#4caf7d",marginBottom:"2px"}}>Puppy Foundation Program</p>
             <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Under 20 weeks. Check off every lesson, then tap <strong style={{color:T.text}}>Mark Week Complete</strong> to unlock the next week.</p>
@@ -3203,7 +4048,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
         <div style={{background:videoWatched?"rgba(76,175,125,.08)":T.cardInner,border:`1px solid ${videoWatched?"rgba(76,175,125,.3)":T.gold}`,borderRadius:"14px",overflow:"hidden"}}>
           <div style={{padding:"12px 15px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${T.divider}`}}>
             <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <span style={{fontSize:"15px"}}>{videoWatched?"✅":"🔒"}</span>
+              <span style={{color:videoWatched?T.success:T.textFaint}}><Icon name={videoWatched?"checkCircle":"lock"} size={15}/></span>
               <div>
                 <p style={{fontSize:"13px",fontWeight:"700",color:videoWatched?"#4caf7d":T.text}}>{video.title}</p>
                 <p style={{fontSize:"10px",color:T.textFaint,marginTop:"1px"}}>{videoWatched?"Watched — you're all set":"Required before you can begin"}</p>
@@ -3249,26 +4094,31 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
         const prevWeek=wi>0?curriculum[wi-1]:null;
         const prevDone=prevWeek?(isStandard?prevWeek.lessons.filter(l=>!!stdCompleted[`${prevWeek.id}::${l}`]).length:0):0;
 
+        const isCurrentWeek = week.id===currentWeekId;
         return (
-          <div key={week.id} style={{marginBottom:"7px",animation:`up .4s ${wi*.06}s both`}}>
+          <div key={week.id} ref={isCurrentWeek?currentWeekRef:null} style={{marginBottom:"7px",animation:`up .4s ${wi*.06}s both`}}>
             {/* Week header button */}
             <button className="week-row"
               onClick={()=>unlocked?setOpenWeek(isOpen?null:week.id):null}
               style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",
                 background:weekFullyDone?"rgba(76,175,125,.12)":!unlocked?"rgba(255,255,255,.02)":isOpen?"rgba(176,141,87,.12)":T.chipBg,
-                border:`1px solid ${weekFullyDone?"rgba(76,175,125,.4)":!unlocked?"rgba(176,141,87,.1)":isOpen?T.gold:T.chipBorder}`,
+                border:`1px solid ${isCurrentWeek&&unlocked?T.gold:weekFullyDone?"rgba(76,175,125,.4)":!unlocked?"rgba(176,141,87,.1)":isOpen?T.gold:T.chipBorder}`,
                 borderRadius:isOpen?"14px 14px 0 0":"14px",
                 cursor:unlocked?"pointer":"not-allowed",transition:"all .2s",opacity:unlocked?1:0.5}}>
               <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
                 {!unlocked
-                  ? <span style={{fontSize:"14px"}}>🔒</span>
+                  ? <Icon name="lock" size={14}/>
                   : weekFullyDone
-                    ? <span style={{fontSize:"14px"}}>✅</span>
+                    ? <span style={{color:T.success}}><Icon name="checkCircle" size={14}/></span>
                     : <div style={{width:"18px",height:"18px",borderRadius:"50%",border:`2px solid ${isOpen?T.gold:T.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"9px",color:T.gold,fontWeight:"700"}}>{doneCount}</div>
                 }
                 <div style={{textAlign:"left"}}>
                   <span style={{fontSize:"14px",fontWeight:"700",color:weekFullyDone?"#4caf7d":!unlocked?T.textFaint:isOpen?T.gold:T.text,display:"block"}}>{week.label}</span>
                 </div>
+                {/* Matches the week shown as "This Week" / "Phase" on the Dashboard */}
+                {isCurrentWeek && !weekFullyDone && (
+                  <span style={{fontSize:"8.5px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",background:T.gold,borderRadius:"20px",padding:"2px 7px",flexShrink:0}}>Current</span>
+                )}
               </div>
               <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
                 {!unlocked && wi===0 && (
@@ -3281,7 +4131,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                   <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>{prevDone}/{prevWeek.lessons.length} done</span>
                 )}
                 {unlocked && !weekFullyDone && <span style={{fontSize:"11px",color:T.textFaint}}>{doneCount}/{week.lessons.length}</span>}
-                {weekFullyDone && <span style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700"}}>Done ✓</span>}
+                {weekFullyDone && <span style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>Done</span>}
                 {unlocked && <span style={{color:T.textFaint,fontSize:"15px",transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>▾</span>}
               </div>
             </button>
@@ -3297,7 +4147,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                     <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}><Linkify text={week.goal} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
                     {week.note && (
                       <div style={{marginTop:"8px",padding:"8px 11px",background:T.mode==="dark"?"rgba(163,86,42,.15)":"rgba(163,86,42,.08)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"8px"}}>
-                        <p style={{fontSize:"11px",color:T.brown,fontWeight:"700",lineHeight:1.5}}>📌 <Linkify text={week.note} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                        <p style={{fontSize:"11px",color:T.brown,fontWeight:"700",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="pin" size={11} style={{marginTop:"2px",flexShrink:0}}/><span><Linkify text={week.note} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span></p>
                       </div>
                     )}
                     {week.sections && week.sections.length > 0 && (
@@ -3336,7 +4186,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                 {/* Weekly Sheet: Common Mistakes */}
                 {week.mistakes && week.mistakes.length > 0 && (
                   <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(163,86,42,.07)":"rgba(163,86,42,.04)"}}>
-                    <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px"}}>⚠️ Common Mistakes to Avoid</p>
+                    <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes to Avoid</p>
                     {week.mistakes.map((m,mi)=>(
                       <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<week.mistakes.length-1?"5px":"0"}}>
                         <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
@@ -3364,7 +4214,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                         <span style={{fontSize:"13px",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",flex:1,lineHeight:1.4}}><Linkify text={lesson} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span>
                       </ProtectedMedia>
                       <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:"10px",transition:"all .2s"}}>
-                        {done&&<span style={{color:"white",fontSize:"11px",fontWeight:"900"}}>✓</span>}
+                        {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
                       </div>
                     </div>
                   );
@@ -3375,7 +4225,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                   <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.05)"}}>
                     <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>
                       {allLessonsDone
-                        ? "🎉 All lessons checked! Tap below to unlock the next week."
+                        ? "All lessons checked! Tap below to unlock the next week."
                         : "Work through all lessons, then mark this week complete to unlock the next."}
                     </p>
                     <button
@@ -3388,7 +4238,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                         borderRadius:"10px",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",
                         fontFamily:"'Lato',sans-serif",cursor:"pointer",
                         boxShadow:allLessonsDone?"0 4px 16px rgba(76,175,125,.35)":"none",transition:"all .3s"}}>
-                      {allLessonsDone ? "✓ Mark Week Complete & Unlock Next" : "Mark Week Complete ✓"}
+                      {allLessonsDone ? <><Icon name="check" size={13} strokeWidth={3}/> Mark Week Complete & Unlock Next</> : <>Mark Week Complete <Icon name="check" size={13} strokeWidth={3}/></>}
                     </button>
                   </div>
                 )}
@@ -3396,7 +4246,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                 {/* Already marked done state */}
                 {!isStandard && weekMarkedDone && (
                   <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,display:"flex",alignItems:"center",gap:"9px",background:"rgba(76,175,125,.07)"}}>
-                    <span style={{fontSize:"18px"}}>🎉</span>
+                    <Icon name="party" size={18} color={T.gold}/>
                     <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>
                       Week complete! {wi<curriculum.length-1 ? `${curriculum[wi+1].label} is now unlocked.` : "You've completed the full program!"}
                     </p>
@@ -3416,7 +4266,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                       </>
                     ) : (
                       <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
-                        <span style={{fontSize:"18px"}}>🗓️</span>
+                        <Icon name="calendar" size={18} color={T.gold}/>
                         <div>
                           <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
                           <p style={{fontSize:"11px",color:T.textMuted}}>{curriculum[wi+1].label} unlocks 7 days after completion.</p>
@@ -3428,7 +4278,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
 
                 {week.graduation && (
                   <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`}}>
-                    <GoldBtn style={{padding:"10px",fontSize:"12px"}}>🎓 Generate Graduation Certificate</GoldBtn>
+                    <GoldBtn style={{padding:"10px",fontSize:"12px"}}><Icon name="gradCap" size={13} style={{marginRight:"4px"}}/>Generate Graduation Certificate</GoldBtn>
                   </div>
                 )}
               </div>
@@ -3443,28 +4293,201 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: CALENDAR
 // ═══════════════════════════════════════════════════════════════════════════════
+const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const EVENT_TYPES=[{id:"training",label:"Training",color:"green"},{id:"vet",label:"Vet",color:"brown"},{id:"other",label:"Other",color:"gold"}];
+
 const CalendarScreen = () => {
-  const T=useTheme(); const today=9;
+  const T=useTheme();
+  const now=new Date();
+  const [viewYear,setViewYear]=useState(now.getFullYear());
+  const [viewMonth,setViewMonth]=useState(now.getMonth()); // 0-11
+  const [events,setEvents]=useState(()=>{
+    // A few starter events on the current real month, so the calendar isn't empty on first load
+    const y=now.getFullYear(), m=now.getMonth();
+    const addDay=(offset)=>{ const d=new Date(y,m,now.getDate()+offset); return {year:d.getFullYear(),month:d.getMonth(),day:d.getDate()}; };
+    return [
+      {id:"seed1", ...addDay(0),  title:"E-Collar Session",   time:"7:00 AM",  type:"training"},
+      {id:"seed2", ...addDay(2),  title:"Vet Appointment",    time:"2:30 PM",  type:"vet"},
+      {id:"seed3", ...addDay(5),  title:"Park Generalization",time:"9:00 AM",  type:"training"},
+    ];
+  });
+  const [showDayPanel,setShowDayPanel]=useState(false);
+  const [addMode,setAddMode]=useState(false);
+  const [selectedDay,setSelectedDay]=useState(null);
+  const [newTitle,setNewTitle]=useState("");
+  const [newTime,setNewTime]=useState("");
+  const [newType,setNewType]=useState("training");
+
+  const goPrevMonth=()=>{ if(viewMonth===0){ setViewMonth(11); setViewYear(y=>y-1);} else setViewMonth(m=>m-1); };
+  const goNextMonth=()=>{ if(viewMonth===11){ setViewMonth(0); setViewYear(y=>y+1);} else setViewMonth(m=>m+1); };
+  const goPrevYear=()=>setViewYear(y=>y-1);
+  const goNextYear=()=>setViewYear(y=>y+1);
+  const goToday=()=>{ setViewYear(now.getFullYear()); setViewMonth(now.getMonth()); };
+
+  const firstOfMonth=new Date(viewYear,viewMonth,1);
+  const startWeekday=firstOfMonth.getDay(); // 0=Sun
+  const daysInMonth=new Date(viewYear,viewMonth+1,0).getDate();
+  const isCurrentRealMonth=viewYear===now.getFullYear()&&viewMonth===now.getMonth();
+  const todayDate=now.getDate();
+
+  const eventsForDay=(day)=>events.filter(e=>e.year===viewYear&&e.month===viewMonth&&e.day===day);
+
+  // Clicking a day opens the day panel showing its scheduled events first
+  const openDay=(day)=>{
+    setSelectedDay(day);
+    setNewTitle(""); setNewTime(""); setNewType("training");
+    setAddMode(false);
+    setShowDayPanel(true);
+  };
+  const closeDayPanel=()=>{ setShowDayPanel(false); setAddMode(false); };
+  const saveEvent=()=>{
+    if(!newTitle.trim()||!selectedDay) return;
+    setEvents(evs=>[...evs,{id:`ev_${Date.now()}`,year:viewYear,month:viewMonth,day:selectedDay,title:newTitle.trim(),time:newTime.trim()||"All day",type:newType}]);
+    setNewTitle(""); setNewTime(""); setNewType("training");
+    setAddMode(false); // drop back to the day view so the new event shows in the list
+  };
+  const deleteEvent=(id)=>setEvents(evs=>evs.filter(e=>e.id!==id));
+
+  // Upcoming: every stored event, sorted chronologically from today forward (falls back to all, oldest-future-first)
+  const upcoming=[...events]
+    .map(e=>({...e, ts:new Date(e.year,e.month,e.day).getTime()}))
+    .sort((a,b)=>a.ts-b.ts)
+    .filter(e=>e.ts >= new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime())
+    .slice(0,8);
+
+  const typeColor=(type)=> type==="vet"?T.brown : type==="other"?T.gold : T.green;
+
   return (
     <ScrollBody>
-      <div className="s1" style={{marginBottom:"18px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Calendar</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>March 2026</h2>
+      <div className="s1" style={{marginBottom:"18px",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+        <div>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Calendar</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>{MONTH_NAMES[viewMonth]} {viewYear}</h2>
+        </div>
+        {!isCurrentRealMonth&&<button onClick={goToday} style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"6px 12px",color:T.gold,fontSize:"11px",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0}}>Today</button>}
       </div>
+
+      {/* Month / year navigation */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"6px",marginBottom:"12px"}}>
+        <div style={{display:"flex",gap:"4px"}}>
+          <button onClick={goPrevYear} title="Previous year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
+            <Icon name="arrowLeft" size={12}/><Icon name="arrowLeft" size={12} style={{marginLeft:"-7px"}}/>
+          </button>
+          <button onClick={goPrevMonth} title="Previous month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
+            <Icon name="arrowLeft" size={13}/>
+          </button>
+        </div>
+        <div style={{display:"flex",gap:"4px"}}>
+          <button onClick={goNextMonth} title="Next month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
+            <Icon name="arrowRight" size={13}/>
+          </button>
+          <button onClick={goNextYear} title="Next year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
+            <Icon name="arrowRight" size={12}/><Icon name="arrowRight" size={12} style={{marginLeft:"-7px"}}/>
+          </button>
+        </div>
+      </div>
+
       <div className="s2" style={{background:T.calBg,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"14px"}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px",marginBottom:"8px"}}>{["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{textAlign:"center",fontSize:"9.5px",color:T.textFaint,fontWeight:"700",padding:"3px 0"}}>{d}</div>)}</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px"}}>
-          {Array.from({length:35},(_,i)=>{const day=i-5;const isToday=day===today;const hasEvent=[3,7,10,14,17,21].includes(day);return(<div key={i} style={{textAlign:"center",padding:"6px 2px",borderRadius:"7px",cursor:day>0&&day<=31?"pointer":"default",background:isToday?T.dayToday:"transparent",color:day<=0||day>31?"transparent":isToday?T.dayTodayText:T.text,fontSize:"12.5px",fontWeight:isToday?"900":"400",position:"relative"}}>{day>0&&day<=31?day:""}{hasEvent&&!isToday&&<div style={{width:"3.5px",height:"3.5px",borderRadius:"50%",background:T.gold,margin:"1.5px auto 0"}}/>}</div>);})}
+          {Array.from({length:Math.ceil((startWeekday+daysInMonth)/7)*7},(_,i)=>{
+            const day=i-startWeekday+1;
+            const valid=day>0&&day<=daysInMonth;
+            const isToday=isCurrentRealMonth&&day===todayDate;
+            const dayEvents=valid?eventsForDay(day):[];
+            return(
+              <div key={i}
+                onClick={()=>valid&&openDay(day)}
+                style={{textAlign:"center",padding:"6px 2px",borderRadius:"7px",cursor:valid?"pointer":"default",background:isToday?T.dayToday:"transparent",color:!valid?"transparent":isToday?T.dayTodayText:T.text,fontSize:"12.5px",fontWeight:isToday?"900":"400",position:"relative",transition:"background .15s"}}
+                onMouseEnter={e=>{ if(valid&&!isToday) e.currentTarget.style.background=T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.1)"; }}
+                onMouseLeave={e=>{ if(valid&&!isToday) e.currentTarget.style.background="transparent"; }}>
+                {valid?day:""}
+                {dayEvents.length>0&&!isToday&&<div style={{width:"3.5px",height:"3.5px",borderRadius:"50%",background:T.gold,margin:"1.5px auto 0"}}/>}
+              </div>
+            );
+          })}
         </div>
+        <p style={{fontSize:"10px",color:T.textFaint,textAlign:"center",marginTop:"10px"}}>Tap a day to view or add events</p>
       </div>
+
+      {/* Day panel — shows the day's scheduled events first, with an option to add another */}
+      {showDayPanel&&(
+        <>
+          <div onClick={closeDayPanel} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
+          <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(340px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"18px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
+              <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>{MONTH_NAMES[viewMonth]} {selectedDay}, {viewYear}</p>
+              <button onClick={closeDayPanel} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint}}><Icon name="x" size={16}/></button>
+            </div>
+
+            {!addMode&&(
+              <>
+                {/* Scheduled events for this day */}
+                <div style={{marginBottom:"14px"}}>
+                  <p style={{fontSize:"9px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Scheduled Events</p>
+                  {selectedDay&&eventsForDay(selectedDay).length===0&&(
+                    <p style={{fontSize:"12px",color:T.textFaint,padding:"6px 0"}}>Nothing scheduled on this day yet.</p>
+                  )}
+                  {selectedDay&&eventsForDay(selectedDay).map(e=>(
+                    <div key={e.id} style={{display:"flex",alignItems:"center",gap:"8px",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
+                      <div style={{width:"3px",height:"28px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:"13px",fontWeight:"700",color:T.text}}>{e.title}</p>
+                        <p style={{fontSize:"11px",color:T.textMuted}}>{e.time} · {EVENT_TYPES.find(t=>t.id===e.type)?.label||e.type}</p>
+                      </div>
+                      <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
+                    </div>
+                  ))}
+                </div>
+                <GoldBtn onClick={()=>setAddMode(true)} style={{padding:"11px",fontSize:"12px",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+                  <Icon name="plus" size={13}/>Add Event
+                </GoldBtn>
+              </>
+            )}
+
+            {addMode&&(
+              <>
+                <div style={{marginBottom:"10px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Title</label>
+                  <input value={newTitle} onChange={e=>setNewTitle(e.target.value)} placeholder="e.g. Vet Appointment" autoFocus
+                    style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                </div>
+                <div style={{marginBottom:"10px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Time</label>
+                  <input value={newTime} onChange={e=>setNewTime(e.target.value)} placeholder="e.g. 2:30 PM"
+                    style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                </div>
+                <div style={{marginBottom:"14px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Type</label>
+                  <div style={{display:"flex",gap:"6px"}}>
+                    {EVENT_TYPES.map(t=>(
+                      <button key={t.id} onClick={()=>setNewType(t.id)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${newType===t.id?T.gold:T.chipBorder}`,background:newType===t.id?"rgba(176,141,87,.18)":T.chipBg,color:newType===t.id?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:newType===t.id?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{t.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:"8px"}}>
+                  <GoldBtn onClick={saveEvent} style={{padding:"11px",fontSize:"12px"}}>Save Event</GoldBtn>
+                  <button onClick={()=>setAddMode(false)} style={{flex:1,padding:"11px",background:"transparent",border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.textMuted,fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Back</button>
+                </div>
+              </>
+            )}
+          </div>
+        </>
+      )}
+
       <p style={{fontSize:"10px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Upcoming</p>
-      {[{day:"Today",title:"E-Collar Session",time:"7:00 AM",type:"training"},{day:"Mar 11",title:"Vet Appointment",time:"2:30 PM",type:"vet"},{day:"Mar 14",title:"Park Generalization",time:"9:00 AM",type:"training"}].map(e=>(
-        <div key={e.title} style={{display:"flex",gap:"11px",alignItems:"center",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
-          <div style={{width:"38px"}}><p style={{fontSize:"9.5px",color:T.textFaint}}>{e.day}</p></div>
-          <div style={{width:"3px",height:"32px",borderRadius:"2px",background:e.type==="vet"?T.brown:T.green,flexShrink:0}}/>
-          <div style={{flex:1}}><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{e.title}</p><p style={{fontSize:"11px",color:T.textMuted}}>{e.time}</p></div>
-        </div>
-      ))}
+      {upcoming.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"14px 0"}}>No upcoming events — tap a day above to add one.</p>}
+      {upcoming.map(e=>{
+        const isToday=e.year===now.getFullYear()&&e.month===now.getMonth()&&e.day===now.getDate();
+        return (
+          <div key={e.id} style={{display:"flex",gap:"11px",alignItems:"center",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
+            <div style={{width:"46px",flexShrink:0}}><p style={{fontSize:"9.5px",color:T.textFaint}}>{isToday?"Today":`${MONTH_NAMES[e.month].slice(0,3)} ${e.day}`}</p></div>
+            <div style={{width:"3px",height:"32px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
+            <div style={{flex:1,minWidth:0}}><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{e.title}</p><p style={{fontSize:"11px",color:T.textMuted}}>{e.time}</p></div>
+            <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
+          </div>
+        );
+      })}
     </ScrollBody>
   );
 };
@@ -3475,12 +4498,12 @@ const CalendarScreen = () => {
 const StoreScreen = () => {
   const T=useTheme();
   const products=[
-    {name:"E-Collar Technologies ET-300",cat:"Training Tools",price:"$179",rating:"⭐ 4.9",emoji:"📡"},
-    {name:"Herm Sprenger Prong Collar",cat:"Training Tools",price:"$38",rating:"⭐ 4.8",emoji:"🔗"},
-    {name:"Zuke's Mini Naturals Treats",cat:"Treats",price:"$12",rating:"⭐ 4.7",emoji:"🦴"},
-    {name:"50ft Long Line Lead",cat:"Leads & Leashes",price:"$24",rating:"⭐ 4.8",emoji:"🪢"},
-    {name:"West Paw Toppl Puzzle Toy",cat:"Enrichment",price:"$22",rating:"⭐ 4.9",emoji:"🧩"},
-    {name:"Kurgo Wander Dog Pack",cat:"Gear",price:"$55",rating:"⭐ 4.6",emoji:"🎒"},
+    {name:"E-Collar Technologies ET-300",cat:"Training Tools",price:"$179",rating:"4.9",emoji:"antenna"},
+    {name:"Herm Sprenger Prong Collar",cat:"Training Tools",price:"$38",rating:"4.8",emoji:"link"},
+    {name:"Zuke's Mini Naturals Treats",cat:"Treats",price:"$12",rating:"4.7",emoji:"bone"},
+    {name:"50ft Long Line Lead",cat:"Leads & Leashes",price:"$24",rating:"4.8",emoji:"link"},
+    {name:"West Paw Toppl Puzzle Toy",cat:"Enrichment",price:"$22",rating:"4.9",emoji:"puzzle"},
+    {name:"Kurgo Wander Dog Pack",cat:"Gear",price:"$55",rating:"4.6",emoji:"backpack"},
   ];
   const cats=["All","Training Tools","Treats","Leads & Leashes","Enrichment","Gear"];
   const [activeCat,setActiveCat]=useState("All");
@@ -3499,21 +4522,22 @@ const StoreScreen = () => {
       <div className="s3" style={{display:"flex",flexDirection:"column",gap:"9px"}}>
         {filtered.map(p=>(
           <div key={p.name} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"13px 15px",display:"flex",alignItems:"center",gap:"12px"}}>
-            <div style={{width:"46px",height:"46px",borderRadius:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",flexShrink:0}}>{p.emoji}</div>
+            <div style={{width:"46px",height:"46px",borderRadius:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.brown}}><Icon name={p.emoji} size={22}/></div>
             <div style={{flex:1}}>
               <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px",lineHeight:1.3}}>{p.name}</p>
               <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",marginBottom:"2px"}}>{p.cat}</p>
-              <p style={{fontSize:"10.5px",color:T.textMuted}}>{p.rating}</p>
+              <p style={{fontSize:"10.5px",color:T.textMuted,display:"flex",alignItems:"center",gap:"3px"}}><Icon name="star" size={10} color={T.gold}/>{p.rating}</p>
             </div>
             <div style={{textAlign:"right",flexShrink:0}}>
               <p style={{fontSize:"14px",fontWeight:"900",color:T.gold,marginBottom:"5px"}}>{p.price}</p>
-              <button style={{background:T.brown,border:"none",borderRadius:"8px",padding:"5px 10px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>Shop →</button>
+              <button onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")}
+                style={{background:T.brown,border:"none",borderRadius:"8px",padding:"5px 10px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>Shop →</button>
             </div>
           </div>
         ))}
       </div>
       <div className="s4" style={{textAlign:"center",marginTop:"16px",padding:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,borderRadius:"12px"}}>
-        <p style={{fontSize:"11px",color:T.textMuted}}>View all products: <span style={{color:T.gold,fontWeight:"700",cursor:"pointer"}}>VIEW ALL PRODUCTS →</span></p>
+        <p style={{fontSize:"11px",color:T.textMuted}}>View all products: <span onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")} style={{color:T.gold,fontWeight:"700",cursor:"pointer"}}>VIEW ALL PRODUCTS →</span></p>
       </div>
     </ScrollBody>
   );
@@ -4029,6 +5053,7 @@ const HANDOUT_KEYWORDS = [
   ["Sit-Stay & Down-Stay","sitStayDownStay"],
   ["Sit stay","sitStayDownStay"],
   ["Down stay","sitStayDownStay"],
+  ["Sit and Down","sitStayDownStay"],
   ["Implied Stays","sitStayDownStay"],
   ["Socializing Check List","socializingCheckList"],
   ["20 Common Mistakes","socializingMistakes"],
@@ -4128,7 +5153,7 @@ const VIDEO_KEYWORDS = [
   ["Loose Leash Walking with a lure","looseLeashLure"],
   ["Loose Leash with a Lure","looseLeashLure"],
   ["Leash Games with leash pressure","leashGamesVideo"],
-  ["Leash Games with E-collar","leashGamesVideo"],
+  ["Leash Games","leashGamesVideo"],
   ["Leash Games","leashGamesVideo"],
   ["leash games","leashGamesVideo"],
   ["Generalizing at the park","parkVisit"],
@@ -4139,46 +5164,81 @@ const VIDEO_KEYWORDS = [
   ["Store visit","fieldTrip"],
 ];
 
-// Combined lookup: video keywords are layered on top of handout keywords, so an exact
-// phrase match (e.g. "Name Game") resolves to the video when both exist for that phrase.
+// Combined lookup used only to find matches (finds the longest recognized phrase at each
+// position). Which target(s) that phrase actually opens is resolved separately below, from
+// HANDOUT_MAP and VIDEO_MAP — so a phrase that exists in both lists isn't forced to pick one.
 const _linkEntries = [
   ...HANDOUT_KEYWORDS.map(([k,id])=>({k,id,type:"handout"})),
   ...VIDEO_KEYWORDS.map(([k,id])=>({k,id,type:"video"})),
 ];
-const LINK_MAP = {};
-_linkEntries.forEach(({k,id,type})=>{ LINK_MAP[k.toLowerCase()] = {id,type}; });
 const LINK_REGEX = new RegExp(
   [..._linkEntries].sort((a,b)=>b.k.length-a.k.length).map(e=>_escapeRx(e.k)).join("|"), "gi"
 );
+const VIDEO_MAP = Object.fromEntries(VIDEO_KEYWORDS.map(([k,id])=>[k.toLowerCase(),id]));
 
-// Renders text with any recognized handout topic or training video wrapped as a clickable link.
-const Linkify = ({text, onOpenHandout, onOpenVideo, context}) => {
+// Renders text with any recognized handout topic or training video wrapped as a clickable
+// word. If a phrase has BOTH a handout and a video, clicking it reveals two small inline
+// buttons ("Handout" / "Video") right next to the word so the person can pick which one they
+// want, instead of the app silently picking one for them. If only one exists, clicking the
+// word opens it directly, same as before.
+// If `currentId` matches a target (i.e. it would point to the page you're already on), that
+// target is skipped — no point linking to yourself, or offering a choice that's really just one.
+const Linkify = ({text, onOpenHandout, onOpenVideo, context, currentId}) => {
   const T=useTheme();
+  const [openMatchIdx, setOpenMatchIdx] = useState(null); // which match (by start index) is showing its Handout/Video choice
   if(!text) return null;
   if(!onOpenHandout && !onOpenVideo) return <>{text}</>;
   const parts=[]; let lastIndex=0; let match;
   LINK_REGEX.lastIndex=0;
   while((match=LINK_REGEX.exec(text))){
     const key=match[0].toLowerCase();
-    let entry=LINK_MAP[key];
+    let handoutId = onOpenHandout ? (HANDOUT_MAP[key] || null) : null;
+    let videoId = onOpenVideo ? (VIDEO_MAP[key] || null) : null;
     // In the puppy program, generic "Threshold Boundaries" (no qualifier) refers to the
-    // puppy-specific demo video rather than the standard-program handout/e-collar videos.
-    if(context==="puppy" && (key==="threshold boundaries" || key==="threshold boundary")){
-      entry={id:"puppyThreshold", type:"video"};
+    // puppy-specific demo video rather than the standard-program E-collar/leash-pressure videos.
+    if(onOpenVideo && context==="puppy" && (key==="threshold boundaries" || key==="threshold boundary")){
+      videoId = "puppyThreshold";
     }
-    if(!entry){ continue; }
-    let handler=null, targetId=entry.id;
-    if(entry.type==="video" && onOpenVideo){ handler=onOpenVideo; }
-    else if(entry.type==="handout" && onOpenHandout){ handler=onOpenHandout; }
-    else if(onOpenHandout && HANDOUT_MAP[key]){ handler=onOpenHandout; targetId=HANDOUT_MAP[key]; } // graceful fallback
-    if(!handler){ continue; }
+    // Don't offer a target that's the page already open.
+    if(currentId && handoutId===currentId) handoutId=null;
+    if(currentId && videoId===currentId) videoId=null;
+    if(!handoutId && !videoId){ continue; }
     if(match.index>lastIndex) parts.push(text.slice(lastIndex,match.index));
-    parts.push(
-      <span key={match.index} onClick={(e)=>{e.stopPropagation();handler(targetId);}}
-        style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
-        {match[0]}
-      </span>
-    );
+
+    if(handoutId && videoId){
+      // Both exist — reveal a small inline choice instead of guessing which one to open.
+      const idx=match.index;
+      const isOpen=openMatchIdx===idx;
+      parts.push(
+        <span key={idx}>
+          <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(isOpen?null:idx);}}
+            style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
+            {match[0]}
+          </span>
+          {isOpen && (
+            <span style={{display:"inline-flex",gap:"5px",marginLeft:"6px",verticalAlign:"middle"}}>
+              <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(null);onOpenHandout(handoutId);}}
+                style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:T.gold,cursor:"pointer",whiteSpace:"nowrap"}}>
+                <Icon name="clipboard" size={9}/>Handout
+              </span>
+              <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(null);onOpenVideo(videoId);}}
+                style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(76,175,125,.15)",border:"1px solid #4caf7d",borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:"#4caf7d",cursor:"pointer",whiteSpace:"nowrap"}}>
+                <Icon name="play" size={9}/>Video
+              </span>
+            </span>
+          )}
+        </span>
+      );
+    } else {
+      const targetId = handoutId || videoId;
+      const handler = handoutId ? onOpenHandout : onOpenVideo;
+      parts.push(
+        <span key={match.index} onClick={(e)=>{e.stopPropagation();handler(targetId);}}
+          style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
+          {match[0]}
+        </span>
+      );
+    }
     lastIndex=match.index+match[0].length;
   }
   if(lastIndex<text.length) parts.push(text.slice(lastIndex));
@@ -4202,26 +5262,26 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{h.title}</h2>
           {h.subtitle && <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{h.subtitle}</p>}
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
       </div>
 
       <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
         {h.content.map((block,bi)=>{
           if(block.type==="p") return (
             <p key={bi} style={{fontSize:"13px",color:T.textMuted,lineHeight:1.65,marginBottom:bi<h.content.length-1?"12px":"0",fontWeight:block.bold?"700":"400"}}>
-              <Linkify text={block.text} onOpenHandout={block.linkable!==false?onOpenHandout:undefined}/>
+              <Linkify text={block.text} onOpenHandout={block.linkable!==false?onOpenHandout:undefined} currentId={id}/>
             </p>
           );
           if(block.type==="h") return (
             <p key={bi} style={{fontSize:"13px",fontWeight:"800",color:T.text,marginTop:bi>0?"14px":"0",marginBottom:"8px",lineHeight:1.3}}>
-              <Linkify text={block.text} onOpenHandout={onOpenHandout}/>
+              <Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/>
             </p>
           );
           if(block.type==="ul") return (
             <ul key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
               {block.items.map((it,ii)=>(
                 <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px"}}>
-                  <Linkify text={it} onOpenHandout={onOpenHandout}/>
+                  <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
                 </li>
               ))}
             </ul>
@@ -4230,7 +5290,7 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
             <ol key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
               {block.items.map((it,ii)=>(
                 <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px",fontWeight:"700"}}>
-                  <Linkify text={it} onOpenHandout={onOpenHandout}/>
+                  <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
                 </li>
               ))}
             </ol>
@@ -4238,7 +5298,7 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
           if(block.type==="note") return (
             <div key={bi} style={{marginTop:"6px",marginBottom:"12px",padding:"10px 13px",background:T.mode==="dark"?"rgba(47,79,62,.18)":"rgba(47,79,62,.08)",border:`1px solid ${T.mode==="dark"?"rgba(47,79,62,.4)":"rgba(47,79,62,.25)"}`,borderRadius:"9px"}}>
               {block.heading && <p style={{fontSize:"11px",fontWeight:"800",color:T.green,marginBottom:"6px",textTransform:"uppercase",letterSpacing:".06em"}}>{block.heading}</p>}
-              {block.text && <p style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.55}}><Linkify text={block.text} onOpenHandout={onOpenHandout}/></p>}
+              {block.text && <p style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.55}}><Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/></p>}
               {block.items && (
                 <ul style={{margin:0,paddingLeft:"16px"}}>
                   {block.items.map((it,ii)=>(<li key={ii} style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.5,marginBottom:"3px",fontWeight:"600"}}>{it}</li>))}
@@ -4265,7 +5325,7 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
 
       {h.mistakes && h.mistakes.length>0 && (
         <div style={{padding:"14px 16px",background:T.mode==="dark"?"rgba(163,86,42,.1)":"rgba(163,86,42,.06)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"14px",marginBottom:"14px"}}>
-          <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>⚠️ Common Mistakes</p>
+          <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes</p>
           {h.mistakes.map((m,mi)=>(
             <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<h.mistakes.length-1?"5px":"0"}}>
               <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
@@ -4289,7 +5349,7 @@ const HandoutLibraryScreen = ({onOpenHandout, onClose}) => {
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Handouts</h2>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
       </div>
       <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every handout referenced throughout your training plan, all in one place.</p>
       <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
@@ -4325,7 +5385,7 @@ const VideoScreen = ({id, onClose, onBack}) => {
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Training Video</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{v.title}</h2>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
       </div>
 
       <div className="protected-content-wrap" style={{borderRadius:"14px",overflow:"hidden",background:"#000",marginBottom:"14px"}}>
@@ -4354,7 +5414,7 @@ const VideoLibraryScreen = ({onOpenVideo, onClose}) => {
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Videos</h2>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
       </div>
       <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every demo video referenced throughout your training plan, all in one place.</p>
       <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
@@ -4366,7 +5426,7 @@ const VideoLibraryScreen = ({onOpenVideo, onClose}) => {
               onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
               <span style={{display:"flex",alignItems:"center",gap:"9px"}}>
-                <span style={{fontSize:"14px"}}>▶️</span>{v.title}
+                <Icon name="play" size={13}/>{v.title}
               </span>
               <span style={{color:T.textFaint}}>›</span>
             </button>
@@ -4404,7 +5464,7 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Behavior Help</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Diagnosis Tool</h2>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
       </div>
 
       {diagStep==="start"&&(
@@ -4419,16 +5479,7 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
             <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,marginBottom:"6px"}}>Is your pet struggling with a behavior?</p>
             <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Answer a few quick questions and we'll recommend a personalized training path.</p>
           </div>
-          <GoldBtn onClick={()=>setDiagStep("petType")}>I Need Help With Behavior →</GoldBtn>
-        </div>
-      )}
-
-      {diagStep==="petType"&&(
-        <div className="slide">
-          <SectionTitle>What dog behavior needs help?</SectionTitle>
-          <p style={{fontSize:"13px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Guiding Paw specializes in dog training. Let's find the right program for your pup.</p>
-          <GoldBtn onClick={()=>{set("petType","dog");setDiagStep("issue");}}>Continue to Issues →</GoldBtn>
-          <div style={{marginTop:"10px"}}><BackBtn onClick={()=>setDiagStep("start")}/></div>
+          <GoldBtn onClick={()=>{set("petType","dog");setDiagStep("issue");}}>I Need Help With Behavior →</GoldBtn>
         </div>
       )}
 
@@ -4442,7 +5493,7 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
               </button>
             ))}
           </div>
-          <BackBtn onClick={()=>setDiagStep("petType")}/>
+          <BackBtn onClick={()=>setDiagStep("start")}/>
         </div>
       )}
 
@@ -4517,17 +5568,62 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: PET LIFE RECORD — CHANGE 8
 // ═══════════════════════════════════════════════════════════════════════════════
-const PetLifeRecord = ({petData,onClose}) => {
+const PetLifeRecord = ({petData,setPetData,onClose}) => {
   const T=useTheme(); const petName=petData?.name||"Luna";
+  const groomingLog = petData?.groomingLog || [];
+  const lastGroomedLabel = (() => {
+    if(!groomingLog.length) return "Not logged yet";
+    const days=Math.floor((Date.now()-new Date(groomingLog[0].date).getTime())/(1000*60*60*24));
+    return days<=0?"Today":days===1?"1 day ago":`${days} days ago`;
+  })();
+  const inputId = "pet-photo-upload-input";
+  const handlePhotoChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPetData && setPetData(d => ({...d, photoUrl: reader.result}));
+    };
+    reader.readAsDataURL(file);
+  };
+  const removePhoto = () => setPetData && setPetData(d => ({...d, photoUrl: null}));
+  const petWalkLog = petData?.walkLog || [];
+  const milesToday = petWalkLog
+    .filter(w=>w.date===new Date().toLocaleDateString())
+    .reduce((s,w)=>s+(w.distanceMi||0),0);
+  const exerciseTodayLabel = petWalkLog.length
+    ? `${milesToday.toFixed(2)} miles walked`
+    : "No walks logged yet";
+  // Potty schedule entries logged in Live → Potty Schedule are saved straight to
+  // petData.pottyLog, so the profile always reflects the most recent success rate.
+  const pottyLog = petData?.pottyLog || [];
+  const pottyLabel = pottyLog.length
+    ? `${pottyLog.filter(e=>e.success).length}/${pottyLog.length} successful`
+    : "Not logged yet";
   const stats=[
-    {label:"Age",value:"2 years",icon:"🎂"},
-    {label:"Training Streak",value:"7 days 🔥",icon:"📈"},
-    {label:"Today's Assignment",value:"Loose leash walking",icon:"📋"},
-    {label:"Health Status",value:"Vaccines up to date ✓",icon:"💉"},
-    {label:"Exercise Today",value:"1.2 miles walked",icon:"🏃"},
-    {label:"Last Groomed",value:"3 days ago",icon:"✂️"},
-    {label:"Meals Today",value:"2 / 2 completed",icon:"🍗"},
-    {label:"Training Phase",value:"Week 2 of 6",icon:"🎯"},
+    {label:"Age",value:petData?.age||"2 years",icon:"gift"},
+    {label:"Training Streak",value:"7 days",icon:"chart"},
+    {label:"Today's Assignment",value:"Loose leash walking",icon:"clipboard"},
+    {label:"Health Status",value:"Vaccines up to date",icon:"syringe"},
+    {label:"Exercise Today",value:exerciseTodayLabel,icon:"run"},
+    {label:"Potty Schedule",value:pottyLabel,icon:"droplet"},
+    {label:"Last Groomed",value:lastGroomedLabel,icon:"pencil"},
+    {label:"Meals Today",value:"2 / 2 completed",icon:"bowl"},
+    {label:"Training Phase",value:"Week 2 of 6",icon:"target"},
+  ];
+  // ── Every answer given during account setup, pulled straight from petData
+  // (petData is populated with the full onboarding questionnaire on signup) ──
+  const ROLE_LABELS = {bestfriend:"Best Friend",kid:"Kid",family:"Family Member",watchdog:"Watchdog",service:"Service / Emotional Support"};
+  const fmtList = (arr) => Array.isArray(arr) && arr.length ? arr.join(", ") : "Not set";
+  const setupAnswers=[
+    {label:"Role in the Family",value:Array.isArray(petData?.role)&&petData.role.length?petData.role.map(r=>ROLE_LABELS[r]||r).join(", "):"Not set",icon:"heart"},
+    {label:"Rescue",value:petData?.rescue==="yes"?"Yes":petData?.rescue==="no"?"No":"Not set",icon:"home"},
+    {label:"Gender",value:petData?.gender==="boy"?"Boy":petData?.gender==="girl"?"Girl":"Not set",icon:"tag"},
+    {label:"Knows Already",value:fmtList(petData?.knows),icon:"checkCircle"},
+    {label:"Working On",value:fmtList(petData?.issues),icon:"target"},
+    {label:"Daily Training Time",value:fmtList(petData?.trainTime),icon:"clock"},
+    {label:"Preferred Training Time",value:petData?.trainHour?`${petData.trainHour}:${petData.trainMin||"00"} ${petData.trainAmPm||"AM"}`:"Not set",icon:"calendar"},
+    {label:"Additional Pets in Home",value:petData?.additionalPets?"Yes":"No",icon:"paw"},
   ];
   return (
     <ScrollBody>
@@ -4536,24 +5632,34 @@ const PetLifeRecord = ({petData,onClose}) => {
           <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Unified Record</p>
           <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Pet Life Record</h2>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
       </div>
 
       {/* Pet hero card */}
       <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"18px",marginBottom:"16px",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",right:"14px",top:"14px",fontSize:"48px",opacity:.25}}>🐕</div>
         <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
-          <div style={{width:"52px",height:"52px",borderRadius:"50%",background:"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px"}}>🐾</div>
-          <div>
+          <label htmlFor={inputId} style={{width:"52px",height:"52px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",color:T.gold,flexShrink:0,cursor:"pointer",overflow:"hidden",position:"relative"}}
+            title={petData?.photoUrl?"Change photo":"Add a photo"}>
+            {petData?.photoUrl
+              ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              : <Icon name="cameraPlus" size={22}/>}
+            <input id={inputId} type="file" accept="image/*" onChange={handlePhotoChange} style={{display:"none"}}/>
+          </label>
+          <div style={{flex:1}}>
             <h3 style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}</h3>
-            <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>Labrador Retriever · Male · 2 yrs</p>
+            <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>{petData?.breed||"Breed not set"} · {petData?.gender==="boy"?"Male":petData?.gender==="girl"?"Female":"Gender not set"} · {petData?.age||"Age not set"}</p>
           </div>
+          {petData?.photoUrl && (
+            <button onClick={removePhoto} title="Remove photo" style={{background:"rgba(0,0,0,.25)",border:"none",borderRadius:"7px",padding:"6px",cursor:"pointer",color:"rgba(255,255,255,.7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+              <Icon name="trash" size={13}/>
+            </button>
+          )}
         </div>
         <div style={{display:"flex",gap:"8px"}}>
-          {[{l:"Training",v:"42%"},{l:"Health",v:"✓ Good"},{l:"Streak",v:"🔥 7d"}].map(({l,v})=>(
+          {[{l:"Training",v:"42%"},{l:"Health",v:"Good",ic:"check"},{l:"Streak",v:"7d",ic:"flame"}].map(({l,v,ic})=>(
             <div key={l} style={{flex:1,background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px",textAlign:"center"}}>
               <p style={{fontSize:"8.5px",color:"rgba(255,255,255,.5)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"2px"}}>{l}</p>
-              <p style={{fontSize:"12.5px",fontWeight:"700",color:"#fff"}}>{v}</p>
+              <p style={{fontSize:"12.5px",fontWeight:"700",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"3px"}}>{ic&&<Icon name={ic} size={11}/>}{v}</p>
             </div>
           ))}
         </div>
@@ -4563,13 +5669,29 @@ const PetLifeRecord = ({petData,onClose}) => {
       <div className="s2" style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"14px"}}>
         {stats.map(({label,value,icon})=>(
           <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"center",gap:"12px"}}>
-            <span style={{fontSize:"20px",width:"28px",textAlign:"center",flexShrink:0}}>{icon}</span>
+            <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={icon} size={19}/></span>
             <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600"}}>{label}</p>
               <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right",maxWidth:"55%"}}>{value}</p>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Setup Answers — everything captured during account setup */}
+      <div className="s2b" style={{marginBottom:"14px"}}>
+        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px",paddingLeft:"2px"}}>From Your Setup</p>
+        <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+          {setupAnswers.map(({label,value,icon})=>(
+            <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"flex-start",gap:"12px"}}>
+              <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold,marginTop:"1px"}}><Icon name={icon} size={19}/></span>
+              <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"10px"}}>
+                <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600",flexShrink:0}}>{label}</p>
+                <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right"}}>{value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Health records quick-links */}
@@ -4643,7 +5765,7 @@ const buildRenewalEmail = (details) => {
   const dateStr = now.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
   const body = `
-    <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Subscription Renewed ✓</h2>
+    <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Subscription Renewed</h2>
     <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;">Hi ${details.name}, your subscription has been successfully renewed and your payment has been processed.</p>
 
     <!-- Receipt card -->
@@ -4686,7 +5808,9 @@ const buildDeleteEmail = (details) => {
   const purgeDate = new Date(now.getTime() + 30*24*60*60*1000).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   const body = `
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="width:64px;height:64px;border-radius:50%;background:#f0f7f2;border:2px solid #4a7c5f;display:inline-flex;align-items:center;justify-content:center;font-size:28px;line-height:64px;">✓</div>
+      <div style="width:64px;height:64px;border-radius:50%;background:#f0f7f2;border:2px solid #4a7c5f;display:inline-flex;align-items:center;justify-content:center;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4a7c5f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>
+      </div>
     </div>
 
     <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;text-align:center;">Account Deletion Confirmed</h2>
@@ -4715,11 +5839,11 @@ const buildDeleteEmail = (details) => {
     <!-- 30-day recovery banner -->
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#fdf6e8;border:1.5px solid #e8c97a;border-radius:12px;margin-bottom:24px;">
       <tr><td style="padding:18px 20px;">
-        <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#B08D57;">⏳ Changed Your Mind?</p>
+        <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#B08D57;">Changed Your Mind?</p>
         <p style="margin:0 0 10px;font-size:13px;color:#5a4a2a;line-height:1.65;">Your data is kept securely for <strong>30 days</strong> before being permanently purged on <strong>${purgeDate}</strong>. If this was a mistake, contact us before that date and we can fully restore your account — no questions asked.</p>
         <table cellpadding="0" cellspacing="0"><tr>
-          <td style="padding-right:16px;font-size:13px;color:#5a4a2a;">📧 <a href="mailto:${SUPPORT_EMAIL}" style="color:#B08D57;font-weight:700;">${SUPPORT_EMAIL}</a></td>
-          <td style="font-size:13px;color:#5a4a2a;">📞 <a href="tel:${SUPPORT_PHONE.replace(/-/g,"")}" style="color:#B08D57;font-weight:700;">${SUPPORT_PHONE}</a></td>
+          <td style="padding-right:16px;font-size:13px;color:#5a4a2a;"><a href="mailto:${SUPPORT_EMAIL}" style="color:#B08D57;font-weight:700;">${SUPPORT_EMAIL}</a></td>
+          <td style="font-size:13px;color:#5a4a2a;"><a href="tel:${SUPPORT_PHONE.replace(/-/g,"")}" style="color:#B08D57;font-weight:700;">${SUPPORT_PHONE}</a></td>
         </tr></table>
       </td></tr>
     </table>
@@ -4745,7 +5869,9 @@ const buildCancellationEmail = (details) => {
   const accessDate = details.renewalDate || "the end of your current billing period";
   const body = `
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="width:64px;height:64px;border-radius:50%;background:#f5f0e8;border:2px solid #B08D57;margin:0 auto;display:inline-flex;align-items:center;justify-content:center;font-size:28px;line-height:64px;">✓</div>
+      <div style="width:64px;height:64px;border-radius:50%;background:#f5f0e8;border:2px solid #B08D57;margin:0 auto;display:inline-flex;align-items:center;justify-content:center;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#B08D57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5l2.5 2.5 5.5-6"/></svg>
+      </div>
     </div>
 
     <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;text-align:center;">Subscription Cancelled</h2>
@@ -4774,7 +5900,7 @@ const buildCancellationEmail = (details) => {
     <!-- Access reminder banner -->
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f7f2;border:1.5px solid #4a7c5f;border-radius:12px;margin-bottom:24px;">
       <tr><td style="padding:16px 20px;">
-        <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2F4F3E;">📅 You Still Have Access</p>
+        <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#2F4F3E;">You Still Have Access</p>
         <p style="margin:0;font-size:13px;color:#2a4a38;line-height:1.65;">Your account remains fully active until <strong>${accessDate}</strong>. You can continue using all features until then — your training programs, pet records, and history are all still available.</p>
       </td></tr>
     </table>
@@ -4808,7 +5934,7 @@ const simulateSendEmail = (type, details) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: SETTINGS (multi-tab: Profile / Settings / Contact / Sign Out)
 // ═══════════════════════════════════════════════════════════════════════════════
-const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHandoutLibrary,onOpenVideoLibrary}) => {
+const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHandoutLibrary,onOpenVideoLibrary,petData,setPetData,onOpenDiagnosis}) => {
   const T=useTheme();
   const [tab,setTab]=useState("profile");
   const [showSaved,setShowSaved]=useState(false);
@@ -4874,17 +6000,42 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     setTimeout(()=>setPwChangedSuccess(false),3000);
   };
 
-  // Pet profile state (supports multiple pets)
-  const [pets,setPets]=useState([{name:"Luna",breed:"Labrador Retriever",birthday:"",gender:"",food:"",allergiesAndSensitivities:"",medications:"",grooming:"",potty:"",docs:[]}]);
+  // Pet profile state (supports multiple pets). The primary pet (index 0) is
+  // initialized from — and kept in sync with — the real petData captured during
+  // onboarding, so every setup answer stays stored and editable in one place.
+  const [pets,setPets]=useState(()=>[{
+    name:petData?.name||"",breed:petData?.breed||"",birthday:petData?.birthday||"",
+    gender:petData?.gender||"",
+    food:petData?.food||"",allergiesAndSensitivities:petData?.allergiesAndSensitivities||"",
+    medications:petData?.medications||"",grooming:petData?.grooming||"",potty:petData?.potty||"",
+    docs:petData?.docs||[],
+  }]);
   const [activePet,setActivePet]=useState(0);
-  const sp=(k,v)=>setPets(ps=>ps.map((p,i)=>i===activePet?{...p,[k]:v}:p));
+  const sp=(k,v)=>{
+    setPets(ps=>ps.map((p,i)=>i===activePet?{...p,[k]:v}:p));
+    // Keep the primary pet's record (the one used across the whole app) in sync
+    if(activePet===0 && setPetData) setPetData(d=>({...d,[k]:v}));
+  };
   const pet=pets[activePet];
 
-  // Client / account state
-  const [client,setClient]=useState({firstName:"",lastName:"",email:"",phone:"",cardLast4:"4242",program:"Annual Plan",renewalDate:"Mar 17, 2027"});
+  // Client / account state — pre-filled from whatever was captured at signup
+  const [client,setClient]=useState({
+    firstName:petData?.firstName||"",lastName:petData?.lastName||"",
+    email:petData?.email||"",phone:petData?.phone||"",countryCode:petData?.countryCode||"US",
+    cardLast4:"4242",program:"Annual Plan",renewalDate:"Mar 17, 2027",
+  });
   const sc=(k,v)=>setClient(c=>({...c,[k]:v}));
+  const [accountErrors,setAccountErrors]=useState({});
 
   const handleSave=()=>{
+    const e={};
+    if(!isValidEmail(client.email)) e.email="Please enter a valid email (needs an @ and a .).";
+    if(client.phone && !isValidPhone(client.phone,client.countryCode)) e.phone=`Please enter a valid ${findCountry(client.countryCode).digits}-digit phone number for ${findCountry(client.countryCode).name}.`;
+    setAccountErrors(e);
+    if(Object.keys(e).length>0) return;
+    // Keep the account's email/phone in sync with the pet profile, same as
+    // every other setting captured here.
+    setPetData&&setPetData(d=>({...d,firstName:client.firstName,lastName:client.lastName,email:client.email,phone:client.phone,countryCode:client.countryCode}));
     setShowSaved(true);
     setTimeout(()=>setShowSaved(false),2200);
   };
@@ -4975,28 +6126,28 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
       {/* Card saved toast */}
       {cardSaved&&(
         <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
-          💳 Card Updated
+          <Icon name="card" size={13} style={{marginRight:"4px"}}/>Card Updated
         </div>
       )}
 
       {/* Renewal email sent toast */}
       {renewalEmailSent&&(
         <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          ✉️ Renewal receipt sent<br/><span style={{fontSize:"11px",color:T.textMuted}}>Check your email</span>
+          <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Renewal receipt sent</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Check your email</span>
         </div>
       )}
 
       {/* Cancellation email sent toast */}
       {cancelEmailSent&&(
         <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid rgba(224,122,95,.5)`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          ✉️ Cancellation confirmed<br/><span style={{fontSize:"11px",color:T.textMuted}}>Confirmation email sent</span>
+          <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Cancellation confirmed</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Confirmation email sent</span>
         </div>
       )}
 
       {/* Restart success toast */}
       {restartSuccess&&(
         <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          🎉 Subscription Reactivated!
+          <Icon name="party" size={13} style={{marginRight:"4px"}}/>Subscription Reactivated!
         </div>
       )}
 
@@ -5005,7 +6156,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
           <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
             <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{fontSize:"40px",marginBottom:"8px"}}>😔</div>
+              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.textFaint}}><Icon name="x" size={40}/></div>
               <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Cancel Subscription?</h3>
               <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your access will continue until <strong style={{color:T.text}}>{client.renewalDate}</strong>. No further charges will be made.</p>
               <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.5}}>You can reactivate at any time from this page.</p>
@@ -5025,7 +6176,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
           <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
             <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{fontSize:"40px",marginBottom:"8px"}}>🐾</div>
+              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="paw" size={40}/></div>
               <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reactivate Subscription?</h3>
               <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your <strong style={{color:T.text}}>{client.program}</strong> will resume and your card ending in <strong style={{color:T.text}}>{client.cardLast4}</strong> will be billed on your next renewal date.</p>
             </div>
@@ -5042,7 +6193,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
           <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
             <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{fontSize:"40px",marginBottom:"8px"}}>⚠️</div>
+              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.brown}}><Icon name="alert" size={40}/></div>
               <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Delete Account?</h3>
               <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>This will <strong style={{color:"#e07a5f"}}>permanently delete</strong> your account and all associated data. This action cannot be undone.</p>
             </div>
@@ -5060,12 +6211,12 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
       {deleteSuccess&&(
         <div style={{position:"fixed",inset:0,background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"32px"}}>
           <div style={{textAlign:"center",animation:"rise .45s both",maxWidth:"300px"}}>
-            <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"36px",margin:"0 auto 20px",boxShadow:`0 0 0 16px rgba(76,175,125,.1)`}}>✓</div>
+            <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:`0 0 0 16px rgba(76,175,125,.1)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
             <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Account Deleted</h2>
             <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your account has been scheduled for deletion.</p>
             <p style={{fontSize:"12px",color:T.textFaint,marginBottom:"18px"}}>A confirmation email has been sent.</p>
             <div style={{background:"rgba(176,141,87,.1)",border:`1px solid rgba(176,141,87,.3)`,borderRadius:"12px",padding:"14px 16px",textAlign:"left"}}>
-              <p style={{fontSize:"11px",fontWeight:"700",color:T.gold,marginBottom:"6px",letterSpacing:".08em",textTransform:"uppercase"}}>⏳ Changed your mind?</p>
+              <p style={{fontSize:"11px",fontWeight:"700",color:T.gold,marginBottom:"6px",letterSpacing:".08em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="clock" size={12}/>Changed your mind?</p>
               <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your data is held for <strong style={{color:T.text}}>30 days</strong> before permanent purge. Contact us to restore your account:</p>
               <p style={{fontSize:"12px",color:T.gold,fontWeight:"700",marginBottom:"2px"}}>info@guidingpaw.com</p>
               <p style={{fontSize:"12px",color:T.gold,fontWeight:"700"}}>801-435-1239</p>
@@ -5080,7 +6231,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
           <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"340px",width:"100%",animation:"rise .35s both"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
               <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Update Payment Card</h3>
-              <button onClick={()=>setShowUpdateCard(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+              <button onClick={()=>setShowUpdateCard(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
             </div>
             {[
               {label:"Name on Card",val:newCardName,set:setNewCardName,ph:"Jane Smith",type:"text"},
@@ -5112,7 +6263,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
           <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"360px",width:"100%",maxHeight:"88vh",overflowY:"auto",animation:"rise .35s both"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
               <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Change Password</h3>
-              <button onClick={closeChangePassword} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}>✕</button>
+              <button onClick={closeChangePassword} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
             </div>
 
             {/* Current password */}
@@ -5123,9 +6274,9 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
                   onChange={e=>{setCurrentPw(e.target.value);setPwErrors(r=>({...r,currentPw:undefined}));}}
                   placeholder="Enter current password"
                   style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.currentPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowCurrentPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>{showCurrentPw?"🙈":"👁️"}</button>
+                <button type="button" onClick={()=>setShowCurrentPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showCurrentPw?"eyeOff":"eye"} size={16}/></button>
               </div>
-              {pwErrors.currentPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {pwErrors.currentPw}</p>}
+              {pwErrors.currentPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.currentPw}</p>}
             </div>
 
             {/* New password */}
@@ -5136,9 +6287,9 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
                   onChange={e=>{setNewPw(e.target.value);setPwErrors(r=>({...r,newPw:undefined}));}}
                   placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
                   style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.newPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>{showNewPw?"🙈":"👁️"}</button>
+                <button type="button" onClick={()=>setShowNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showNewPw?"eyeOff":"eye"} size={16}/></button>
               </div>
-              {pwErrors.newPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {pwErrors.newPw}</p>}
+              {pwErrors.newPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.newPw}</p>}
               <PasswordStrengthMeter pw={newPw}/>
               <GeneratePasswordBtn onGenerate={handleGenerateNewPw}/>
               <PasswordChecklist pw={newPw}/>
@@ -5152,10 +6303,10 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
                   onChange={e=>{setConfirmNewPw(e.target.value);setPwErrors(r=>({...r,confirmNewPw:undefined}));}}
                   placeholder="Re-enter new password"
                   style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.confirmNewPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowConfirmNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>{showConfirmNewPw?"🙈":"👁️"}</button>
+                <button type="button" onClick={()=>setShowConfirmNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmNewPw?"eyeOff":"eye"} size={16}/></button>
               </div>
-              {pwErrors.confirmNewPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}>⚠ {pwErrors.confirmNewPw}</p>}
-              {!pwErrors.confirmNewPw && confirmNewPw.length>0 && confirmNewPw===newPw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}>✓ Passwords match</p>}
+              {pwErrors.confirmNewPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.confirmNewPw}</p>}
+              {!pwErrors.confirmNewPw && confirmNewPw.length>0 && confirmNewPw===newPw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
             </div>
 
             <GoldBtn onClick={handleSavePassword}>Save New Password</GoldBtn>
@@ -5240,7 +6391,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             ].map(({k,l,ph})=>(
               <div key={k} style={{marginBottom:"10px"}}>
                 <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
-                <input value={pet[k]||""} onChange={e=>sp(k,e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                <input value={pet[k]||""} onChange={e=>sp(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
               </div>
             ))}
             <GoldBtn onClick={handleSave} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Pet Profile</GoldBtn>
@@ -5261,7 +6412,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
                 <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".13em",textTransform:"uppercase",marginBottom:"8px"}}>Attached Documents & Notes</p>
                 {[...(pet.docs||[]),...quickAddDocs].map((doc,di)=>(
                   <div key={di} style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"9px",marginBottom:"6px"}}>
-                    <span style={{fontSize:"16px"}}>{doc.url?"📄":"📝"}</span>
+                    <Icon name={doc.url?"clipboard":"pencil"} size={16}/>
                     <div style={{flex:1}}>
                       <p style={{fontSize:"12px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{doc.name}</p>
                       <p style={{fontSize:"10px",color:T.textMuted}}>{doc.type} · {doc.date}</p>
@@ -5294,14 +6445,28 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             {[
               {k:"firstName",l:"First Name",ph:"Jane"},
               {k:"lastName",l:"Last Name",ph:"Smith"},
-              {k:"email",l:"Email",ph:"you@example.com"},
-              {k:"phone",l:"Phone",ph:"(555) 000-0000"},
             ].map(({k,l,ph})=>(
               <div key={k} style={{marginBottom:"10px"}}>
                 <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
-                <input value={client[k]||""} onChange={e=>sc(k,e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                <input value={client[k]||""} onChange={e=>sc(k,capitalizeName(e.target.value))} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
               </div>
             ))}
+
+            {/* Email — validated for @ and . on save */}
+            <div style={{marginBottom:"10px"}}>
+              <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:accountErrors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"4px"}}>Email</label>
+              <input type="email" value={client.email||""} onChange={e=>{sc("email",e.target.value);setAccountErrors(r=>({...r,email:undefined}));}} placeholder="you@example.com"
+                style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${accountErrors.email?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+              {accountErrors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {accountErrors.email}</p>}
+            </div>
+
+            {/* Phone — country picked first so we know which digit-count/format to validate against */}
+            <div style={{marginBottom:"10px"}}>
+              <PhoneField label="Phone" countryCode={client.countryCode||"US"} onCountryChange={v=>sc("countryCode",v)}
+                phone={client.phone||""} onPhoneChange={v=>sc("phone",v)}
+                error={accountErrors.phone} onFocusClear={()=>setAccountErrors(r=>({...r,phone:undefined}))}/>
+            </div>
+
             <GoldBtn onClick={handleSave} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Account Info</GoldBtn>
           </div>
 
@@ -5309,14 +6474,14 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Password</p>
             {pwChangedSuccess ? (
               <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"10px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
-                <span style={{fontSize:"16px"}}>✓</span>
+                <Icon name="check" size={16} color={T.success} strokeWidth={3}/>
                 <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Password updated successfully.</p>
               </div>
             ) : (
               <>
                 <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"10px"}}>Keep your account secure with a strong, unique password.</p>
                 <button onClick={()=>setShowChangePassword(true)} style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-                  🔒 Change Password
+                  <Icon name="lock" size={13}/>Change Password
                 </button>
               </>
             )}
@@ -5354,7 +6519,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
 
             {/* Update card button */}
             <button onClick={()=>setShowUpdateCard(true)} style={{width:"100%",marginTop:"12px",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-              💳 Update / Change Payment Card
+              <Icon name="card" size={13} style={{marginRight:"5px"}}/>Update / Change Payment Card
             </button>
 
             {/* Cancel or Reactivate */}
@@ -5364,7 +6529,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               </button>
             ):(
               <GoldBtn onClick={()=>setShowRestartConfirm(true)} style={{marginTop:"10px",padding:"11px",fontSize:"12px"}}>
-                🐾 Reactivate My Subscription
+                Reactivate My Subscription
               </GoldBtn>
             )}
 
@@ -5373,7 +6538,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               <div style={{marginTop:"12px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"11px 13px"}}>
                 <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5,marginBottom:"8px"}}>A receipt email is automatically sent each time your subscription renews and your card is charged.</p>
                 <button onClick={handleSimulateRenewal} style={{background:"rgba(76,175,125,.12)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"8px",padding:"7px 12px",fontSize:"11px",color:"#4caf7d",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-                  ✉️ Simulate Renewal Email (Demo)
+                  <Icon name="mail" size={12}/>Simulate Renewal Email (Demo)
                 </button>
               </div>
             )}
@@ -5389,7 +6554,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             <p style={{fontSize:"10px",color:"#e07a5f",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px"}}>Danger Zone</p>
             <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"12px"}}>Permanently delete your account and all training data. This cannot be undone.</p>
             <button onClick={()=>setShowDeleteConfirm(true)} style={{width:"100%",padding:"11px",background:"rgba(224,122,95,.12)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".06em"}}>
-              🗑 Delete My Account
+              <Icon name="trash" size={13} style={{marginRight:"4px"}}/>Delete My Account
             </button>
           </div>
         </>
@@ -5404,21 +6569,33 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             <p style={{fontSize:"12px",color:T.textMuted}}>Professional Dog Training</p>
           </div>
           {[
-            {icon:"✉️",label:"Email",val:"info@guidingpaw.com"},
-            {icon:"📱",label:"Phone",val:"801-435-1239"},
-            {icon:"🌐",label:"Website",val:"www.guidingpaw.com"},
-            {icon:"📍",label:"Location",val:"Serving clients worldwide"},
-          ].map(({icon,label,val})=>(
+            {icon:"mail",label:"Email",val:"info@guidingpaw.com",href:"mailto:info@guidingpaw.com"},
+            {icon:"phone",label:"Phone",val:"801-435-1239",href:"tel:+18014351239"},
+            {icon:"globe",label:"Website",val:"www.guidingpaw.com",href:"https://guidingpaw.com/"},
+            {icon:"pin",label:"Location",val:"Serving clients worldwide"},
+          ].map(({icon,label,val,href})=>(
             <div key={label} style={{display:"flex",alignItems:"center",gap:"12px",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
-              <span style={{fontSize:"18px",width:"26px",textAlign:"center"}}>{icon}</span>
+              <span style={{width:"26px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={17}/></span>
               <div>
                 <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",textTransform:"uppercase",letterSpacing:".1em",marginBottom:"2px"}}>{label}</p>
-                <p style={{fontSize:"13px",color:T.text,fontWeight:"600"}}>{val}</p>
+                {href
+                  ? <a href={href} target={href.startsWith("http")?"_blank":undefined} rel={href.startsWith("http")?"noopener noreferrer":undefined}
+                      style={{fontSize:"13px",color:T.text,fontWeight:"600",textDecoration:"none",cursor:"pointer"}}
+                      onMouseEnter={e=>{e.currentTarget.style.color=T.gold;e.currentTarget.style.textDecoration="underline";}}
+                      onMouseLeave={e=>{e.currentTarget.style.color=T.text;e.currentTarget.style.textDecoration="none";}}>
+                      {val}
+                    </a>
+                  : <p style={{fontSize:"13px",color:T.text,fontWeight:"600"}}>{val}</p>}
               </div>
             </div>
           ))}
           <div style={{marginTop:"16px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"12px 14px"}}>
-            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,textAlign:"center"}}>We typically respond within 24 hours. For urgent training questions, use the Diagnosis Tool in the app.</p>
+            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,textAlign:"center"}}>
+              We typically respond within 24 hours. For urgent training questions,{" "}
+              {onOpenDiagnosis
+                ? <span onClick={onOpenDiagnosis} style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>use the Diagnosis Tool</span>
+                : <>use the Diagnosis Tool</>} in the app.
+            </p>
           </div>
         </div>
       )}
@@ -5430,6 +6607,26 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
 // ROOT APP
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function App() {
+  // Some Chrome installs fail to paint the initial CSS media-query layout (mobile vs.
+  // desktop view) on first load, leaving the page blank until something forces a
+  // reflow — e.g. resizing the window or opening DevTools. Dispatching a resize event
+  // shortly after mount reliably nudges Chrome to repaint, with no visible effect on
+  // browsers that aren't affected by this quirk.
+  // Some Chrome installs fail to paint the initial CSS media-query layout (mobile vs.
+  // desktop view) on first load, leaving the page blank until something forces a real
+  // reflow — e.g. resizing the window or opening DevTools. A synthetic "resize" event
+  // alone doesn't trigger this (it doesn't change actual page dimensions), so instead we
+  // briefly toggle the page's visibility, which forces Chrome to recompute layout and
+  // repaint for real. No visible effect on browsers that aren't affected by this quirk.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      document.documentElement.style.display = "none";
+      void document.documentElement.offsetHeight; // force synchronous layout recalculation
+      document.documentElement.style.display = "";
+    }, 60);
+    return () => clearTimeout(t);
+  }, []);
+
   const [darkMode,setDarkMode]=useState(true);
   const T=darkMode?DARK:LIGHT;
   const [screen,setScreen]=useState("signin");
@@ -5441,17 +6638,27 @@ export default function App() {
   const [showPlus,setShowPlus]=useState(false);
   const [showDiag,setShowDiag]=useState(false);
   const [showLifeRecord,setShowLifeRecord]=useState(false);
+  const [mobileNavOpen,setMobileNavOpen]=useState(false);
   const [showHandout,setShowHandout]=useState(null); // null | "__library__" | handout id
   const [handoutHistory,setHandoutHistory]=useState([]); // stack of previously-viewed handout screens
+  // Opens the Behavior Diagnosis tool from anywhere in the app (e.g. a "use the
+  // diagnosis tool" link) and clears any other overlay so it's the only thing shown.
+  const openDiagnosis=()=>{
+    setShowDiag(true);
+    setShowLifeRecord(false); setShowWelcome(false);
+    setShowVideo(null); setVideoHistory([]);
+    setShowHandout(null); setHandoutHistory([]);
+    setShowGame(null);
+  };
   const openHandout=(id)=>{
     if(showHandout) setHandoutHistory(h=>[...h, showHandout]); // remember where we came from
     setShowHandout(id);
-    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);
+    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);
   };
   const openHandoutLibrary=()=>{
     setHandoutHistory([]); // fresh entry point — nothing to go back to yet
     setShowHandout("__library__");
-    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);
+    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);
   };
   const goBackHandout=()=>{
     if(handoutHistory.length===0){ setShowHandout(null); return; }
@@ -5466,12 +6673,12 @@ export default function App() {
   const openVideo=(id)=>{
     if(showVideo) setVideoHistory(h=>[...h, showVideo]); // remember where we came from
     setShowVideo(id);
-    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);
+    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);
   };
   const openVideoLibrary=()=>{
     setVideoHistory([]); // fresh entry point — nothing to go back to yet
     setShowVideo("__library__");
-    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);
+    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);
   };
   const goBackVideo=()=>{
     if(videoHistory.length===0){ setShowVideo(null); return; }
@@ -5482,16 +6689,69 @@ export default function App() {
   };
   const closeVideo=()=>{ setShowVideo(null); setVideoHistory([]); };
   const [showWelcome,setShowWelcome]=useState(false);
+  // Game instructions (Bond screen) — same open/close pattern as handouts/videos.
+  const [showGame,setShowGame]=useState(null); // null | game id
+  const openGame=(id)=>{
+    setShowGame(id);
+    setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);
+    setShowVideo(null);setVideoHistory([]);setShowHandout(null);setHandoutHistory([]);
+  };
+  const closeGame=()=>setShowGame(null);
   // Shared puppy program state — lifted so Dashboard can show correct assignment/streak
   const [puppyCompleted,setPuppyCompleted]=useState({});
   const [stdCompleted,setStdCompleted]=useState({});
+  // Dashboard "Today's Assignment" and "Daily Routine Builder" checkbox state —
+  // lifted here (not local to DashboardScreen) so checking something off and
+  // navigating away (e.g. the back arrow) doesn't lose the progress.
+  const [assignDone,setAssignDone]=useState({});
+  const [routineDone,setRoutineDone]=useState({});
   const [puppyWeekDone,setPuppyWeekDone]=useState({});
   const [puppyStreak,setPuppyStreak]=useState(3);
+  // Which curriculum week is expanded, and when each week was marked complete —
+  // lifted here (not local to LearnScreen) so opening a lesson video and hitting
+  // Back returns to exactly this same week instead of collapsing back to the top.
+  const [learnOpenWeek,setLearnOpenWeek]=useState(null);
+  const [weekCompletedAt,setWeekCompletedAt]=useState({});
   // Tracks whether each program's required welcome video has been watched
   const [welcomeVideoWatched,setWelcomeVideoWatched]=useState({standard:false, puppy:false});
   const [quickAddDocs,setQuickAddDocs]=useState([]);
   const handleQuickAdd=(doc)=>setQuickAddDocs(d=>[...d,doc]);
   const [walkLog,setWalkLog]=useState([]);
+  // Potty timer lives here (not inside the Potty Schedule screen) so it keeps
+  // counting down and can show up as a small badge on the Dashboard too.
+  const [pottyTimer,setPottyTimer]=useState(IDLE_POTTY_TIMER);
+  const [liveInitialTab,setLiveInitialTab]=useState("activity");
+  const goToPottyTimer=()=>{ setLiveInitialTab("potty"); setPage("live"); setShowDiag(false); setShowLifeRecord(false); setShowWelcome(false); setShowVideo(null); setVideoHistory([]); setShowGame(null); };
+  // Normal navigation to Live should always land on the Activity tab — only the
+  // Dashboard potty-timer badge (goToPottyTimer, above) jumps straight to Potty.
+  const navigateToPage=(p)=>{ if(p==="live") setLiveInitialTab("activity"); setPage(p); };
+
+  // ── Inactivity auto-sign-out (bank-app style) ──
+  // While the app is open and signed in, any interaction bumps the session's
+  // "last activity" timestamp; a periodic check signs the person out only once
+  // they've gone INACTIVITY_LIMIT_MS with no interaction at all. A page refresh
+  // is not, by itself, inactivity — loadSession() re-touches on load too.
+  useEffect(() => {
+    if (screen !== "app") return;
+    let lastBump = 0;
+    const bump = () => {
+      const now = Date.now();
+      if (now - lastBump < 5000) return; // throttle — no need to touch on every single pixel of mouse movement
+      lastBump = now;
+      touchSession();
+    };
+    const events = ["mousedown","mousemove","keydown","scroll","touchstart","wheel"];
+    events.forEach(ev => window.addEventListener(ev, bump, {passive:true}));
+    const checkId = setInterval(() => {
+      if (!peekSession()) { // expired (or missing) — sign out
+        setScreen("signin");
+      }
+    }, 15000); // check every 15s — frequent enough to feel responsive, cheap enough to not matter
+    return () => {
+      events.forEach(ev => window.removeEventListener(ev, bump));
+      clearInterval(checkId);
+    };
+  }, [screen]);
 
   const handleSignIn=()=>{ setPage("dashboard"); setScreen("app"); };
   const handleGoRegister=()=>setScreen("register");
@@ -5502,28 +6762,7 @@ export default function App() {
   const handleSuccessContinue=()=>{ setPlan(pendingData?.plan||"annual"); setPetData({...pendingData, birthday: pendingData?.birthday||""}); setShowWelcome(true); setScreen("app"); };
   const handleDismissWelcome=()=>setShowWelcome(false);
 
-  const renderPage=()=>{
-    if(showWelcome) return <WelcomeDashboard petData={petData} plan={plan} onDismiss={handleDismissWelcome}/>;
-    if(showVideo==="__library__") return <VideoLibraryScreen onOpenVideo={openVideo} onClose={closeVideo}/>;
-    if(showVideo) return <VideoScreen id={showVideo} onClose={closeVideo} onBack={goBackVideo}/>;
-    if(showHandout==="__library__") return <HandoutLibraryScreen onOpenHandout={openHandout} onClose={closeHandout}/>;
-    if(showHandout) return <HandoutScreen id={showHandout} onOpenHandout={openHandout} onBack={goBackHandout} onClose={closeHandout}/>;
-    if(showDiag) return <BehaviorScreen onClose={()=>setShowDiag(false)} onOpenHandout={openHandout}/>;
-    if(showLifeRecord) return <PetLifeRecord petData={petData} onClose={()=>setShowLifeRecord(false)}/>;
-    switch(page){
-      case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
-      case "live":      return <LiveScreen walkLog={walkLog}/>;
-      case "bond":      return <BondScreen/>;
-      case "learn":     return <LearnScreen petData={petData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
-      case "share":     return <ShareScreen/>;
-      case "calendar":  return <CalendarScreen/>;
-      case "store":     return <StoreScreen/>;
-      case "settings":  return <SettingsScreen onSignOut={()=>{try{sessionStorage.removeItem("gp_session");}catch{}setScreen("signin");}} darkMode={darkMode} setDarkMode={setDarkMode} quickAddDocs={quickAddDocs} onOpenHandoutLibrary={openHandoutLibrary} onOpenVideoLibrary={openVideoLibrary}/>;
-      default:          return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
-    }
-  };
-
-  // Web layout: render page content without phone chrome
+  // Page content (shared by the single unified layout on phone & desktop)
   const renderWebPage = () => {
     if(showWelcome) return <WelcomeDashboard petData={petData} plan={plan} onDismiss={handleDismissWelcome}/>;
     if(showVideo==="__library__") return <VideoLibraryScreen onOpenVideo={openVideo} onClose={closeVideo}/>;
@@ -5531,17 +6770,18 @@ export default function App() {
     if(showHandout==="__library__") return <HandoutLibraryScreen onOpenHandout={openHandout} onClose={closeHandout}/>;
     if(showHandout) return <HandoutScreen id={showHandout} onOpenHandout={openHandout} onBack={goBackHandout} onClose={closeHandout}/>;
     if(showDiag) return <BehaviorScreen onClose={()=>setShowDiag(false)} onOpenHandout={openHandout}/>;
-    if(showLifeRecord) return <PetLifeRecord petData={petData} onClose={()=>setShowLifeRecord(false)}/>;
+    if(showLifeRecord) return <PetLifeRecord petData={petData} setPetData={setPetData} onClose={()=>setShowLifeRecord(false)}/>;
+    if(showGame) return <GameInstructionsScreen id={showGame} onClose={closeGame} onBack={closeGame}/>;
     switch(page){
-      case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
-      case "live":      return <LiveScreen walkLog={walkLog}/>;
-      case "bond":      return <BondScreen/>;
-      case "learn":     return <LearnScreen petData={petData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
+      case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone}/>;
+      case "live":      return <LiveScreen walkLog={walkLog} pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} initialTab={liveInitialTab} petData={petData} setPetData={setPetData}/>;
+      case "bond":      return <BondScreen onOpenGame={openGame}/>;
+      case "learn":     return <LearnScreen petData={petData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo} openWeek={learnOpenWeek} setOpenWeek={setLearnOpenWeek} weekCompletedAt={weekCompletedAt} setWeekCompletedAt={setWeekCompletedAt}/>;
       case "share":     return <ShareScreen/>;
       case "calendar":  return <CalendarScreen/>;
       case "store":     return <StoreScreen/>;
-      case "settings":  return <SettingsScreen onSignOut={()=>{try{sessionStorage.removeItem("gp_session");}catch{}setScreen("signin");}} darkMode={darkMode} setDarkMode={setDarkMode} quickAddDocs={quickAddDocs} onOpenHandoutLibrary={openHandoutLibrary} onOpenVideoLibrary={openVideoLibrary}/>;
-      default:          return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo}/>;
+      case "settings":  return <SettingsScreen onSignOut={()=>{clearSession();setScreen("signin");}} darkMode={darkMode} setDarkMode={setDarkMode} quickAddDocs={quickAddDocs} onOpenHandoutLibrary={openHandoutLibrary} onOpenVideoLibrary={openVideoLibrary} petData={petData} setPetData={setPetData} onOpenDiagnosis={openDiagnosis}/>;
+      default:          return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone}/>;
     }
   };
 
@@ -5564,77 +6804,69 @@ export default function App() {
           </div>
         )}
 
-        {/* ── App: mobile phone shell ── */}
-        {screen==="app"&&(
-          <PhoneShell>
-            <TopBanner setPage={(p)=>{setPage(p);setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);}}/>
-            <PageLogoHeader/>
-            {!showWelcome&&<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"4px 16px 0",flexShrink:0}}>
-              <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-              <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
-                <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);}} title="Behavior Diagnosis" style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.gold:T.textFaint,transition:"color .2s",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
-                  </svg>
-                </button>
-                <button onClick={openHandoutLibrary} title="Training Handouts" style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.gold:T.textFaint,transition:"color .2s",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                  </svg>
-                </button>
-                <button onClick={()=>{setPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);}} style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.gold:T.textFaint,fontSize:"18px",transition:"color .2s"}}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                </button>
-              </div>
-            </div>}
-            {renderPage()}
-            {!showWelcome&&<BottomNav active={page} setPage={(p)=>{setPage(p);setShowDiag(false);setShowLifeRecord(false);setShowVideo(null);setVideoHistory([]);}} plan={plan} showPlus={showPlus} setShowPlus={setShowPlus} onQuickAdd={handleQuickAdd} walkLog={walkLog} setWalkLog={setWalkLog}/>}
-          </PhoneShell>
-        )}
-
-        {/* ── App: desktop web layout ── */}
+        {/* ── App: unified layout — same sidebar + topbar structure on phone & desktop ── */}
         {screen==="app"&&(
           <div className="web-layout" style={{background:T.bg}}>
             <SideNav
               page={page}
-              setPage={setPage}
+              setPage={navigateToPage}
               setShowDiag={setShowDiag}
               setShowLifeRecord={setShowLifeRecord}
               setShowWelcome={setShowWelcome}
               setShowVideo={setShowVideo}
               setVideoHistory={setVideoHistory}
+              setShowGame={setShowGame}
+              setShowHandout={setShowHandout}
+              setHandoutHistory={setHandoutHistory}
               plan={plan}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
-              onSignOut={()=>{try{sessionStorage.removeItem("gp_session");}catch{}setScreen("signin");}}
+              onSignOut={()=>{clearSession();setScreen("signin");}}
+              mobileOpen={mobileNavOpen}
+              setMobileOpen={setMobileNavOpen}
             />
             <div className="web-main" style={{background:T.bg}}>
               {/* Top bar */}
-              <div className="web-topbar" style={{background:T.mode==="dark"?"rgba(13,21,32,.97)":"rgba(28,38,54,.97)",borderBottom:`1px solid rgba(176,141,87,.15)`}}>
-                <TopBanner setPage={(p)=>{setPage(p);setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);}}/>
-                <div style={{display:"flex",gap:"12px",alignItems:"center"}}>
-                  <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);}} title="Behavior Diagnosis"
-                    style={{background:"none",border:"none",cursor:"pointer",color:showDiag?"#B08D57":"rgba(216,198,174,.5)",transition:"color .2s",display:"flex",alignItems:"center"}}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                      <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
-                    </svg>
+              <div className="web-topbar" style={{background:T.navTopbarBg,borderBottom:`1px solid ${T.navBarBorder}`}}>
+                {/* Full-width banner — stretches edge-to-edge across the very top on both phone and desktop */}
+                <TopBanner setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}/>
+                <div className="web-topbar-row">
+                  <button className="hamburger-btn" onClick={()=>setMobileNavOpen(v=>!v)} style={{color:T.navTextStrong}} title="Menu">
+                    <Icon name="menu" size={20}/>
                   </button>
-                  <button onClick={openHandoutLibrary} title="Training Handouts"
-                    style={{background:"none",border:"none",cursor:"pointer",color:showHandout?"#B08D57":"rgba(216,198,174,.5)",transition:"color .2s",display:"flex",alignItems:"center"}}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                    </svg>
-                  </button>
+                  <div style={{flex:1}}/>
+                  <div style={{display:"flex",gap:"12px",alignItems:"center"}}>
+                    <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);}} title="Behavior Diagnosis"
+                      style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
+                      </svg>
+                    </button>
+                    <button onClick={openHandoutLibrary} title="Training Handouts"
+                      style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                      </svg>
+                    </button>
+                    <button onClick={openVideoLibrary} title="Training Videos"
+                      style={{background:"none",border:"none",cursor:"pointer",color:showVideo?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                      <Icon name="video" size={18}/>
+                    </button>
+                    <button onClick={()=>{navigateToPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}} title="Settings"
+                      style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                      <Icon name="settings" size={18}/>
+                    </button>
+                  </div>
                 </div>
               </div>
               {/* Page content */}
               <div className="web-content">
                 {renderWebPage()}
               </div>
+              {/* Quick-add / walk tracker bar — same on phone & desktop for feature parity */}
+              {!showWelcome&&<BottomNav active={page} setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}} plan={plan} showPlus={showPlus} setShowPlus={setShowPlus} onQuickAdd={handleQuickAdd} walkLog={walkLog} setWalkLog={setWalkLog} petData={petData} setPetData={setPetData}/>}
             </div>
           </div>
         )}
