@@ -2178,6 +2178,7 @@ const WELCOME_VIDEO = {
 const PUPPY_CURRICULUM = [
   {id:"pp1",  label:"Week 1",  sublabel:"Structure",
     goal:"Creating a predictable rhythm and introducing structure to the puppy through a management schedule, structuring a solid routine, and preventing bad habits early. This week the puppy is learning where to go potty, how to settle, and building trust and stability.",
+    equipment:["Slip lead (puppies)","Treat pouch (any will do)","15-20' long line","A kennel","A place bed (raised is best, but any bed with defined edges will work)"],
     tasks:[
       {name:"Establish daily structure (potty-activity-potty-nap)", sessionsPerDay:"N/A", sessionLength:"N/A"},
       {name:"Work for food",                        sessionsPerDay:"24/7", sessionLength:"N/A"},
@@ -3730,6 +3731,7 @@ const GameInstructionsScreen = ({id, onClose, onBack}) => {
 const STANDARD_CURRICULUM = [
   {id:"pre",  label:"Pre-Requisite", sublabel:"Foundation Skills",
     goal:"Ensure handler and dog have basic skills before starting the 6 week program. Introduce small boundaries and structure to prepare the dog for advancing skills.",
+    equipment:["Slip lead","Treat pouch (any will do)","15-20' long line","A kennel","A place bed (raised is best, but any bed with defined edges will work)"],
     tasks:[
       {name:"Sit with marker words and a lure",        sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
       {name:"Down with marker words and a lure",       sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
@@ -3743,6 +3745,7 @@ const STANDARD_CURRICULUM = [
   {id:"w1",  label:"Week 1", sublabel:"Intro to Pressure / Release",
     unlockAfterDays:7,
     goal:"Develop a clear understanding of leash pressure as a communication tool. The dog learns that moving toward pressure turns it off, replacing the natural oppositional reflex (moving away from pressure). This is a cornerstone skill for all advanced leash work.",
+    equipment:["Treat pouch (any will do)","15-20' long line","Herm Sprenger 2.25mm or 3mm prong collar or slip lead","A kennel","A place bed (raised is best, but any bed with defined edges will work)","E-Collar Technologies ET300 Mini Educator E-Collar (or Micro Educator for smaller dogs) — introduced in Week 2, but good to have on hand now"],
     tasks:[
       {name:"Place with leash pressure",           sessionsPerDay:"1-3", sessionLength:"10 minutes"},
       {name:"Sit with leash pressure",             sessionsPerDay:"1-3", sessionLength:"5 minutes"},
@@ -4144,6 +4147,22 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
             {/* Expanded content */}
             {isOpen && unlocked && (
               <div style={{background:T.mode==="dark"?"rgba(10,15,22,.7)":T.cardInner,border:`1px solid ${weekFullyDone?"rgba(76,175,125,.4)":T.gold}`,borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
+
+                {/* Equipment Needed — shown at the start of a program/phase so people can
+                    get set up before diving into the tasks below. */}
+                {week.equipment && week.equipment.length > 0 && (
+                  <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(176,141,87,.09)":"rgba(176,141,87,.07)"}}>
+                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="backpack" size={12}/>Equipment Needed</p>
+                    <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"5px"}}>
+                      {week.equipment.map((item,ei)=>(
+                        <li key={ei} style={{fontSize:"12px",color:T.textMuted,lineHeight:1.4,display:"flex",alignItems:"flex-start",gap:"7px"}}>
+                          <span style={{color:T.gold,fontWeight:"900",marginTop:"1px",flexShrink:0}}>•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Weekly Sheet: Goal */}
                 {week.goal && (
