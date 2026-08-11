@@ -260,6 +260,20 @@ const globalCss = (T) => `
   /* ── Rolling time-wheel picker (potty timer) ── */
   .wheel-scroll{scrollbar-width:none;-ms-overflow-style:none;}
   .wheel-scroll::-webkit-scrollbar{display:none;width:0;height:0;}
+  /* ── Icon hover tooltips (top bar) — desktop/laptop only, since "hover" isn't a
+     meaningful gesture on touch devices; @media(hover:hover) keeps these from getting
+     stuck open after a tap on phones/tablets. ── */
+  .icon-tt{position:relative;}
+  .icon-tt-bubble{position:absolute;top:calc(100% + 9px);left:50%;transform:translateX(-50%) translateY(-4px);
+    background:${T.mode==="dark"?"#1C2636":"#241d14"};color:#F7F1E4;font-family:'Lato',sans-serif;
+    font-size:11px;font-weight:700;letter-spacing:.02em;white-space:nowrap;padding:6px 11px;border-radius:8px;
+    box-shadow:0 8px 20px rgba(0,0,0,.28);opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;z-index:80;}
+  .icon-tt-bubble::before{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    border:5px solid transparent;border-bottom-color:${T.mode==="dark"?"#1C2636":"#241d14"};}
+  @media(hover:hover) and (pointer:fine){
+    .icon-tt:hover .icon-tt-bubble{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+  }
 `;
 
 // ─── SHARED UI ─────────────────────────────────────────────────────────────────
@@ -6860,28 +6874,40 @@ export default function App() {
                   </button>
                   <div style={{flex:1}}/>
                   <div style={{display:"flex",gap:"12px",alignItems:"center"}}>
-                    <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);}} title="Behavior Diagnosis"
-                      style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
-                      </svg>
-                    </button>
-                    <button onClick={openHandoutLibrary} title="Training Handouts"
-                      style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                      </svg>
-                    </button>
-                    <button onClick={openVideoLibrary} title="Training Videos"
-                      style={{background:"none",border:"none",cursor:"pointer",color:showVideo?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                      <Icon name="video" size={18}/>
-                    </button>
-                    <button onClick={()=>{navigateToPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}} title="Settings"
-                      style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                      <Icon name="settings" size={18}/>
-                    </button>
+                    <div className="icon-tt">
+                      <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);}}
+                        style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                          <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
+                        </svg>
+                      </button>
+                      <span className="icon-tt-bubble">Behavior Diagnosis</span>
+                    </div>
+                    <div className="icon-tt">
+                      <button onClick={openHandoutLibrary}
+                        style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                      </button>
+                      <span className="icon-tt-bubble">Training Handouts</span>
+                    </div>
+                    <div className="icon-tt">
+                      <button onClick={openVideoLibrary}
+                        style={{background:"none",border:"none",cursor:"pointer",color:showVideo?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                        <Icon name="video" size={18}/>
+                      </button>
+                      <span className="icon-tt-bubble">Training Videos</span>
+                    </div>
+                    <div className="icon-tt">
+                      <button onClick={()=>{navigateToPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}
+                        style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                        <Icon name="settings" size={18}/>
+                      </button>
+                      <span className="icon-tt-bubble">Settings</span>
+                    </div>
                   </div>
                 </div>
               </div>
