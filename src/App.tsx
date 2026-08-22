@@ -118,7 +118,7 @@ const DARK = {
   // Inputs: navy-tinted
   inputBg:"rgba(28,38,58,0.6)", inputBorder:"rgba(176,141,87,0.28)", inputFocusBg:"rgba(28,45,65,0.8)",
   text:"#D8C6AE", textMuted:"rgba(216,198,174,0.72)", textFaint:"rgba(216,198,174,0.65)",
-  gold:"#B08D57", goldLight:"#c9a870", green:"#2F4F3E", brown:"#A3562A",
+  gold:"#B08D57", goldLight:"#c9a870", green:"#2F4F3E", brown:"#A3562A", tan:"#D8C6AE",
   navy:"#1C2636", navyDeep:"#0d1520", navyMid:"#243044", navyLight:"rgba(28,38,54,0.7)", success:"#4caf7d",
   // Dividers: navy-blue tinted gold
   divider:"rgba(176,141,87,0.14)",
@@ -159,7 +159,7 @@ const LIGHT = {
   cardInner:"rgba(255,248,238,0.92)", cardInnerBorder:"rgba(28,38,54,0.14)",
   inputBg:"rgba(255,255,255,0.88)", inputBorder:"rgba(28,38,54,0.22)", inputFocusBg:"rgba(255,255,255,1)",
   text:"#1C2636", textMuted:"#524c42", textFaint:"#6b6357",
-  gold:"#8a6535", goldLight:"#a07840", green:"#2F4F3E", brown:"#A3562A",
+  gold:"#8a6535", goldLight:"#a07840", green:"#2F4F3E", brown:"#A3562A", tan:"#D8C6AE",
   navy:"#1C2636", navyDeep:"#0d1520", navyMid:"#243044", navyLight:"rgba(28,38,54,0.08)", success:"#2e7d52",
   divider:"rgba(28,38,54,0.1)",
   // Nav: navy in light mode
@@ -1274,14 +1274,6 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
           </div>
         )}
 
-        {/* Demo hint */}
-        <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",marginBottom:"16px",display:"flex",gap:"8px",alignItems:"flex-start"}}>
-          <Icon name="bulb" size={14} style={{flexShrink:0}} color={T.gold}/>
-          <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>
-            <strong style={{color:T.gold}}>Demo:</strong> use <strong style={{color:T.text}}>demo@guidingpaw.com</strong> / <strong style={{color:T.text}}>Training1!</strong> — or try wrong credentials to see error states.
-          </p>
-        </div>
-
         {/* Auth error banner */}
         {errors.auth&&(
           <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",display:"flex",gap:"8px",alignItems:"flex-start",animation:shake?"shake .4s":"none"}}>
@@ -2020,7 +2012,32 @@ function buildSteps(data,set,toggle,T){
   // Gender
   steps.push({content:(<><SectionTitle>Boy or girl?</SectionTitle><ChipGroup options={[{value:"boy",label:"Boy",emoji:"heart"},{value:"girl",label:"Girl",emoji:"heart"}]} selected={data.gender} onToggle={v=>set("gender",v)} single/></>)});
   // Details
-  steps.push({content:(<><SectionTitle>Tell us about your dog</SectionTitle>{["name","age","weight","birthday","breed"].map(k=><div key={k} style={{marginBottom:"11px"}}><label style={{fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,fontWeight:"700",display:"block",marginBottom:"5px"}}>{k==="birthday"?"Birthday (MM/DD/YYYY)":k.charAt(0).toUpperCase()+k.slice(1)}</label><input value={data[k]} onChange={e=>set(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={k==="age"?"e.g. 2 years":k==="weight"?"lbs":k==="birthday"?"MM/DD/YYYY":k==="name"?"e.g. Luna":"e.g. Labrador Retriever"} style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none"}}/></div>)}</>)});
+  steps.push({content:(<><SectionTitle>Tell us about your dog</SectionTitle><p style={{fontSize:"11.5px",color:T.textMuted,marginBottom:"12px",lineHeight:1.5}}>Age is calculated automatically from birthday, so no need to enter it separately.</p>{["name","weight","birthday","breed"].map(k=><div key={k} style={{marginBottom:"11px"}}><label style={{fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,fontWeight:"700",display:"block",marginBottom:"5px"}}>{k==="birthday"?"Birthday (MM/DD/YYYY)":k.charAt(0).toUpperCase()+k.slice(1)}</label><input value={data[k]} onChange={e=>set(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={k==="weight"?"lbs":k==="birthday"?"MM/DD/YYYY":k==="name"?"e.g. Luna":"e.g. Labrador Retriever"} style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none"}}/></div>)}</>)});
+  // Program choice — this is a purchase decision, not just an age guess. Whichever
+  // program is picked here is the ONLY curriculum this account gets access to; the
+  // other program has to be purchased separately later (see the Learn tab upsell).
+  steps.push({content:(()=>{
+    const weeksOld = ageInWeeks(data.birthday||"");
+    const suggested = (weeksOld!==null && weeksOld<20) ? "puppy" : "standard";
+    const options=[
+      {id:"standard", title:"Standard Training", sub:"6-Week Program", desc:"For dogs generally 20+ weeks old. Leash pressure, e-collar foundations, off-leash reliability."},
+      {id:"puppy", title:"Puppy Training", sub:"12-Week Program", desc:"For puppies under ~20 weeks old. Structure, socialization, foundational skills, and kennel/potty training."},
+    ];
+    return (<>
+      <SectionTitle>Choose Your Training Program</SectionTitle>
+      <p style={{fontSize:"12px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>This is the program your purchase unlocks. Based on {data.name||"your dog"}'s birthday, we suggest <strong style={{color:T.gold}}>{suggested==="puppy"?"Puppy Training":"Standard Training"}</strong> — but you can choose either.</p>
+      <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"6px"}}>
+        {options.map(o=>(
+          <div key={o.id} onClick={()=>set("program",o.id)} style={{padding:"14px 16px",borderRadius:"14px",cursor:"pointer",border:`2px solid ${(data.program||suggested)===o.id?T.gold:T.chipBorder}`,background:(data.program||suggested)===o.id?"rgba(176,141,87,.12)":T.chipBg,transition:"all .2s",position:"relative"}}>
+            {suggested===o.id && <div style={{position:"absolute",top:"-9px",right:"12px",background:T.gold,color:"#fff",fontSize:"9px",fontWeight:"900",letterSpacing:".08em",padding:"2px 8px",borderRadius:"10px"}}>SUGGESTED</div>}
+            <p style={{fontSize:"14px",fontWeight:"700",color:(data.program||suggested)===o.id?T.gold:T.text,marginBottom:"2px"}}>{o.title} <span style={{fontWeight:"400",color:T.textMuted,fontSize:"12px"}}>— {o.sub}</span></p>
+            <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.4}}>{o.desc}</p>
+          </div>
+        ))}
+      </div>
+      <p style={{fontSize:"11px",color:T.textFaint,lineHeight:1.4}}>You'll only get access to the program you pick — the other one can be added later from the Learn tab for an additional purchase.</p>
+    </>);
+  })()});
   // Knows — dog only
   steps.push({content:(<><SectionTitle>What does your dog know?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]} selected={data.knows} onToggle={v=>toggle("knows",v,false)}/></>)});
   steps.push({content:(<><SectionTitle>Behavior issues to work on?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]} selected={data.issues} onToggle={v=>toggle("issues",v,false)}/></>)});
@@ -2152,6 +2169,56 @@ const ageInWeeks = (birthdayStr) => {
   return Math.floor((Date.now() - bday.getTime()) / (1000*60*60*24*7));
 };
 
+// Which curriculum a member is enrolled in — locked in ONCE at signup (based on the
+// dog's age at that time) and stored on petData.enrolledProgram. It intentionally does
+// NOT get recalculated from the dog's current age later (a puppy aging past 20 weeks
+// mid-program shouldn't suddenly lose access to puppy content), and there is no way
+// for the person to switch it themselves — Standard members can't preview/progress
+// through the Puppy curriculum, or vice versa. Older petData that predates this field
+// (or the app's default demo state) falls back to computing it from birthday, same as
+// the app always used to.
+const getEnrolledProgram = (petData) => {
+  if(petData?.enrolledProgram==="puppy" || petData?.enrolledProgram==="standard") return petData.enrolledProgram;
+  const weeksOld = ageInWeeks(petData?.birthday || "");
+  return (weeksOld!==null && weeksOld<20) ? "puppy" : "standard";
+};
+
+// Which program(s) this account actually has PAID access to. Purchasing one program
+// does not grant the other — the Learn tab only shows/unlocks curricula in this list,
+// and offers the missing one as a paid add-on. Falls back to just the enrolled program
+// for any pre-existing petData saved before purchasedPrograms existed.
+const getPurchasedPrograms = (petData) => {
+  if(Array.isArray(petData?.purchasedPrograms) && petData.purchasedPrograms.length){
+    return petData.purchasedPrograms.filter(p=>p==="standard"||p==="puppy");
+  }
+  return [getEnrolledProgram(petData)];
+};
+
+// Computes a human-readable age ("2 yrs 3 mo", "5 months old", "3 weeks old") straight
+// from the pet's birthday, so age always reflects today's date instead of a stale
+// manually-typed value that drifts out of sync over time.
+const computeAge = (birthdayStr) => {
+  if(!birthdayStr) return null;
+  const parts = birthdayStr.split("/");
+  if(parts.length !== 3) return null;
+  const bday = new Date(`${parts[2]}-${parts[0].padStart(2,"0")}-${parts[1].padStart(2,"0")}`);
+  if(isNaN(bday.getTime())) return null;
+  const now = new Date();
+  if(bday > now) return null;
+  let years = now.getFullYear() - bday.getFullYear();
+  let months = now.getMonth() - bday.getMonth();
+  if(now.getDate() < bday.getDate()) months -= 1;
+  if(months < 0){ years -= 1; months += 12; }
+  if(years < 0) return null;
+  if(years === 0 && months === 0){
+    const weeks = Math.max(0, Math.floor((now - bday) / (1000*60*60*24*7)));
+    return weeks <= 1 ? `${weeks} week old` : `${weeks} weeks old`;
+  }
+  if(years === 0) return months === 1 ? "1 month old" : `${months} months old`;
+  if(months === 0) return years === 1 ? "1 year old" : `${years} years old`;
+  return `${years} yr${years===1?"":"s"} ${months} mo`;
+};
+
 // ─── WELCOME VIDEOS ────────────────────────────────────────────────────────────
 // Place the corresponding .mp4 files in your app's public assets folder at these paths
 // (e.g. /public/videos/... for Create React App or Vite, or /public/videos/... for Next.js).
@@ -2160,12 +2227,83 @@ const ageInWeeks = (birthdayStr) => {
 // through the entire program immediately instead of waiting real days between weeks.
 // Set this to false before launching to real, paying customers — otherwise the intended
 // weekly pacing (a real part of the training program) will never actually apply.
-const TESTING_MODE = true;
+const TESTING_MODE = false;
 
-// ─── SHOP / AMAZON STOREFRONT ────────────────────────────────────────────────────
-// One link controls every "Shop" button in the app. Update this single line once a
-// dedicated Guiding Paw storefront exists — no other changes needed.
-const AMAZON_STOREFRONT_URL = "https://www.amazon.com/shop/influencer-cf5629f9?ref_=cm_sw_r_cp_ud_aipsfshop_aipsfinfluencer-cf5629f9_APSTZ0ADCMY623JYZ1MS_1&ccs_id=d8e6cd3e-a740-4f8f-9e8c-651f81fc1e58";
+// ─── SHARED WEEK-UNLOCK LOGIC ────────────────────────────────────────────────────
+// Single source of truth for "is week `wi` of this curriculum unlocked" — used by
+// both the Learn tab and the Video Library's locking check, so the two can never
+// silently disagree about what's actually available.
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+// ─── GHL GRADUATION CERTIFICATE WEBHOOKS ─────────────────────────────────────
+// Fired once, the moment a learner finishes the final week of each program.
+// Each hits its own GoHighLevel Inbound Webhook trigger, which finds/updates the
+// contact and sends the certificate email — no PDF/PNG rendering happens here,
+// GHL's workflow does that part.
+const GHL_CERTIFICATE_WEBHOOKS = {
+  puppy: "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/8b70562c-63e0-465d-bbb1-d7e8c63f7b43",
+  standard: "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/fcd2fd9e-0402-4f56-8be5-5268ba666abf",
+};
+
+const sendCertificateWebhook = (program, petData) => {
+  const url = GHL_CERTIFICATE_WEBHOOKS[program];
+  if(!url) return;
+  const payload = {
+    email: petData?.email || "",
+    dogs_name: petData?.name || "",
+    program: program === "puppy" ? "Puppy Training Program" : "Standard Training Program",
+    completion_date: new Date().toISOString().slice(0,10),
+  };
+  fetch(url, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload),
+  }).catch(err => console.error("[GHL certificate webhook] failed to send:", err));
+};
+
+// ─── GHL PROFILE SYNC WEBHOOK ────────────────────────────────────────────────
+// Fires whenever a member saves changes to their name, email, or phone in
+// Account Settings, so their GoHighLevel contact card stays current. Paste the
+// Inbound Webhook URL here once that workflow is built in GHL (Find Contact by
+// old_email → Update Contact Field with the new values). Left blank, the sync
+// call is skipped — nothing else in the app depends on it.
+const GHL_PROFILE_SYNC_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/308bfdab-f527-4aad-a378-ebd3d14dee1e";
+
+const syncProfileToGHL = (prevClient, nextClient) => {
+  if(!GHL_PROFILE_SYNC_WEBHOOK) return;
+  const payload = {
+    old_email: prevClient.email || "",   // used by GHL to find the existing contact,
+    email: nextClient.email || "",       // even when the email itself is what changed
+    first_name: nextClient.firstName || "",
+    last_name: nextClient.lastName || "",
+    phone: nextClient.phone || "",
+  };
+  fetch(GHL_PROFILE_SYNC_WEBHOOK, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload),
+  }).catch(err => console.error("[GHL profile sync webhook] failed to send:", err));
+};
+const isCurriculumWeekUnlocked = (curriculum, wi, isStandard, welcomeWatched, stdCompleted, puppyWeekDone, weekCompletedAt) => {
+  if(wi === 0) return welcomeWatched;
+  const prev = curriculum[wi-1];
+  if(isStandard) {
+    const allDone = prev.lessons.every(l => !!stdCompleted[`${prev.id}::${l}`]);
+    if(!allDone) return false;
+  } else {
+    // For puppy: the prior week must be marked done before the 7-day pacing below applies
+    if(!puppyWeekDone?.[prev.id]) return false;
+  }
+  // If no delay defined, unlock immediately
+  if(!curriculum[wi].unlockAfterDays) return true;
+  const completedAt = weekCompletedAt[prev.id];
+  if(!completedAt) return false;
+  // TESTING_MODE (above): skips the real 7-day wait so beta testers can move through
+  // every week immediately. Keep this false for real, paying customers so the genuine
+  // 7-day pacing between weeks — a real part of the training program, standard AND
+  // puppy alike — takes effect.
+  return TESTING_MODE ? true : (Date.now() - completedAt) >= SEVEN_DAYS_MS;
+};
 
 // ─── VIDEO HOSTING CONFIG ───────────────────────────────────────────────────────
 // This ONE line controls where every video in the app is loaded from.
@@ -2199,7 +2337,7 @@ const PUPPY_CURRICULUM = [
       {name:"100% Supervision",                     sessionsPerDay:"N/A", sessionLength:"N/A"},
       {name:"Bitey/destructive behavior management", sessionsPerDay:"24/7", sessionLength:"Redirect/assess schedule"},
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming/Handling",                    sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2208,11 +2346,12 @@ const PUPPY_CURRICULUM = [
     mistakes:["Not giving the puppy enough alone time","Kenneling for too long","Giving too much space for the puppy to exist in","Not rewarding desired behaviors","Forgetting to have fun and enjoy the process"],
     lessons:["Intro to 100% supervision & tethering","Set a schedule","Create and submit schedule for feedback in Pro"]},
   {id:"pp2",  label:"Week 2",  sublabel:"Communication",
+    unlockAfterDays:7,
     goal:"Increase communication using marker words, continuing kennel work, and building engagement.",
     tasks:[
       {name:"Marker Words",                         sessionsPerDay:"1-3", sessionLength:"2-5 min"},
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2224,10 +2363,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Using 'yes' without rewarding","Repeating cues (name, markers)","Forcing interactions instead of fostering curiosity","Inconsistent routines"],
     lessons:["Marker words introduction","Socializing","Name game"]},
   {id:"pp3",  label:"Week 3",  sublabel:"First Skill",
+    unlockAfterDays:7,
     goal:"Building responsiveness through a continuation of name games, introduction to recall behaviors, and name \u201csit\u201d cue.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2240,10 +2380,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Starting too far away from the puppy for recall","Not rewarding the puppy for recalling","Training when the puppy is too distracted/tired","Making training sessions too rigid and not having fun"],
     lessons:["Sit with a lure"]},
   {id:"pp4",  label:"Week 4",  sublabel:"Foundation Behavior",
+    unlockAfterDays:7,
     goal:"Continue adding verbal cue for sit, using sit in daily life, expanding socializing. Introduce down with food lure.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me with mild distractions", sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2257,10 +2398,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Repeating cues more than once","Overwhelming instead of socializing","Not consistently rewarding calm"],
     lessons:["Sit practice","Socializing inside the home"]},
   {id:"pp5",  label:"Week 5",  sublabel:"Second Skill",
+    unlockAfterDays:7,
     goal:"Add verbal cue with down, strengthen sits with distractions, intro to waiting and patience.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me — increase distractions", sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2274,10 +2416,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Getting too close to distractions","Allowing overstimulation","Repeating cues"],
     lessons:["Down with a lure","Socializing inside the home"]},
   {id:"pp6",  label:"Week 6",  sublabel:"Environmental Exposure",
+    unlockAfterDays:7,
     goal:"Continue adding verbal cue to \u201cdown\u201d, begin training in the backyard, mild distractions. Introduce Structured Calm - Place.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2291,10 +2434,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Only training at home","Progressing too quickly","Ignoring stress signals"],
     lessons:["Down practice","Socializing outside the home"]},
   {id:"pp7",  label:"Week 7",  sublabel:"Leash Skills",
+    unlockAfterDays:7,
     goal:"Teach puppy to follow leash pressure, introduce boundary rules, and improve outdoor engagement.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2309,10 +2453,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Not working on desensitizing daily","Allowing pulling","Choosing overstimulating environments"],
     lessons:["Leash games","Threshold manners"]},
   {id:"pp8",  label:"Week 8",  sublabel:"Walking Skills",
+    unlockAfterDays:7,
     goal:"Build leash skills and engagement in slightly busier areas.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall/Chase Me",                      sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2327,10 +2472,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Expecting perfect leash skills","Not rewarding engagement","Moving too quickly into distractions","Ignoring body language"],
     lessons:["Leash games","Walking on leash"]},
   {id:"pp9",  label:"Week 9",  sublabel:"Generalization",
+    unlockAfterDays:7,
     goal:"Build confidence and calmness in larger environments.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall with long leash",               sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2345,10 +2491,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Allowing interaction with everything","Staying too long","Getting too close to distractions and losing engagement"],
     lessons:["Socializing at the park","Generalizing commands at the park"]},
   {id:"pp10", label:"Week 10", sublabel:"Public Socialization",
+    unlockAfterDays:7,
     goal:"Introduce calm in controlled public environments.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall with long line",                sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2363,10 +2510,11 @@ const PUPPY_CURRICULUM = [
     mistakes:["Choosing environments that are too busy","Forcing interactions","Not advocating for the puppy"],
     lessons:["Socializing in the outside world","Store visit socialization"]},
   {id:"pp11", label:"Week 11", sublabel:"Public Socialization II",
+    unlockAfterDays:7,
     goal:"Increase time spent in public spaces, build duration, remain calm around activity.",
     tasks:[
       {name:"Alone Time",                           sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel",                               sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training",                      sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game",                            sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall with long leash",               sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing",               sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2381,11 +2529,12 @@ const PUPPY_CURRICULUM = [
     mistakes:["Expecting too much","Allowing overstimulation","Not taking breaks"],
     lessons:["Socializing in the outside world","Visit a different type of store than last week"]},
   {id:"pp12", label:"Week 12", sublabel:"Dog Neutrality",
+    unlockAfterDays:7,
     goal:"Learn to be neutral around other dogs, strengthen focus despite distractions, build long term habits.",
     note:"Tasks marked with * — see handout for explanations.",
     tasks:[
       {name:"Alone Time *",                         sessionsPerDay:"1-3", sessionLength:"1-5 min"},
-      {name:"Kennel *",                             sessionsPerDay:"1-4", sessionLength:"Nap Time"},
+      {name:"Kennel Training *",                    sessionsPerDay:"1-4", sessionLength:"Nap Time"},
       {name:"Name Game *",                          sessionsPerDay:"1-2", sessionLength:"5 min"},
       {name:"Recall with long leash *",             sessionsPerDay:"1-2", sessionLength:"5-10 reps"},
       {name:"Grooming Desensitizing *",             sessionsPerDay:"1-2", sessionLength:"5 min"},
@@ -2682,10 +2831,10 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   // Daily tip — same tip for everyone on a given calendar day, on any device
   const dailyTip = getDailyTip();
 
-  // Detect puppy program
-  const birthday=petData?.birthday||"";
-  const weeksOld=ageInWeeks(birthday);
-  const isPuppy=weeksOld!==null&&weeksOld<20;
+  // Which program this pet is enrolled in — locked in at signup (see getEnrolledProgram),
+  // same source of truth the Learn tab and video locking use, so this never disagrees
+  // with them even if the dog ages past the puppy cutoff mid-program.
+  const isPuppy = getEnrolledProgram(petData) === "puppy";
 
   // ── Standard program: find current week from completed lessons ──
   // (shared with the Learn screen via getCurrentStdWeek, so the two screens can
@@ -3836,6 +3985,7 @@ const STANDARD_CURRICULUM = [
       {name:"Off Leash Place with E-collar",       sessionsPerDay:"1-2", sessionLength:"60 minutes"},
       {name:"Off Leash Sit with E-collar",         sessionsPerDay:"1-3", sessionLength:"5 minutes"},
       {name:"Off Leash Down with E-collar",        sessionsPerDay:"1-3", sessionLength:"5 minutes"},
+      {name:"Off Leash Heel with E-collar",        sessionsPerDay:"1-2", sessionLength:"10 minutes"},
       {name:"Off Leash Threshold Boundaries (Wait) with E-collar", sessionsPerDay:"1-4", sessionLength:"2-5 minutes"},
       {name:"Leash Games",                         sessionsPerDay:"1-2", sessionLength:"5-10 minutes"},
       {name:"Off Leash Loose Leash Walking with E-collar", sessionsPerDay:"1-2", sessionLength:"15+ minutes"},
@@ -3953,22 +4103,115 @@ function updateStreakOnActivity() {
   return streak;
 }
 
-const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo, openWeek, setOpenWeek, weekCompletedAt, setWeekCompletedAt}) => {
+// ─── WEEKLY BADGES ────────────────────────────────────────────────────────────
+// Awarded per completed week, for both the Puppy and Standard curricula. "Earned"
+// is read straight from the same completion state that already drives the 7-day
+// unlock pacing (weekCompletedAt for Standard, puppyWeekDone for Puppy), so a
+// badge can never fall out of sync with real progress — there's no separate
+// badge-tracking state to maintain.
+const WeekBadge = ({weekNum, earned, size=56}) => {
   const T=useTheme();
-  // openWeek & weekCompletedAt now come from App (lifted) so opening a lesson video
-  // and hitting Back returns to exactly this same week, instead of losing progress.
-  const [programTab,setProgramTab]=useState("auto");
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:size+14,flexShrink:0}}>
+      <div style={{width:size,height:size,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+        background:earned?`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`:"transparent",
+        border:`2.5px solid ${earned?T.gold:T.chipBorder}`,
+        boxShadow:earned?"0 3px 10px rgba(176,141,87,.35)":"none",transition:"all .3s"}}>
+        <div style={{width:size-10,height:size-10,borderRadius:"50%",background:earned?T.navy:"transparent",
+          display:"flex",alignItems:"center",justifyContent:"center"}}>
+          {earned
+            ? <Icon name="paw" size={Math.round(size*0.42)} color={T.tan} strokeWidth={2}/>
+            : <Icon name="lock" size={Math.round(size*0.32)} color={T.textFaint}/>}
+        </div>
+      </div>
+      <div style={{marginTop:"6px",padding:"2px 8px",borderRadius:"6px",background:earned?T.brown:"transparent",minWidth:"26px",textAlign:"center"}}>
+        <span style={{fontSize:"9.5px",fontWeight:"900",letterSpacing:".04em",color:earned?T.tan:T.textFaint,fontFamily:"'Lato',sans-serif"}}>WK {weekNum}</span>
+      </div>
+    </div>
+  );
+};
 
-  const birthday = petData?.birthday || "";
-  const weeksOld = ageInWeeks(birthday);
-  const isPuppy = weeksOld !== null && weeksOld < 20;
-  const effectiveTab = programTab === "auto" ? (isPuppy ? "puppy" : "standard") : programTab;
-  const isStandard = effectiveTab === "standard";
+const BadgeRow = ({curriculum, earnedMap, title}) => {
+  const T=useTheme();
+  const earnedCount = curriculum.filter(w=>!!earnedMap?.[w.id]).length;
+  return (
+    <div className="s1b" style={{marginBottom:"14px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"9px",padding:"0 1px"}}>
+        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>{title}</p>
+        <p style={{fontSize:"11px",color:T.textMuted,fontWeight:"700"}}>{earnedCount}/{curriculum.length} earned</p>
+      </div>
+      <div style={{display:"flex",gap:"4px",overflowX:"auto",paddingBottom:"4px"}}>
+        {curriculum.map((w,i)=>(
+          <WeekBadge key={w.id} weekNum={i+1} earned={!!earnedMap?.[w.id]}/>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Celebratory popup shown the moment a week is marked complete and its badge
+// unlocks. Fires from both the Standard "Mark Week Complete" button and the
+// Puppy markPuppyWeekDone handler below.
+const BadgeEarnedOverlay = ({badge, onClose}) => {
+  const T=useTheme();
+  if(!badge) return null;
+  return (
+    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(13,21,32,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1300,animation:"fadeUp .25s both",padding:"20px"}}>
+      <div onClick={e=>e.stopPropagation()} style={{background:T.cardSolid,borderRadius:"20px",padding:"32px 26px",maxWidth:"320px",width:"100%",textAlign:"center",border:`1px solid ${T.gold}`,boxShadow:"0 20px 60px rgba(0,0,0,.5)",animation:"rise .35s both"}}>
+        <div style={{margin:"0 auto 16px",width:"88px",height:"88px",borderRadius:"50%",background:`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(176,141,87,.45)"}}>
+          <div style={{width:"74px",height:"74px",borderRadius:"50%",background:T.navy,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <Icon name="paw" size={36} color={T.tan}/>
+          </div>
+        </div>
+        <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",marginBottom:"6px"}}>Badge Earned</p>
+        <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>{badge.label}</h3>
+        <p style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.5,marginBottom:"22px"}}>
+          {badge.isFinal
+            ? "You've completed the entire program! Your certificate of completion is on its way to your email."
+            : `Nice work — you're one step closer to graduating the ${badge.program==="puppy"?"Puppy":"6-Week"} Program.`}
+        </p>
+        <button onClick={onClose} className="btn-gold" style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",fontSize:"12px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+          Keep Training
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo, openWeek, setOpenWeek, weekCompletedAt, setWeekCompletedAt}) => {
+  const T=useTheme();
+  // openWeek & weekCompletedAt come from App (lifted) so opening a lesson video and
+  // hitting Back returns to exactly this same week, instead of losing progress.
+
+  // Which curriculum(s) this account actually PAID for (see getPurchasedPrograms).
+  // Buying one program never grants the other — if only one is purchased, the person
+  // sees just that one plus an upsell to add the other; if both are purchased, they
+  // get a switcher between the two, each with its own independent progress.
+  const purchasedPrograms = getPurchasedPrograms(petData);
+  const hasBoth = purchasedPrograms.includes("standard") && purchasedPrograms.includes("puppy");
+  const [viewProgram,setViewProgram] = useState(null); // only used when hasBoth
+  const enrolledProgram = (viewProgram && purchasedPrograms.includes(viewProgram)) ? viewProgram : getEnrolledProgram(petData);
+  const isStandard = enrolledProgram === "standard";
   const curriculum = isStandard ? STANDARD_CURRICULUM : PUPPY_CURRICULUM;
-  const programKey = isStandard ? "standard" : "puppy";
+  const programKey = enrolledProgram;
   const video = WELCOME_VIDEO[programKey];
   const videoWatched = !!welcomeVideoWatched?.[programKey];
   const markVideoWatched = () => setWelcomeVideoWatched(w=>({...w,[programKey]:true}));
+
+  // Add-the-other-program upsell (only relevant when only one is purchased)
+  const missingProgram = purchasedPrograms.includes("standard") ? (purchasedPrograms.includes("puppy") ? null : "puppy")
+    : purchasedPrograms.includes("puppy") ? "standard" : null;
+  const [showAddProgram,setShowAddProgram]=useState(false);
+  const [addProgramSuccess,setAddProgramSuccess]=useState(false);
+  const [justEarnedBadge,setJustEarnedBadge]=useState(null); // {label, isFinal, program} — drives BadgeEarnedOverlay
+  const PROGRAM_ADD_ON_PRICE = "$49"; // one-time — adjust to your real pricing
+  const handleAddProgram = (programId) => {
+    setPetData && setPetData(d=>({...d, purchasedPrograms:[...new Set([...getPurchasedPrograms(d), programId])]}));
+    setShowAddProgram(false);
+    setAddProgramSuccess(true);
+    setViewProgram(programId);
+    setTimeout(()=>setAddProgramSuccess(false),3000);
+  };
 
   // Standard lesson toggle
   const toggleStd = (wid,lesson) => { const k=`${wid}::${lesson}`; setStdCompleted(c=>({...c,[k]:!c[k]})); };
@@ -3976,32 +4219,50 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
   // Puppy lesson toggle — uses lifted state
   const togglePuppy = (wid,lesson) => { const k=`${wid}::${lesson}`; setPuppyCompleted(c=>({...c,[k]:!c[k]})); };
 
-  // Is a week unlocked? For weeks after pre-req: must wait 7 days since previous week was completed
-  const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-  const isUnlocked = (wi) => {
-    if(wi === 0) return videoWatched;
+  // Is a week unlocked? Delegates to the shared isCurriculumWeekUnlocked function
+  // (see top of file) so this always agrees with the Video Library's lock check.
+  const isUnlocked = (wi) => isCurriculumWeekUnlocked(curriculum, wi, isStandard, videoWatched, stdCompleted, puppyWeekDone, weekCompletedAt);
+
+  // Why a given week is still locked, for user-facing messaging — distinguishes
+  // "previous week isn't finished yet" from "finished, but still in the 7-day
+  // practice window" so the notice (and the click-to-explain toast below) is accurate.
+  const getWeekLockInfo = (wi) => {
+    if(isUnlocked(wi)) return {locked:false};
+    if(wi===0) return {locked:true, reason:"welcome"};
     const prev = curriculum[wi-1];
-    if(isStandard) {
-      const allDone = prev.lessons.every(l => !!stdCompleted[`${prev.id}::${l}`]);
-      if(!allDone) return false;
-      // If no delay defined, unlock immediately
-      if(!curriculum[wi].unlockAfterDays) return true;
+    const prevRequirementMet = isStandard
+      ? prev.lessons.every(l => !!stdCompleted[`${prev.id}::${l}`])
+      : !!puppyWeekDone?.[prev.id];
+    if(!prevRequirementMet) return {locked:true, reason:"incomplete", prevLabel:prev.label};
+    if(curriculum[wi].unlockAfterDays){
       const completedAt = weekCompletedAt[prev.id];
-      if(!completedAt) return false;
-      // TESTING_MODE (see top of file): skips the real 7-day wait so beta testers can move
-      // through every week immediately. Set TESTING_MODE to false before launching to real
-      // customers so the genuine 7-day pacing between weeks takes effect.
-      return TESTING_MODE ? true : (Date.now() - completedAt) >= SEVEN_DAYS_MS;
+      if(completedAt){
+        const unlockAt = completedAt + SEVEN_DAYS_MS;
+        const daysLeft = Math.max(1, Math.ceil((unlockAt - Date.now()) / (1000*60*60*24)));
+        const unlockDateStr = new Date(unlockAt).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+        return {locked:true, reason:"waiting", daysLeft, unlockDateStr};
+      }
     }
-    // For puppy: unlock by week-done mark
-    return !!puppyWeekDone?.[prev.id];
+    return {locked:true, reason:"incomplete", prevLabel:prev.label};
   };
 
-  // Puppy: mark whole week done
-  const markPuppyWeekDone = (weekId) => {
+  // Toast shown when someone taps a locked week, or right after completing one —
+  // same pattern used elsewhere in the app (e.g. the video-locked toast).
+  const [learnToast,setLearnToast]=useState(null); // {text, tone:"gold"|"green"}
+  const showLearnToast = (text, tone="gold") => { setLearnToast({text,tone}); setTimeout(()=>setLearnToast(null), 4000); };
+
+  // Puppy: mark whole week done, and record when — same as the standard program —
+  // so the shared 7-day pacing gate above has a completion timestamp to check.
+  const markPuppyWeekDone = (weekId, nextWeekLabel) => {
     setPuppyWeekDone(d => ({...d,[weekId]:true}));
+    setWeekCompletedAt(d => ({...d,[weekId]:Date.now()}));
     setPuppyStreak(s => s+1);
     setOpenWeek(null); // collapse after marking done
+    const unlockDateStr = new Date(Date.now()+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+    showLearnToast(nextWeekLabel ? `Week complete! Take these next 7 days to practice and reinforce these skills — ${nextWeekLabel} unlocks ${unlockDateStr}.` : "Week complete! You've finished the full program.", "green");
+    const wk = PUPPY_CURRICULUM.find(w=>w.id===weekId);
+    setJustEarnedBadge({label: wk?.label || "Week Complete", isFinal: !nextWeekLabel, program:"puppy"});
+    if(!nextWeekLabel) sendCertificateWebhook("puppy", petData); // final week — fire the GHL certificate workflow
   };
 
   const completed = isStandard ? stdCompleted : puppyCompleted;
@@ -4021,7 +4282,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
     if(currentWeekId && openWeek==null){
       setOpenWeek(currentWeekId);
     }
-  },[effectiveTab, currentWeekId]); // eslint-disable-line react-hooks/exhaustive-deps
+  },[enrolledProgram, currentWeekId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scrolls the current week into view once it auto-opens, so the person doesn't
   // have to hunt for it in a long curriculum list.
@@ -4034,6 +4295,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
   },[openWeek, currentWeekId]);
 
   return (
+    <>
     <ScrollBody>
       <div className="s1" style={{marginBottom:"14px"}}>
         <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Learn</p>
@@ -4041,18 +4303,40 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
         <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px"}}>Complete each week to unlock the next</p>
       </div>
 
-      {/* Program selector tabs */}
-      <div className="s2" style={{display:"flex",gap:"7px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"6px"}}>
-        {[{id:"standard",label:"Standard (6 Week)"},{id:"puppy",label:"Puppy (12 Week)"}].map(tab=>(
-          <button key={tab.id} onClick={()=>setProgramTab(tab.id)}
-            style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",
-              fontSize:"11px",fontWeight:"700",transition:"all .2s",
-              background:effectiveTab===tab.id?T.gold:"transparent",
-              color:effectiveTab===tab.id?"#fff":T.textMuted}}>
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      {/* Program access — a tab switcher if BOTH are purchased, otherwise a locked
+          label plus an upsell to buy the other program. Either way, this always
+          reflects what's actually been paid for. */}
+      {hasBoth ? (
+        <div className="s2" style={{display:"flex",gap:"7px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"6px"}}>
+          {[{id:"standard",label:"Standard (6 Week)"},{id:"puppy",label:"Puppy (12 Week)"}].map(tab=>(
+            <button key={tab.id} onClick={()=>setViewProgram(tab.id)}
+              style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",
+                fontSize:"11px",fontWeight:"700",transition:"all .2s",
+                background:enrolledProgram===tab.id?T.gold:"transparent",
+                color:enrolledProgram===tab.id?"#fff":T.textMuted}}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="s2" style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"11px 14px"}}>
+            <Icon name="lock" size={13} color={T.gold}/>
+            <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{isStandard?"Standard (6 Week) Program":"Puppy (12 Week) Program"}</span>
+            <span style={{fontSize:"10.5px",color:T.textFaint,marginLeft:"auto"}}>Purchased at signup</span>
+          </div>
+          {missingProgram && (
+            <button onClick={()=>setShowAddProgram(true)} style={{width:"100%",display:"flex",alignItems:"center",gap:"9px",marginBottom:"14px",background:"rgba(176,141,87,.08)",border:`1px dashed ${T.gold}`,borderRadius:"12px",padding:"11px 14px",cursor:"pointer",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+              <Icon name="plus" size={14} color={T.gold}/>
+              <span style={{flex:1}}>
+                <span style={{display:"block",fontSize:"12px",fontWeight:"700",color:T.gold}}>Add the {missingProgram==="puppy"?"Puppy (12 Week)":"Standard (6 Week)"} Program</span>
+                <span style={{display:"block",fontSize:"10.5px",color:T.textMuted,marginTop:"1px"}}>{PROGRAM_ADD_ON_PRICE} one-time — unlocks its own curriculum, tasks, and videos</span>
+              </span>
+              <span style={{color:T.gold,fontSize:"15px"}}>›</span>
+            </button>
+          )}
+        </>
+      )}
 
       {/* Puppy notice */}
       {!isStandard && (
@@ -4060,10 +4344,24 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
           <Icon name="dog" size={20} style={{flexShrink:0}} color={T.gold}/>
           <div>
             <p style={{fontSize:"12px",fontWeight:"700",color:"#4caf7d",marginBottom:"2px"}}>Puppy Foundation Program</p>
-            <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Under 20 weeks. Check off every lesson, then tap <strong style={{color:T.text}}>Mark Week Complete</strong> to unlock the next week.</p>
+            <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Under 20 weeks. Check off every lesson, then tap <strong style={{color:T.text}}>Mark Week Complete</strong> — the next week unlocks 7 days later, giving time to practice.</p>
           </div>
         </div>
       )}
+
+      {/* Weekly badges for the currently-viewed program. Graduation weeks count as
+          earned once their lessons/final action are done, even though they don't
+          set weekCompletedAt/puppyWeekDone through the normal per-week button. */}
+      <BadgeRow
+        curriculum={curriculum}
+        earnedMap={Object.fromEntries(curriculum.map(w => [
+          w.id,
+          isStandard
+            ? (w.graduation ? w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]) && !!weekCompletedAt[w.id] : !!weekCompletedAt[w.id])
+            : !!puppyWeekDone?.[w.id]
+        ]))}
+        title={isStandard ? "Standard Program Badges" : "Puppy Program Badges"}
+      />
 
       {/* Required welcome video — must be watched before the first section unlocks */}
       <div className="s2" style={{marginBottom:"14px",animation:"up .4s .02s both"}}>
@@ -4108,6 +4406,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
       {curriculum.map((week,wi)=>{
         const isOpen=openWeek===week.id;
         const unlocked=isUnlocked(wi);
+        const lockInfo=unlocked?null:getWeekLockInfo(wi);
         const weekMarkedDone = !isStandard ? !!puppyWeekDone?.[week.id] : false;
         const doneCount=week.lessons.filter(l=>!!completed[`${week.id}::${l}`]).length;
         const allLessonsDone=doneCount===week.lessons.length;
@@ -4121,12 +4420,22 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
           <div key={week.id} ref={isCurrentWeek?currentWeekRef:null} style={{marginBottom:"7px",animation:`up .4s ${wi*.06}s both`}}>
             {/* Week header button */}
             <button className="week-row"
-              onClick={()=>unlocked?setOpenWeek(isOpen?null:week.id):null}
+              onClick={()=>{
+                if(unlocked){ setOpenWeek(isOpen?null:week.id); return; }
+                // Tapping a locked week explains WHY instead of doing nothing.
+                if(lockInfo?.reason==="waiting"){
+                  showLearnToast(`${week.label} unlocks in ${lockInfo.daysLeft} day${lockInfo.daysLeft===1?"":"s"} (${lockInfo.unlockDateStr}) — this practice window helps ${petData?.name||"your dog"} lock in what they've already learned before moving on.`);
+                } else if(lockInfo?.reason==="welcome"){
+                  showLearnToast("Watch the welcome video above to unlock Week 1.");
+                } else {
+                  showLearnToast(`Finish ${lockInfo?.prevLabel||prevWeek?.label||"the previous week"} first to unlock ${week.label}.`);
+                }
+              }}
               style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",
                 background:weekFullyDone?"rgba(76,175,125,.12)":!unlocked?"rgba(255,255,255,.02)":isOpen?"rgba(176,141,87,.12)":T.chipBg,
                 border:`1px solid ${isCurrentWeek&&unlocked?T.gold:weekFullyDone?"rgba(76,175,125,.4)":!unlocked?"rgba(176,141,87,.1)":isOpen?T.gold:T.chipBorder}`,
                 borderRadius:isOpen?"14px 14px 0 0":"14px",
-                cursor:unlocked?"pointer":"not-allowed",transition:"all .2s",opacity:unlocked?1:0.5}}>
+                cursor:"pointer",transition:"all .2s",opacity:unlocked?1:0.5}}>
               <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
                 {!unlocked
                   ? <Icon name="lock" size={14}/>
@@ -4143,13 +4452,16 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                 )}
               </div>
               <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
-                {!unlocked && wi===0 && (
+                {!unlocked && lockInfo?.reason==="welcome" && (
                   <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Watch welcome video above</span>
                 )}
-                {!unlocked && wi>0 && prevWeek && !isStandard && (
+                {!unlocked && lockInfo?.reason==="waiting" && (
+                  <span style={{fontSize:"9px",color:T.gold,fontWeight:"700",maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Unlocks in {lockInfo.daysLeft} day{lockInfo.daysLeft===1?"":"s"}</span>
+                )}
+                {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && prevWeek && !isStandard && (
                   <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>Complete {prevWeek.label} first</span>
                 )}
-                {!unlocked && wi>0 && isStandard && prevWeek && (
+                {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && isStandard && prevWeek && (
                   <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>{prevDone}/{prevWeek.lessons.length} done</span>
                 )}
                 {unlocked && !weekFullyDone && <span style={{fontSize:"11px",color:T.textFaint}}>{doneCount}/{week.lessons.length}</span>}
@@ -4157,6 +4469,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                 {unlocked && <span style={{color:T.textFaint,fontSize:"15px",transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>▾</span>}
               </div>
             </button>
+
 
             {/* Expanded content */}
             {isOpen && unlocked && (
@@ -4171,7 +4484,8 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                       {week.equipment.map((item,ei)=>(
                         <li key={ei} style={{fontSize:"12px",color:T.textMuted,lineHeight:1.4,display:"flex",alignItems:"flex-start",gap:"7px"}}>
                           <span style={{color:T.gold,fontWeight:"900",marginTop:"1px",flexShrink:0}}>•</span>
-                          <span>{item}</span>
+                          <span onClick={()=>onOpenHandout&&onOpenHandout("equipmentList")}
+                            style={onOpenHandout?{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}:undefined}>{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -4263,11 +4577,11 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                   <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.05)"}}>
                     <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>
                       {allLessonsDone
-                        ? "All lessons checked! Tap below to unlock the next week."
-                        : "Work through all lessons, then mark this week complete to unlock the next."}
+                        ? "All lessons checked! Tap below to complete this week and start the 7-day practice window."
+                        : "Work through all lessons, then mark this week complete."}
                     </p>
                     <button
-                      onClick={()=>markPuppyWeekDone(week.id)}
+                      onClick={()=>markPuppyWeekDone(week.id, wi<curriculum.length-1?curriculum[wi+1].label:null)}
                       className="btn-gold"
                       style={{width:"100%",padding:"12px",
                         background:allLessonsDone?"#4caf7d":"rgba(76,175,125,.25)",
@@ -4276,7 +4590,7 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                         borderRadius:"10px",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",
                         fontFamily:"'Lato',sans-serif",cursor:"pointer",
                         boxShadow:allLessonsDone?"0 4px 16px rgba(76,175,125,.35)":"none",transition:"all .3s"}}>
-                      {allLessonsDone ? <><Icon name="check" size={13} strokeWidth={3}/> Mark Week Complete & Unlock Next</> : <>Mark Week Complete <Icon name="check" size={13} strokeWidth={3}/></>}
+                      Mark Week Complete <Icon name="check" size={13} strokeWidth={3}/>
                     </button>
                   </div>
                 )}
@@ -4284,10 +4598,13 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                 {/* Already marked done state */}
                 {!isStandard && weekMarkedDone && (
                   <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,display:"flex",alignItems:"center",gap:"9px",background:"rgba(76,175,125,.07)"}}>
-                    <Icon name="party" size={18} color={T.gold}/>
-                    <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>
-                      Week complete! {wi<curriculum.length-1 ? `${curriculum[wi+1].label} is now unlocked.` : "You've completed the full program!"}
-                    </p>
+                    <Icon name="calendar" size={18} color={T.gold}/>
+                    <div>
+                      <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
+                      <p style={{fontSize:"11px",color:T.textMuted}}>
+                        {wi<curriculum.length-1 ? `${curriculum[wi+1].label} unlocks 7 days after completion.` : "You've completed the full program!"}
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -4297,7 +4614,12 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
                     {!weekCompletedAt[week.id] ? (
                       <>
                         <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>All lessons checked! Tap below to complete this week and start the 7-day unlock timer.</p>
-                        <button onClick={()=>setWeekCompletedAt(d=>({...d,[week.id]:Date.now()}))}
+                        <button onClick={()=>{
+                            setWeekCompletedAt(d=>({...d,[week.id]:Date.now()}));
+                            const unlockDateStr = new Date(Date.now()+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+                            showLearnToast(`Week complete! Take these next 7 days to practice and reinforce these skills — ${curriculum[wi+1].label} unlocks ${unlockDateStr}.`, "green");
+                            setJustEarnedBadge({label: week.label, isFinal: false, program:"standard"});
+                          }}
                           style={{width:"100%",padding:"11px",background:"#4caf7d",border:"none",borderRadius:"10px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".08em",textTransform:"uppercase"}}>
                           Mark Week Complete
                         </button>
@@ -4316,7 +4638,20 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
 
                 {week.graduation && (
                   <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`}}>
-                    <GoldBtn style={{padding:"10px",fontSize:"12px"}}><Icon name="gradCap" size={13} style={{marginRight:"4px"}}/>Generate Graduation Certificate</GoldBtn>
+                    <GoldBtn style={{padding:"10px",fontSize:"12px"}} onClick={()=>{
+                        // Standard's final week has no other "mark complete" action (the
+                        // per-week button above only shows for wi < length-1), so this is
+                        // where its badge + completion timestamp get set. Puppy's final
+                        // week already gets both from markPuppyWeekDone before this button
+                        // is reachable, so we don't double-fire here for puppy.
+                        if(isStandard && !weekCompletedAt[week.id]){
+                          setWeekCompletedAt(d=>({...d,[week.id]:Date.now()}));
+                          setJustEarnedBadge({label: week.label, isFinal:true, program:"standard"});
+                          sendCertificateWebhook("standard", petData); // final week — fire the GHL certificate workflow
+                        }
+                      }}>
+                      <Icon name="gradCap" size={13} style={{marginRight:"4px"}}/>Generate Graduation Certificate
+                    </GoldBtn>
                   </div>
                 )}
               </div>
@@ -4325,6 +4660,44 @@ const LearnScreen = ({petData, puppyCompleted, setPuppyCompleted, puppyWeekDone,
         );
       })}
     </ScrollBody>
+
+    {/* Locked-week / week-complete toast */}
+    {learnToast && (
+      <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:learnToast.tone==="green"?T.success:T.navy,border:`1px solid ${learnToast.tone==="green"?T.success:T.gold}`,color:learnToast.tone==="green"?"#fff":T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",maxWidth:"280px",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"7px"}}>
+        <Icon name={learnToast.tone==="green"?"party":"lock"} size={14} style={{flexShrink:0,marginTop:"1px"}}/>
+        <span>{learnToast.text}</span>
+      </div>
+    )}
+
+    {/* Add-the-other-program purchase modal */}
+    {showAddProgram && missingProgram && (
+      <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+        <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
+          <div style={{textAlign:"center",marginBottom:"16px"}}>
+            <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="gradCap" size={36}/></div>
+            <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Add the {missingProgram==="puppy"?"Puppy (12 Week)":"Standard (6 Week)"} Program</h3>
+            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>One-time purchase — unlocks the full {missingProgram==="puppy"?"12-week puppy":"6-week standard"} curriculum, tasks, and videos, tracked separately from your current program.</p>
+            <p style={{fontSize:"22px",fontWeight:"900",color:T.gold,marginTop:"12px"}}>{PROGRAM_ADD_ON_PRICE}</p>
+          </div>
+          <button onClick={()=>handleAddProgram(missingProgram)} style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",color:"#fff",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
+            Confirm Purchase
+          </button>
+          <button onClick={()=>setShowAddProgram(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Program added success toast */}
+    {addProgramSuccess && (
+      <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"14px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
+        <Icon name="check" size={14} strokeWidth={3} style={{marginRight:"4px"}}/>Program added! Enjoy your new curriculum.
+      </div>
+    )}
+
+    <BadgeEarnedOverlay badge={justEarnedBadge} onClose={()=>setJustEarnedBadge(null)}/>
+    </>
   );
 };
 
@@ -4533,49 +4906,101 @@ const CalendarScreen = () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: STORE — CHANGE 4: new page replacing affiliate on Live
 // ═══════════════════════════════════════════════════════════════════════════════
+// Curated equipment list — the ONLY product links in the app. Each product opens its own
+// real product page directly (Amazon affiliate links or the Ruff Land site) — there is no
+// generic storefront link anymore.
+const STORE_PRODUCTS=[
+    {name:"Prong Collar – Herm Sprenger 2.25mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/4xRw4tf",emoji:"link"},
+    {name:"Prong Collar – Herm Sprenger Quick Release 2.25mm",cat:"Collars & Leashes",url:"https://amzn.to/4qs9UeJ",emoji:"link"},
+    {name:"Prong Collar – Herm Sprenger 3mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/3UHFLMq",emoji:"link"},
+    {name:"Prong Collar – Herm Sprenger Extra Links 3mm",cat:"Collars & Leashes",url:"https://amzn.to/3TYabKj",emoji:"link"},
+    {name:"Leash – Hands-Free (Pink)",cat:"Collars & Leashes",url:"https://amzn.to/4gn9iCA",emoji:"link"},
+    {name:"Leash – Hands-Free (Blue)",cat:"Collars & Leashes",url:"https://amzn.to/4gr3wzH",emoji:"link"},
+    {name:"Long Line – 20ft",cat:"Collars & Leashes",url:"https://amzn.to/4gkSxrE",emoji:"link"},
+    {name:"Slip Lead",cat:"Collars & Leashes",url:"https://amzn.to/4wIfCe3",emoji:"link"},
+    {name:"E-Collar – Micro Educator ME300",cat:"E-Collars",url:"https://amzn.to/4c1UEzf",emoji:"antenna"},
+    {name:"E-Collar – Mini Educator ET300",cat:"E-Collars",url:"https://amzn.to/4cPCJvM",emoji:"antenna"},
+    {name:"Treat Pouch – Fanny Pack",cat:"Treat Pouches",url:"https://amzn.to/4zp5dq9",emoji:"bag"},
+    {name:"Treat Pouch – Magnetic",cat:"Treat Pouches",url:"https://amzn.to/4bYpitl",emoji:"bag"},
+    {name:"Treat Pouch – Coastal Blue",cat:"Treat Pouches",url:"https://amzn.to/3UovkNK",emoji:"bag"},
+    {name:"Treat Pouch – Silicone (2-Pack)",cat:"Treat Pouches",url:"https://amzn.to/4bU8lQM",emoji:"bag"},
+    {name:"Kennel – Ruff Land Small",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/small-kennel",emoji:"box"},
+    {name:"Kennel – Ruff Land Medium",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/medium-kennel",emoji:"box"},
+    {name:"Kennel – Ruff Land Large",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/large-kennel",emoji:"box"},
+    {name:"Kennel – Petmate Small 24\"",cat:"Kennels & Crates",url:"https://www.amazon.com/dp/B00DJR9X2M?lv=shuf&linkCode=spc&asc_contentid=amzn1.ideas.3IPKBTHKRC8B9&tag=barkbossacade-20&domainId=influencer&channelId=500&plpRedirect=mhFallback&th=1",emoji:"box"},
+    {name:"Kennel – Petmate Medium 40\"",cat:"Kennels & Crates",url:"https://amzn.to/4gFFsdE",emoji:"box"},
+    {name:"Kennel – Petmate 40\" Large",cat:"Kennels & Crates",url:"https://amzn.to/4hKSQhD",emoji:"box"},
+    {name:"Kennel – Petmate Large 36\"",cat:"Kennels & Crates",url:"https://amzn.to/4wJ3oll",emoji:"box"},
+    {name:"Kennel – Petmate XL 48\"",cat:"Kennels & Crates",url:"https://amzn.to/4zMaWGP",emoji:"box"},
+    {name:"Kennel – MidWest iCrate Starter Kit 24\"",cat:"Kennels & Crates",url:"https://amzn.to/4xMzyNv",emoji:"box"},
+    {name:"Kennel – MidWest iCrate Starter Kit 42\"",cat:"Kennels & Crates",url:"https://amzn.to/46bLbBX",emoji:"box"},
+    {name:"Kennel – MidWest 30\" Medium iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4cPbK3u",emoji:"box"},
+    {name:"Kennel – MidWest 36\" Medium/Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/3Skd9bu",emoji:"box"},
+    {name:"Kennel – MidWest 42\" Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4bYHp2d",emoji:"box"},
+    {name:"Dog Bed – Elevated Coolaroo On-The-Go Foldable (Medium)",cat:"Beds",url:"https://amzn.to/4qtpyGz",emoji:"bed"},
+    {name:"Dog Bed – Elevated Cooling Breathable (Large)",cat:"Beds",url:"https://amzn.to/3SNlrsx",emoji:"bed"},
+    {name:"Dog Bed – Elevated Coolaroo (Large)",cat:"Beds",url:"https://amzn.to/4zzATJx",emoji:"bed"},
+    {name:"Bite Pillow Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4gi0rTX",emoji:"bone"},
+    {name:"Glow-in-the-Dark Soccer Ball with Straps",cat:"Toys & Enrichment",url:"https://amzn.to/4gtTT3s",emoji:"bone"},
+    {name:"Treat-Dispensing Puzzle Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4hJWtoa",emoji:"bone"},
+    {name:"Treat-Dispensing Pineapple Toy",cat:"Toys & Enrichment",url:"https://amzn.to/45DggOJ",emoji:"bone"},
+    {name:"Large Water Buffalo Horn Chew",cat:"Toys & Enrichment",url:"https://amzn.to/4hIZBkb",emoji:"bone"},
+    {name:"Elk Antler Chew",cat:"Toys & Enrichment",url:"https://amzn.to/3SNlAfz",emoji:"bone"},
+    {name:"Elk Antler Chew – Split Antler",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
+    {name:"Kong Natural Rubber Dental Chew Stuff-A-Ball",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
+    {name:"Kong Knot Bears (Small/Medium, 2-Pack)",cat:"Toys & Enrichment",url:"https://amzn.to/4wyLphf",emoji:"bone"},
+    {name:"Kong Rubber Flying Disc Fetch Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3SH2JTq",emoji:"bone"},
+    {name:"Kong Tug Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3UHH2mG",emoji:"bone"},
+    {name:"Durable Rubber Bone",cat:"Toys & Enrichment",url:"https://amzn.to/4gGyrJx",emoji:"bone"},
+    {name:"Enzyme Odor Spray Cleaner – Nature's Miracle",cat:"Grooming & Care",url:"https://amzn.to/3SdiyRD",emoji:"droplet"},
+    {name:"Inflatable Dog Cone Collar",cat:"Grooming & Care",url:"https://amzn.to/4gl2CVr",emoji:"droplet"},
+    {name:"Deshedding Brush",cat:"Grooming & Care",url:"https://amzn.to/4hEK7gY",emoji:"droplet"},
+    {name:"Organic Lick-Safe Paw Balm",cat:"Grooming & Care",url:"https://amzn.to/4qxcOPu",emoji:"droplet"},
+    {name:"Liquid Bandaid for Dogs",cat:"Grooming & Care",url:"https://amzn.to/4wXhqQx",emoji:"droplet"},
+    {name:"Salmon Oil Supplement",cat:"Grooming & Care",url:"https://amzn.to/4xcyjYn",emoji:"droplet"},
+    {name:"Ear Cleaner – Doctor Beasley's Advanced Ear Bomb",cat:"Grooming & Care",url:"https://amzn.to/4gI0XKM",emoji:"droplet"},
+    {name:"Portable Water Bottle – PupFlask Stainless Steel",cat:"Travel & Car",url:"https://amzn.to/46g5wG8",emoji:"car"},
+    {name:"Dog Seat Belt for Car",cat:"Travel & Car",url:"https://amzn.to/4ztP02G",emoji:"car"},
+    {name:"Car First Aid Kit",cat:"Travel & Car",url:"https://amzn.to/4qtVNpc",emoji:"car"},
+    {name:"Car Harness Seat Belt (Purple)",cat:"Travel & Car",url:"https://amzn.to/4ztMiKD",emoji:"car"},
+    {name:"Car Harness Seat Belt (Black)",cat:"Travel & Car",url:"https://amzn.to/4cSQmdJ",emoji:"car"},
+    {name:"Car Seat Belt Headrest Restraint Safety Leads (2-Pack)",cat:"Travel & Car",url:"https://amzn.to/4gDjg3T",emoji:"car"},
+    {name:"Car Seat Harness (Black)",cat:"Travel & Car",url:"https://amzn.to/4ijtlEk",emoji:"car"},
+    {name:"Agility Cones – Multi-Colored (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4hJw4qw",emoji:"target"},
+    {name:"Agility Cones – Orange (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4wCLQqU",emoji:"target"},
+    {name:"Collapsible Dog Bowl",cat:"Feeding",url:"https://amzn.to/4grmq9J",emoji:"bowl"},
+];
+const STORE_CATS=["All","Collars & Leashes","E-Collars","Treat Pouches","Kennels & Crates","Beds","Toys & Enrichment","Grooming & Care","Travel & Car","Training Aids","Feeding"];
+
 const StoreScreen = () => {
   const T=useTheme();
-  const products=[
-    {name:"E-Collar Technologies ET-300",cat:"Training Tools",price:"$179",rating:"4.9",emoji:"antenna"},
-    {name:"Herm Sprenger Prong Collar",cat:"Training Tools",price:"$38",rating:"4.8",emoji:"link"},
-    {name:"Zuke's Mini Naturals Treats",cat:"Treats",price:"$12",rating:"4.7",emoji:"bone"},
-    {name:"50ft Long Line Lead",cat:"Leads & Leashes",price:"$24",rating:"4.8",emoji:"link"},
-    {name:"West Paw Toppl Puzzle Toy",cat:"Enrichment",price:"$22",rating:"4.9",emoji:"puzzle"},
-    {name:"Kurgo Wander Dog Pack",cat:"Gear",price:"$55",rating:"4.6",emoji:"backpack"},
-  ];
-  const cats=["All","Training Tools","Treats","Leads & Leashes","Enrichment","Gear"];
   const [activeCat,setActiveCat]=useState("All");
-  const filtered=activeCat==="All"?products:products.filter(p=>p.cat===activeCat);
+  const filtered=activeCat==="All"?STORE_PRODUCTS:STORE_PRODUCTS.filter(p=>p.cat===activeCat);
   return (
     <ScrollBody>
       <div className="s1" style={{marginBottom:"16px"}}>
         <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Shop</p>
         <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700",marginBottom:"4px"}}>Trainer-Recommended Gear</h2>
-        <p style={{fontSize:"12px",color:T.textMuted}}>Curated products from our Amazon storefront</p>
+        <p style={{fontSize:"12px",color:T.textMuted}}>Our hand-picked equipment list — every link goes straight to the exact product</p>
       </div>
       {/* Category filter */}
       <div className="s2" style={{display:"flex",gap:"6px",overflowX:"auto",marginBottom:"16px",paddingBottom:"4px"}}>
-        {cats.map(c=><button key={c} onClick={()=>setActiveCat(c)} style={{flexShrink:0,padding:"6px 13px",borderRadius:"20px",border:`1px solid ${activeCat===c?T.gold:T.chipBorder}`,background:activeCat===c?"rgba(176,141,87,.18)":T.chipBg,color:activeCat===c?T.goldLight:T.textMuted,fontSize:"11.5px",fontWeight:activeCat===c?"700":"400",cursor:"pointer",transition:"all .18s",whiteSpace:"nowrap"}}>{c}</button>)}
+        {STORE_CATS.map(c=><button key={c} onClick={()=>setActiveCat(c)} style={{flexShrink:0,padding:"6px 13px",borderRadius:"20px",border:`1px solid ${activeCat===c?T.gold:T.chipBorder}`,background:activeCat===c?"rgba(176,141,87,.18)":T.chipBg,color:activeCat===c?T.goldLight:T.textMuted,fontSize:"11.5px",fontWeight:activeCat===c?"700":"400",cursor:"pointer",transition:"all .18s",whiteSpace:"nowrap"}}>{c}</button>)}
       </div>
       <div className="s3" style={{display:"flex",flexDirection:"column",gap:"9px"}}>
-        {filtered.map(p=>(
-          <div key={p.name} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"13px 15px",display:"flex",alignItems:"center",gap:"12px"}}>
+        {filtered.map((p,pi)=>(
+          <div key={p.name+pi} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"13px 15px",display:"flex",alignItems:"center",gap:"12px"}}>
             <div style={{width:"46px",height:"46px",borderRadius:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.brown}}><Icon name={p.emoji} size={22}/></div>
             <div style={{flex:1}}>
               <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px",lineHeight:1.3}}>{p.name}</p>
-              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",marginBottom:"2px"}}>{p.cat}</p>
-              <p style={{fontSize:"10.5px",color:T.textMuted,display:"flex",alignItems:"center",gap:"3px"}}><Icon name="star" size={10} color={T.gold}/>{p.rating}</p>
+              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700"}}>{p.cat}</p>
             </div>
             <div style={{textAlign:"right",flexShrink:0}}>
-              <p style={{fontSize:"14px",fontWeight:"900",color:T.gold,marginBottom:"5px"}}>{p.price}</p>
-              <button onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")}
-                style={{background:T.brown,border:"none",borderRadius:"8px",padding:"5px 10px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>Shop →</button>
+              <button onClick={()=>window.open(p.url,"_blank","noopener,noreferrer")}
+                style={{background:T.brown,border:"none",borderRadius:"8px",padding:"7px 12px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>View →</button>
             </div>
           </div>
         ))}
-      </div>
-      <div className="s4" style={{textAlign:"center",marginTop:"16px",padding:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,borderRadius:"12px"}}>
-        <p style={{fontSize:"11px",color:T.textMuted}}>View all products: <span onClick={()=>window.open(AMAZON_STOREFRONT_URL,"_blank","noopener,noreferrer")} style={{color:T.gold,fontWeight:"700",cursor:"pointer"}}>VIEW ALL PRODUCTS →</span></p>
       </div>
     </ScrollBody>
   );
@@ -4588,6 +5013,33 @@ const StoreScreen = () => {
 // TRAINING HANDOUTS — reference library + inline hyperlinking
 // ═══════════════════════════════════════════════════════════════════════════════
 const HANDOUTS = {
+  equipmentList: {
+    title:"Full Equipment List", subtitle:"Trainer-Recommended Gear",
+    content:[
+      {type:"p", text:"Everything below is the exact gear we recommend, organized by category. Tap any item to go straight to that product’s page. This same list lives in the Shop tab if you’d rather browse by category there."},
+      {type:"h", text:"Collars & Leashes"},
+      {type:"links", items:[{label:"Prong Collar – Herm Sprenger 2.25mm Training Collar",url:"https://amzn.to/4xRw4tf"},{label:"Prong Collar – Herm Sprenger Quick Release 2.25mm",url:"https://amzn.to/4qs9UeJ"},{label:"Prong Collar – Herm Sprenger 3mm Training Collar",url:"https://amzn.to/3UHFLMq"},{label:"Prong Collar – Herm Sprenger Extra Links 3mm",url:"https://amzn.to/3TYabKj"},{label:"Leash – Hands-Free (Pink)",url:"https://amzn.to/4gn9iCA"},{label:"Leash – Hands-Free (Blue)",url:"https://amzn.to/4gr3wzH"},{label:"Long Line – 20ft",url:"https://amzn.to/4gkSxrE"},{label:"Slip Lead",url:"https://amzn.to/4wIfCe3"}]},
+      {type:"h", text:"E-Collars"},
+      {type:"links", items:[{label:"E-Collar – Micro Educator ME300",url:"https://amzn.to/4c1UEzf"},{label:"E-Collar – Mini Educator ET300",url:"https://amzn.to/4cPCJvM"}]},
+      {type:"h", text:"Treat Pouches"},
+      {type:"links", items:[{label:"Treat Pouch – Fanny Pack",url:"https://amzn.to/4zp5dq9"},{label:"Treat Pouch – Magnetic",url:"https://amzn.to/4bYpitl"},{label:"Treat Pouch – Coastal Blue",url:"https://amzn.to/3UovkNK"},{label:"Treat Pouch – Silicone (2-Pack)",url:"https://amzn.to/4bU8lQM"}]},
+      {type:"h", text:"Kennels & Crates"},
+      {type:"links", items:[{label:"Kennel – Ruff Land Small",url:"https://www.rufflandkennels.com/products/small-kennel"},{label:"Kennel – Ruff Land Medium",url:"https://www.rufflandkennels.com/products/medium-kennel"},{label:"Kennel – Ruff Land Large",url:"https://www.rufflandkennels.com/products/large-kennel"},{label:"Kennel – Petmate Small 24\"",url:"https://www.amazon.com/dp/B00DJR9X2M?lv=shuf&linkCode=spc&asc_contentid=amzn1.ideas.3IPKBTHKRC8B9&tag=barkbossacade-20&domainId=influencer&channelId=500&plpRedirect=mhFallback&th=1"},{label:"Kennel – Petmate Medium 40\"",url:"https://amzn.to/4gFFsdE"},{label:"Kennel – Petmate 40\" Large",url:"https://amzn.to/4hKSQhD"},{label:"Kennel – Petmate Large 36\"",url:"https://amzn.to/4wJ3oll"},{label:"Kennel – Petmate XL 48\"",url:"https://amzn.to/4zMaWGP"},{label:"Kennel – MidWest iCrate Starter Kit 24\"",url:"https://amzn.to/4xMzyNv"},{label:"Kennel – MidWest iCrate Starter Kit 42\"",url:"https://amzn.to/46bLbBX"},{label:"Kennel – MidWest 30\" Medium iCrate",url:"https://amzn.to/4cPbK3u"},{label:"Kennel – MidWest 36\" Medium/Large iCrate",url:"https://amzn.to/3Skd9bu"},{label:"Kennel – MidWest 42\" Large iCrate",url:"https://amzn.to/4bYHp2d"}]},
+      {type:"h", text:"Beds"},
+      {type:"links", items:[{label:"Dog Bed – Elevated Coolaroo On-The-Go Foldable (Medium)",url:"https://amzn.to/4qtpyGz"},{label:"Dog Bed – Elevated Cooling Breathable (Large)",url:"https://amzn.to/3SNlrsx"},{label:"Dog Bed – Elevated Coolaroo (Large)",url:"https://amzn.to/4zzATJx"}]},
+      {type:"h", text:"Toys & Enrichment"},
+      {type:"links", items:[{label:"Bite Pillow Toy",url:"https://amzn.to/4gi0rTX"},{label:"Glow-in-the-Dark Soccer Ball with Straps",url:"https://amzn.to/4gtTT3s"},{label:"Treat-Dispensing Puzzle Toy",url:"https://amzn.to/4hJWtoa"},{label:"Treat-Dispensing Pineapple Toy",url:"https://amzn.to/45DggOJ"},{label:"Large Water Buffalo Horn Chew",url:"https://amzn.to/4hIZBkb"},{label:"Elk Antler Chew",url:"https://amzn.to/3SNlAfz"},{label:"Elk Antler Chew – Split Antler",url:"https://amzn.to/4xPmk2A"},{label:"Kong Natural Rubber Dental Chew Stuff-A-Ball",url:"https://amzn.to/4xPmk2A"},{label:"Kong Knot Bears (Small/Medium, 2-Pack)",url:"https://amzn.to/4wyLphf"},{label:"Kong Rubber Flying Disc Fetch Toy",url:"https://amzn.to/3SH2JTq"},{label:"Kong Tug Toy",url:"https://amzn.to/3UHH2mG"},{label:"Durable Rubber Bone",url:"https://amzn.to/4gGyrJx"}]},
+      {type:"h", text:"Grooming & Care"},
+      {type:"links", items:[{label:"Enzyme Odor Spray Cleaner – Nature's Miracle",url:"https://amzn.to/3SdiyRD"},{label:"Inflatable Dog Cone Collar",url:"https://amzn.to/4gl2CVr"},{label:"Deshedding Brush",url:"https://amzn.to/4hEK7gY"},{label:"Organic Lick-Safe Paw Balm",url:"https://amzn.to/4qxcOPu"},{label:"Liquid Bandaid for Dogs",url:"https://amzn.to/4wXhqQx"},{label:"Salmon Oil Supplement",url:"https://amzn.to/4xcyjYn"},{label:"Ear Cleaner – Doctor Beasley's Advanced Ear Bomb",url:"https://amzn.to/4gI0XKM"}]},
+      {type:"h", text:"Travel & Car"},
+      {type:"links", items:[{label:"Portable Water Bottle – PupFlask Stainless Steel",url:"https://amzn.to/46g5wG8"},{label:"Dog Seat Belt for Car",url:"https://amzn.to/4ztP02G"},{label:"Car First Aid Kit",url:"https://amzn.to/4qtVNpc"},{label:"Car Harness Seat Belt (Purple)",url:"https://amzn.to/4ztMiKD"},{label:"Car Harness Seat Belt (Black)",url:"https://amzn.to/4cSQmdJ"},{label:"Car Seat Belt Headrest Restraint Safety Leads (2-Pack)",url:"https://amzn.to/4gDjg3T"},{label:"Car Seat Harness (Black)",url:"https://amzn.to/4ijtlEk"}]},
+      {type:"h", text:"Training Aids"},
+      {type:"links", items:[{label:"Agility Cones – Multi-Colored (30-Pack)",url:"https://amzn.to/4hJw4qw"},{label:"Agility Cones – Orange (30-Pack)",url:"https://amzn.to/4wCLQqU"}]},
+      {type:"h", text:"Feeding"},
+      {type:"links", items:[{label:"Collapsible Dog Bowl",url:"https://amzn.to/4grmq9J"}]},
+    ],
+    mistakes:[],
+  },
   threeDs: {
     title:"3 D's of Training", subtitle:"Duration - Distance - Distraction",
     content:[
@@ -4758,6 +5210,28 @@ const HANDOUTS = {
       {type:"ul", items:["Introduce leash exposure gradually with short sessions","Reward calm behavior while on leash","Reinforce voluntary following behavior","Reward movement toward leash pressure","Increase distractions slowly over time"]},
     ],
     mistakes:["Yanking the puppy","Dragging the puppy instead of letting them follow the pressure","Inconsistent leash rules (sometimes allowing the puppy to pull)"],
+  },
+  chooseKennel: {
+    title:"Choosing a Kennel",
+    content:[
+      {type:"h", text:"Goal:"},
+      {type:"p", text:"A kennel should provide your dog with a safe, comfortable place to rest while helping with potty training, management, travel, and learning to settle."},
+      {type:"p", text:"Choose a kennel that allows your dog to stand, turn around, lie down, and stretch comfortably, but avoid giving puppies more space than they need."},
+      {type:"h", text:"What to Look For:"},
+      {type:"ul", items:["Puppies can use a larger kennel with a divider as they grow.","Choose secure doors and latches.","Consider your dog's chewing, scratching, and escape habits.","Introduce the kennel gradually and make it a positive place\u2014not a punishment.","For travel, choose a kennel designed for safe transportation."]},
+      {type:"h", text:"Our Recommendations:"},
+      {type:"p", text:"\ud83e\udd47 Ruff Land \u2014 Best Overall", bold:true, linkable:false},
+      {type:"p", text:"Our favorite for most dogs, especially chewers, destructive dogs, and escape artists. The molded construction is extremely durable and eliminates many exposed bars that dogs can damage.", linkable:false},
+      {type:"p", text:"\ud83d\udcb0 On a Budget? Buy Used!", bold:true, linkable:false},
+      {type:"p", text:"Ruff Land kennels are an investment. Check Facebook Marketplace and local classifieds for used kennels. They are durable enough that you can often find them in great condition for much less than buying new.", linkable:false},
+      {type:"p", text:"\ud83d\udc36 Puppies & Dogs Comfortable in Wire Crates", bold:true, linkable:false},
+      {type:"p", text:"A quality wire crate with a divider is an affordable option for puppies. We recommend a double-door crate when possible. The MidWest iCrate is a popular budget-friendly choice, but it is not our first choice for determined escape artists.", linkable:false},
+      {type:"p", text:"\ud83c\udfe0 Hard-Sided Budget Option", bold:true, linkable:false},
+      {type:"p", text:"The Petmate Vari Kennel is a good affordable alternative for families who prefer a hard-sided kennel.", linkable:false},
+      {type:"note", heading:"Important:", text:"If your dog chews, bends wire, panics, or repeatedly tries to escape, choose a more durable kennel. A kennel that allows your dog to injure themselves trying to escape is not a good fit."},
+      {type:"p", text:"Remember: The goal isn't simply to contain your dog\u2014it's to create a safe place where your dog can relax and settle. Choose the kennel based on your individual dog's needs, and ask your Guiding Paw trainer if you're unsure which option is best.", bold:true, linkable:false},
+    ],
+    mistakes:["Choosing a kennel that is too large or too small","Using an inexpensive wire crate for an escape artist","Giving puppies too much space too soon","Using the kennel as punishment","Increasing kennel time too quickly","Leaving unsafe items inside the kennel","Assuming any kennel is \"escape-proof\""],
   },
   kennelTraining: {
     title:"Kennel Training",
@@ -5040,7 +5514,7 @@ const HANDOUTS = {
     mistakes:[],
   },
 };
-const HANDOUT_ORDER = ["threeDs","advocating","aloneTime","biting","calmness","chewing","doNothing","dogNeutrality","fieldtrips","handling","impulseControl","leashPressure","kennelTraining","leashGames","markerWords","nameGame","offLeash","pottyTraining","dailyStructure","puppyDevelopment","generalizing","recallChaseMe","recallHere","sitStayDownStay","socializingMistakes","socializingHomeYardPublic","socializingCheckList","socializingExperiences","structuredCalmPlace","thresholdBoundaries","workingForFood"];
+const HANDOUT_ORDER = ["equipmentList","threeDs","advocating","aloneTime","biting","calmness","chewing","chooseKennel","doNothing","dogNeutrality","fieldtrips","handling","impulseControl","leashPressure","kennelTraining","leashGames","markerWords","nameGame","offLeash","pottyTraining","dailyStructure","puppyDevelopment","generalizing","recallChaseMe","recallHere","sitStayDownStay","socializingMistakes","socializingHomeYardPublic","socializingCheckList","socializingExperiences","structuredCalmPlace","thresholdBoundaries","workingForFood"];
 
 // Keyword → handout id map for automatic inline hyperlinking. Order matters: longest / most specific first.
 const HANDOUT_KEYWORDS = [
@@ -5072,7 +5546,8 @@ const HANDOUT_KEYWORDS = [
   ["leash pressure","leashPressure"],
   ["Kennel Training","kennelTraining"],
   ["Kennel with threshold boundary","kennelTraining"],
-  ["Kennel","kennelTraining"],
+  ["Kennels","chooseKennel"],
+  ["Kennel","chooseKennel"],
   ["Loose Leash Walking","leashGames"],
   ["Leash Games","leashGames"],
   ["Marker Words","markerWords"],
@@ -5162,6 +5637,7 @@ const VIDEO_KEYWORDS = [
   ["Place with leash pressure","placeLeashPressure"],
   ["Place with E-collar","placeEcollar"],
   ["Place with a lure","placeLure"],
+  ["Place with marker words and a lure","placeLure"],
   ["Off Leash Heel with an E-Collar","offLeashHeel"],
   ["Off Leash Heel with E-collar","offLeashHeel"],
   ["Sit with leash pressure","sitLeashPressure"],
@@ -5339,7 +5815,7 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
               {block.text && <p style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.55}}><Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/></p>}
               {block.items && (
                 <ul style={{margin:0,paddingLeft:"16px"}}>
-                  {block.items.map((it,ii)=>(<li key={ii} style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.5,marginBottom:"3px",fontWeight:"600"}}>{it}</li>))}
+                  {block.items.map((it,ii)=>(<li key={ii} style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.5,marginBottom:"3px",fontWeight:"600"}}><Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/></li>))}
                 </ul>
               )}
             </div>
@@ -5357,6 +5833,17 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
               ))}
             </div>
           );
+          if(block.type==="links") return (
+            <div key={bi} style={{marginBottom:"12px",display:"flex",flexDirection:"column",gap:"5px"}}>
+              {block.items.map((lnk,li)=>(
+                <span key={li} onClick={()=>window.open(lnk.url,"_blank","noopener,noreferrer")}
+                  style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"8px",padding:"9px 11px",borderRadius:"9px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,cursor:"pointer"}}>
+                  <span style={{fontSize:"12.5px",color:T.text,fontWeight:"600",lineHeight:1.4}}>{lnk.label}</span>
+                  <span style={{fontSize:"11px",color:T.gold,fontWeight:"700",flexShrink:0}}>View →</span>
+                </span>
+              ))}
+            </div>
+          );
           return null;
         })}
       </div>
@@ -5367,7 +5854,7 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
           {h.mistakes.map((m,mi)=>(
             <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<h.mistakes.length-1?"5px":"0"}}>
               <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
-              <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}>{m}</p>
+              <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}><Linkify text={m} onOpenHandout={onOpenHandout} currentId={id}/></p>
             </div>
           ))}
         </div>
@@ -5443,7 +5930,7 @@ const VideoScreen = ({id, onClose, onBack}) => {
   );
 };
 
-const VideoLibraryScreen = ({onOpenVideo, onClose}) => {
+const VideoLibraryScreen = ({onOpenVideo, onClose, isVideoUnlocked, videoUnlocksWithLabel}) => {
   const T=useTheme();
   return (
     <ScrollBody>
@@ -5454,19 +5941,25 @@ const VideoLibraryScreen = ({onOpenVideo, onClose}) => {
         </div>
         <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
       </div>
-      <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every demo video referenced throughout your training plan, all in one place.</p>
+      <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every demo video referenced throughout your training plan, all in one place. Videos unlock along with the curriculum week they belong to.</p>
       <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
         {VIDEO_ORDER.map(id=>{
           const v=VIDEO_LIBRARY[id];
+          const unlocked = isVideoUnlocked ? isVideoUnlocked(id) : true;
+          const unlockLabel = videoUnlocksWithLabel ? videoUnlocksWithLabel(id) : null;
           return (
             <button key={id} onClick={()=>onOpenVideo(id)}
-              style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px",transition:"all .2s"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}}
+              style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:unlocked?T.text:T.textFaint,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px",transition:"all .2s",opacity:unlocked?1:.6}}
+              onMouseEnter={e=>{if(unlocked) e.currentTarget.style.borderColor=T.gold;}}
               onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
               <span style={{display:"flex",alignItems:"center",gap:"9px"}}>
-                <Icon name="play" size={13}/>{v.title}
+                <Icon name={unlocked?"play":"lock"} size={13}/>
+                <span>
+                  {v.title}
+                  {!unlocked && unlockLabel && <span style={{display:"block",fontSize:"10.5px",fontWeight:"600",color:T.textFaint,marginTop:"2px"}}>Unlocks with {unlockLabel}</span>}
+                </span>
               </span>
-              <span style={{color:T.textFaint}}>›</span>
+              <span style={{color:T.textFaint}}>{unlocked?"›":""}</span>
             </button>
           );
         })}
@@ -5606,7 +6099,7 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: PET LIFE RECORD — CHANGE 8
 // ═══════════════════════════════════════════════════════════════════════════════
-const PetLifeRecord = ({petData,setPetData,onClose}) => {
+const PetLifeRecord = ({petData,setPetData,onClose,onOpenSettings}) => {
   const T=useTheme(); const petName=petData?.name||"Luna";
   const groomingLog = petData?.groomingLog || [];
   const lastGroomedLabel = (() => {
@@ -5639,7 +6132,7 @@ const PetLifeRecord = ({petData,setPetData,onClose}) => {
     ? `${pottyLog.filter(e=>e.success).length}/${pottyLog.length} successful`
     : "Not logged yet";
   const stats=[
-    {label:"Age",value:petData?.age||"2 years",icon:"gift"},
+    {label:"Age",value:computeAge(petData?.birthday)||"Not set",icon:"gift"},
     {label:"Training Streak",value:"7 days",icon:"chart"},
     {label:"Today's Assignment",value:"Loose leash walking",icon:"clipboard"},
     {label:"Health Status",value:"Vaccines up to date",icon:"syringe"},
@@ -5685,7 +6178,7 @@ const PetLifeRecord = ({petData,setPetData,onClose}) => {
           </label>
           <div style={{flex:1}}>
             <h3 style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}</h3>
-            <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>{petData?.breed||"Breed not set"} · {petData?.gender==="boy"?"Male":petData?.gender==="girl"?"Female":"Gender not set"} · {petData?.age||"Age not set"}</p>
+            <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>{petData?.breed||"Breed not set"} · {petData?.gender==="boy"?"Male":petData?.gender==="girl"?"Female":"Gender not set"} · {computeAge(petData?.birthday)||"Age not set"}</p>
           </div>
           {petData?.photoUrl && (
             <button onClick={removePhoto} title="Remove photo" style={{background:"rgba(0,0,0,.25)",border:"none",borderRadius:"7px",padding:"6px",cursor:"pointer",color:"rgba(255,255,255,.7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
@@ -5732,11 +6225,14 @@ const PetLifeRecord = ({petData,setPetData,onClose}) => {
         </div>
       </div>
 
-      {/* Health records quick-links */}
+      {/* Health records quick-links — uploading/viewing the actual files happens in
+          Settings → Profile, so these tap through there instead of dead-ending. */}
       <div className="s3" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"10px"}}>Health Records</p>
+        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Health Records</p>
+        <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"10px",lineHeight:1.4}}>Tap any record to view or upload it in Settings.</p>
         {["Vaccine Records","Vet Records","Medications","Food & Allergies"].map(r=>(
-          <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
+          <div key={r} onClick={()=>onOpenSettings&&onOpenSettings()}
+            style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`,cursor:onOpenSettings?"pointer":"default"}}>
             <span style={{fontSize:"13px",color:T.text}}>{r}</span>
             <span style={{fontSize:"12px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>View →</span>
           </div>
@@ -5836,7 +6332,7 @@ const buildRenewalEmail = (details) => {
     </table>
 
     <p style="font-size:11px;color:#aaa;line-height:1.6;margin:0;border-top:1px solid #e8e0d4;padding-top:16px;">If you didn't authorize this charge or have questions, contact us at <a href="mailto:${SUPPORT_EMAIL}" style="color:#B08D57;">${SUPPORT_EMAIL}</a> or call <a href="tel:${SUPPORT_PHONE.replace(/-/g,"")}" style="color:#B08D57;">${SUPPORT_PHONE}</a>.</p>`;
-  return { subject: `Guiding Paw — Subscription Renewed · ${details.amount}`, html: emailShell(body) };
+  return { subject: `Guiding Paw — Subscription Renewed · ${details.amount}`, html: emailShell(body), to: details.email };
 };
 
 const buildDeleteEmail = (details) => {
@@ -5897,7 +6393,71 @@ const buildDeleteEmail = (details) => {
     </table>
 
     <p style="font-size:11px;color:#aaa;line-height:1.6;margin:0;border-top:1px solid #e8e0d4;padding-top:16px;">To restore your account before ${purgeDate}, email <a href="mailto:${SUPPORT_EMAIL}" style="color:#B08D57;">${SUPPORT_EMAIL}</a> or call <a href="tel:${SUPPORT_PHONE.replace(/-/g,"")}" style="color:#B08D57;">${SUPPORT_PHONE}</a> with the subject line <strong style="color:#555;">"Account Recovery — ${details.email}"</strong>.</p>`;
-  return { subject: `Guiding Paw — Your account has been scheduled for deletion`, html: emailShell(body) };
+  return { subject: `Guiding Paw — Your account has been scheduled for deletion`, html: emailShell(body), to: details.email };
+};
+
+// ─── INTERNAL / ADMIN NOTIFICATION EMAILS ────────────────────────────────────
+// These always go to the business inbox (SUPPORT_EMAIL), not the member, so there's
+// always a record of account changes and deletions on file.
+const buildAdminProfileUpdateEmail = (details) => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+  const body = `
+    <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Member Updated Their Account Info</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;"><strong>${details.memberName}</strong> (${details.memberEmail}) updated their account details on ${dateStr} · ${timeStr}.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef;border:1px solid #e0d8cc;border-radius:12px;margin-bottom:24px;">
+      <tr><td style="padding:16px 20px;border-bottom:1px solid #e0d8cc;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#B08D57;">Changes Made</span>
+      </td></tr>
+      ${details.changes.map(c=>`
+      <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;">
+        <p style="margin:0 0 4px;font-size:12px;color:#888;">${c.label}</p>
+        <p style="margin:0;font-size:13px;color:#1C2636;"><span style="text-decoration:line-through;color:#aaa;">${c.oldValue}</span>&nbsp;→&nbsp;<strong>${c.newValue}</strong></p>
+      </td></tr>`).join("")}
+    </table>
+    <p style="font-size:12px;color:#999;line-height:1.6;margin:0;">Automated internal notification — no action needed unless something looks off.</p>`;
+  return { subject: `Account Info Updated — ${details.memberName}`, html: emailShell(body), to: SUPPORT_EMAIL };
+};
+
+const buildAdminSubscriptionChangeEmail = (details) => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+  const body = `
+    <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Subscription ${details.action}</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;"><strong>${details.memberName}</strong> (${details.memberEmail}) ${details.action.toLowerCase()} on ${dateStr} · ${timeStr}.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef;border:1px solid #e0d8cc;border-radius:12px;margin-bottom:24px;">
+      ${[["Plan",details.plan||"—"],["Action",details.action],["Details",details.extra||"—"]].map(([l,v])=>`
+      <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-size:12px;color:#888;">${l}</td><td style="font-size:13px;font-weight:700;color:#1C2636;text-align:right;">${v}</td></tr></table></td></tr>`).join("")}
+    </table>
+    <p style="font-size:12px;color:#999;line-height:1.6;margin:0;">Automated internal notification.</p>`;
+  return { subject: `Subscription ${details.action} — ${details.memberName}`, html: emailShell(body), to: SUPPORT_EMAIL };
+};
+
+const buildAdminAccountDeletedEmail = (details) => {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
+  const petsList = (details.pets||[]).length
+    ? details.pets.map(p=>`${p.name||"Unnamed pet"}${p.breed?` (${p.breed})`:""}`).join(", ")
+    : "No pets on file";
+  const body = `
+    <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Account Deleted — Internal Record</h2>
+    <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;">A member deleted their account on ${dateStr} · ${timeStr}. Keeping this on file for your records.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef;border:1px solid #e0d8cc;border-radius:12px;margin-bottom:24px;">
+      ${[
+        ["Name", details.name||"—"],
+        ["Email", details.email||"—"],
+        ["Phone", details.phone||"—"],
+        ["Pet(s)", petsList],
+        ["Plan", details.plan||"—"],
+        ["Deleted On", dateStr+" · "+timeStr],
+      ].map(([l,v])=>`
+      <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-size:12px;color:#888;">${l}</td><td style="font-size:13px;font-weight:700;color:#1C2636;text-align:right;">${v}</td></tr></table></td></tr>`).join("")}
+    </table>
+    <p style="font-size:12px;color:#999;line-height:1.6;margin:0;">The member also received their own confirmation email with the 30-day recovery window.</p>`;
+  return { subject: `Account Deleted — ${details.name||details.email}`, html: emailShell(body), to: SUPPORT_EMAIL };
 };
 
 const buildCancellationEmail = (details) => {
@@ -5955,17 +6515,25 @@ const buildCancellationEmail = (details) => {
     </table>
 
     <p style="font-size:11px;color:#aaa;line-height:1.6;margin:0;border-top:1px solid #e8e0d4;padding-top:16px;">Questions about your cancellation? Contact us at <a href="mailto:${SUPPORT_EMAIL}" style="color:#B08D57;">${SUPPORT_EMAIL}</a> or <a href="tel:${SUPPORT_PHONE.replace(/-/g,"")}" style="color:#B08D57;">${SUPPORT_PHONE}</a>.</p>`;
-  return { subject: `Guiding Paw — Your subscription has been cancelled`, html: emailShell(body) };
+  return { subject: `Guiding Paw — Your subscription has been cancelled`, html: emailShell(body), to: details.email };
 };
 
+const EMAIL_BUILDERS = {
+  renewal: buildRenewalEmail,
+  cancellation: buildCancellationEmail,
+  deleteAccount: buildDeleteEmail,
+  adminProfileUpdate: buildAdminProfileUpdateEmail,
+  adminSubscriptionChange: buildAdminSubscriptionChangeEmail,
+  adminAccountDeleted: buildAdminAccountDeletedEmail,
+};
 const simulateSendEmail = (type, details) => {
   // In production this would call a real email service (SendGrid, Postmark, etc.)
   // and pass the .html property to the service's HTML body field.
   // For demo purposes we log the email HTML to console.
-  const email = type === "renewal" ? buildRenewalEmail(details)
-              : type === "cancellation" ? buildCancellationEmail(details)
-              : buildDeleteEmail(details);
-  console.log(`[EMAIL SENT to ${details.email}]\nSubject: ${email.subject}\n\n[HTML body — see email.html]\n`, email.html);
+  const build = EMAIL_BUILDERS[type] || buildRenewalEmail;
+  const email = build(details);
+  const to = email.to || details.email;
+  console.log(`[EMAIL SENT to ${to}]\nSubject: ${email.subject}\n\n[HTML body — see email.html]\n`, email.html);
   return email;
 };
 
@@ -6043,7 +6611,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   // onboarding, so every setup answer stays stored and editable in one place.
   const [pets,setPets]=useState(()=>[{
     name:petData?.name||"",breed:petData?.breed||"",birthday:petData?.birthday||"",
-    gender:petData?.gender||"",
+    gender:petData?.gender||"",weight:petData?.weight||"",
     food:petData?.food||"",allergiesAndSensitivities:petData?.allergiesAndSensitivities||"",
     medications:petData?.medications||"",grooming:petData?.grooming||"",potty:petData?.potty||"",
     docs:petData?.docs||[],
@@ -6064,8 +6632,18 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   });
   const sc=(k,v)=>setClient(c=>({...c,[k]:v}));
   const [accountErrors,setAccountErrors]=useState({});
+  // Tracks the last-saved values for name/email/phone so we can tell what actually
+  // changed when "Save Account Info" is pressed, and notify the business by email.
+  const committedClientRef = useRef({
+    firstName:client.firstName, lastName:client.lastName, email:client.email, phone:client.phone,
+  });
 
-  const handleSave=()=>{
+  const handleSavePetProfile=()=>{
+    setShowSaved(true);
+    setTimeout(()=>setShowSaved(false),2200);
+  };
+
+  const handleSaveAccountInfo=()=>{
     const e={};
     if(!isValidEmail(client.email)) e.email="Please enter a valid email (needs an @ and a .).";
     if(client.phone && !isValidPhone(client.phone,client.countryCode)) e.phone=`Please enter a valid ${findCountry(client.countryCode).digits}-digit phone number for ${findCountry(client.countryCode).name}.`;
@@ -6074,9 +6652,45 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     // Keep the account's email/phone in sync with the pet profile, same as
     // every other setting captured here.
     setPetData&&setPetData(d=>({...d,firstName:client.firstName,lastName:client.lastName,email:client.email,phone:client.phone,countryCode:client.countryCode}));
+
+    // Notify the business by email whenever a member changes their own name,
+    // email, or phone — so there's always a record of who changed what.
+    const prev=committedClientRef.current;
+    const fieldsToCheck=[
+      {key:"firstName",label:"First Name"},
+      {key:"lastName",label:"Last Name"},
+      {key:"email",label:"Email"},
+      {key:"phone",label:"Phone"},
+    ];
+    const changes=fieldsToCheck
+      .filter(f=>(prev[f.key]||"")!==(client[f.key]||""))
+      .map(f=>({label:f.label,oldValue:prev[f.key]||"(not set)",newValue:client[f.key]||"(not set)"}));
+    if(changes.length){
+      simulateSendEmail("adminProfileUpdate",{
+        memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
+        memberEmail:client.email,
+        changes,
+      });
+      syncProfileToGHL(prev, client); // keep the GHL contact card in sync
+    }
+    committedClientRef.current={firstName:client.firstName,lastName:client.lastName,email:client.email,phone:client.phone};
+
     setShowSaved(true);
     setTimeout(()=>setShowSaved(false),2200);
   };
+
+  // Training Setup — the account-setup questionnaire answers (role, knows, issues,
+  // training time, preferred time) live on petData directly, same pattern as sp() for
+  // pet fields, so edits here apply live and this button is just a confirmation toast.
+  const setupSet=(k,v)=>setPetData&&setPetData(d=>({...d,[k]:v}));
+  const setupToggle=(k,v)=>{
+    setPetData&&setPetData(d=>({...d,[k]:(d?.[k]||[]).includes(v)?(d[k]||[]).filter(x=>x!==v):[...(d?.[k]||[]),v]}));
+  };
+  const handleSaveTrainingSetup=()=>{
+    setShowSaved(true);
+    setTimeout(()=>setShowSaved(false),2200);
+  };
+
 
   const handleSimulateRenewal=()=>{
     simulateSendEmail("renewal",{
@@ -6098,6 +6712,13 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
       plan:client.program,
       renewalDate:client.renewalDate,
     });
+    simulateSendEmail("adminSubscriptionChange",{
+      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
+      memberEmail:client.email||"you@example.com",
+      action:"Cancelled",
+      plan:client.program,
+      extra:`Access continues until ${client.renewalDate}`,
+    });
     setSubStatus("cancelled");
     setShowCancelConfirm(false);
     setCancelEmailSent(true);
@@ -6105,6 +6726,13 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   };
 
   const handleRestartSubscription=()=>{
+    simulateSendEmail("adminSubscriptionChange",{
+      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
+      memberEmail:client.email||"you@example.com",
+      action:"Reactivated",
+      plan:client.program,
+      extra:"Billing resumed immediately",
+    });
     setSubStatus("active");
     setShowRestartConfirm(false);
     setRestartSuccess(true);
@@ -6115,6 +6743,13 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     if(!newCardNum.trim()) return;
     const last4=newCardNum.replace(/\s/g,"").slice(-4);
     sc("cardLast4",last4);
+    simulateSendEmail("adminSubscriptionChange",{
+      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
+      memberEmail:client.email||"you@example.com",
+      action:"Card Updated",
+      plan:client.program,
+      extra:`New card ending in ${last4}`,
+    });
     setCardSaved(true);
     setShowUpdateCard(false);
     setNewCardNum("");setNewExpiry("");setNewCvv("");setNewCardName("");
@@ -6125,6 +6760,13 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     simulateSendEmail("deleteAccount",{
       name:client.firstName||"Member",
       email:client.email||"you@example.com",
+    });
+    simulateSendEmail("adminAccountDeleted",{
+      name:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
+      email:client.email||"—",
+      phone:client.phone||"—",
+      pets:pets.map(p=>({name:p.name,breed:p.breed})),
+      plan:client.program,
     });
     setDeleteSuccess(true);
   };
@@ -6421,6 +7063,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               {k:"breed",l:"Breed",ph:"e.g. Labrador Retriever"},
               {k:"birthday",l:"Birthday",ph:"MM/DD/YYYY"},
               {k:"gender",l:"Gender",ph:"Male / Female"},
+              {k:"weight",l:"Weight",ph:"e.g. 45 lbs"},
               {k:"food",l:"Daily Food Amount",ph:"e.g. 2 cups twice daily"},
               {k:"allergiesAndSensitivities",l:"Allergies & Food Sensitivities",ph:"e.g. chicken, pollen, bee stings"},
               {k:"medications",l:"Medications",ph:"Name, dose, frequency"},
@@ -6430,9 +7073,57 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               <div key={k} style={{marginBottom:"10px"}}>
                 <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
                 <input value={pet[k]||""} onChange={e=>sp(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                {k==="birthday" && computeAge(pet.birthday) && (
+                  <p style={{fontSize:"10.5px",color:T.textFaint,marginTop:"4px"}}>Current age: <strong style={{color:T.textMuted}}>{computeAge(pet.birthday)}</strong> (calculated automatically)</p>
+                )}
               </div>
             ))}
-            <GoldBtn onClick={handleSave} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Pet Profile</GoldBtn>
+            <GoldBtn onClick={handleSavePetProfile} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Pet Profile</GoldBtn>
+          </div>
+
+          {/* Training Setup — everything captured during the onboarding questionnaire,
+              editable here since a dog's needs, skills, and schedule change over time. */}
+          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Training Setup</p>
+            <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"12px",lineHeight:1.4}}>From your account setup — update anytime things change.</p>
+
+            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Role in the Family</label>
+            <ChipGroup options={[{value:"bestfriend",label:"Best Friend"},{value:"kid",label:"Kid"},{value:"family",label:"Family Member"},{value:"watchdog",label:"Watchdog"},{value:"service",label:"Service / Emotional Support"}]}
+              selected={petData?.role} onToggle={v=>setupToggle("role",v)}/>
+
+            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Knows Already</label>
+            <ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]}
+              selected={petData?.knows} onToggle={v=>setupToggle("knows",v)}/>
+
+            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Behavior Issues to Work On</label>
+            <ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]}
+              selected={petData?.issues} onToggle={v=>setupToggle("issues",v)}/>
+
+            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Daily Training Time</label>
+            <ChipGroup options={["5 – 10 min","15 – 30 min","More than 30 min"]}
+              selected={petData?.trainTime} onToggle={v=>setupToggle("trainTime",v)}/>
+
+            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Preferred Training Time</label>
+            <div style={{display:"flex",alignItems:"center",gap:"10px",margin:"4px 0 18px"}}>
+              <div style={{textAlign:"center"}}>
+                <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Hour</p>
+                <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
+                  {Array.from({length:12},(_,i)=>i+1).map(h=><div key={h} onClick={()=>setupSet("trainHour",String(h))} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:petData?.trainHour===String(h)?"rgba(176,141,87,.2)":"transparent",color:petData?.trainHour===String(h)?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{h}</div>)}
+                </div>
+              </div>
+              <div style={{fontSize:"20px",color:T.gold,fontWeight:"900",paddingTop:"22px"}}>:</div>
+              <div style={{textAlign:"center"}}>
+                <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Min</p>
+                <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
+                  {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m=><div key={m} onClick={()=>setupSet("trainMin",m)} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:(petData?.trainMin||"00")===m?"rgba(176,141,87,.2)":"transparent",color:(petData?.trainMin||"00")===m?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{m}</div>)}
+                </div>
+              </div>
+              <div style={{textAlign:"center",paddingTop:"22px"}}>
+                <div style={{display:"flex",flexDirection:"column",gap:"5px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>setupSet("trainAmPm",ap)} style={{padding:"8px 11px",borderRadius:"7px",fontWeight:"700",fontSize:"11px",border:`1px solid ${petData?.trainAmPm===ap?T.gold:T.inputBorder}`,background:petData?.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:petData?.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
+              </div>
+            </div>
+
+            <GoldBtn onClick={handleSaveTrainingSetup} style={{padding:"11px",fontSize:"12px"}}>Save Training Setup</GoldBtn>
           </div>
 
           {/* Health records / upload */}
@@ -6505,7 +7196,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
                 error={accountErrors.phone} onFocusClear={()=>setAccountErrors(r=>({...r,phone:undefined}))}/>
             </div>
 
-            <GoldBtn onClick={handleSave} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Account Info</GoldBtn>
+            <GoldBtn onClick={handleSaveAccountInfo} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Account Info</GoldBtn>
           </div>
 
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
@@ -6709,6 +7400,12 @@ export default function App() {
   const [showVideo,setShowVideo]=useState(null); // null | "__library__" | video id
   const [videoHistory,setVideoHistory]=useState([]); // stack of previously-viewed video screens
   const openVideo=(id)=>{
+    if(id!=="__library__" && !isVideoUnlocked(id)){
+      const label = videoUnlocksWithLabel(id);
+      setVideoLockedMsg(label ? `This video unlocks with ${label}.` : "This video isn't unlocked yet.");
+      setTimeout(()=>setVideoLockedMsg(null),3000);
+      return;
+    }
     if(showVideo) setVideoHistory(h=>[...h, showVideo]); // remember where we came from
     setShowVideo(id);
     setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);
@@ -6752,6 +7449,81 @@ export default function App() {
   const [weekCompletedAt,setWeekCompletedAt]=useState({});
   // Tracks whether each program's required welcome video has been watched
   const [welcomeVideoWatched,setWelcomeVideoWatched]=useState({standard:false, puppy:false});
+
+  // ── Video locking: a video should only be watchable once the curriculum week
+  // that references it is actually unlocked — otherwise someone could skip ahead
+  // by browsing the Video Library directly.
+  //
+  // Covers every program the account has actually PAID for (getPurchasedPrograms —
+  // usually just one, but both if the person bought the add-on program), so this can
+  // never disagree with what's shown/unlocked in LearnScreen or DashboardScreen.
+  const lockPurchasedPrograms = getPurchasedPrograms(petData);
+  const lockCurriculaList = lockPurchasedPrograms.map(p=>({
+    program: p,
+    isStandard: p==="standard",
+    curriculum: p==="standard" ? STANDARD_CURRICULUM : PUPPY_CURRICULUM,
+  }));
+
+  const unlockedWeekIds = new Set(); // week ids, unique across programs since "pp*"/"w*"/"pre"/"grad" never collide
+  lockCurriculaList.forEach(({curriculum,isStandard})=>{
+    const videoWatched = !!welcomeVideoWatched?.[isStandard?"standard":"puppy"];
+    curriculum.forEach((w,wi)=>{
+      if(isCurriculumWeekUnlocked(curriculum, wi, isStandard, videoWatched, stdCompleted, puppyWeekDone, weekCompletedAt)) unlockedWeekIds.add(w.id);
+    });
+  });
+
+  // Map each video id to the set of week ids that reference it (via the same
+  // keyword matching Linkify uses), across every purchased curriculum, so we know
+  // which week(s) unlock which video.
+  const videoIdToWeekIds = {};
+  lockCurriculaList.forEach(({curriculum,isStandard})=>{
+    curriculum.forEach(week=>{
+      const texts = [...(week.lessons||[]), ...(week.tasks||[]).map(t=>t.name)];
+      texts.forEach(text=>{
+        const lower = text.toLowerCase();
+        VIDEO_KEYWORDS.forEach(([kw,vid])=>{
+          if(lower.includes(kw.toLowerCase())){
+            if(!videoIdToWeekIds[vid]) videoIdToWeekIds[vid]=new Set();
+            videoIdToWeekIds[vid].add(week.id);
+          }
+        });
+        // Special case mirrored from Linkify: in the puppy program, generic "Threshold
+        // Boundaries" (no qualifier) refers to the puppy-specific demo video rather than
+        // the standard-program E-collar/leash-pressure videos.
+        if(!isStandard && /threshold boundar(y|ies)/.test(lower)){
+          if(!videoIdToWeekIds.puppyThreshold) videoIdToWeekIds.puppyThreshold=new Set();
+          videoIdToWeekIds.puppyThreshold.add(week.id);
+        }
+      });
+    });
+  });
+
+  // Videos genuinely not tied to a specific curriculum week — bonus/supplemental
+  // content with no dedicated lesson (checked by hand against the curriculum text,
+  // not just "whatever the keyword matcher happened to miss"). Defaulting an
+  // unmatched video to LOCKED is the safer failure mode for a paid-pacing feature;
+  // this is the explicit exception list for videos that really should stay open.
+  const GENERAL_REFERENCE_VIDEOS = new Set(["looseLeashLure"]);
+  const isVideoUnlocked = (id) => {
+    if(GENERAL_REFERENCE_VIDEOS.has(id)) return true;
+    const weekIds = videoIdToWeekIds[id];
+    if(!weekIds || weekIds.size===0) return false;
+    return [...weekIds].some(wid=>unlockedWeekIds.has(wid));
+  };
+  // Which week (label) unlocks a given locked video — for display in the library.
+  // Checks purchased curricula in order, so the label matches whichever program
+  // actually contains that video.
+  const videoUnlocksWithLabel = (id) => {
+    const weekIds = videoIdToWeekIds[id];
+    if(!weekIds || weekIds.size===0) return null;
+    for(const {curriculum} of lockCurriculaList){
+      const idx = curriculum.findIndex(w=>weekIds.has(w.id));
+      if(idx>=0) return curriculum[idx].label || curriculum[idx].id;
+    }
+    return null;
+  };
+  const [videoLockedMsg,setVideoLockedMsg]=useState(null);
+
   const [quickAddDocs,setQuickAddDocs]=useState([]);
   const handleQuickAdd=(doc)=>setQuickAddDocs(d=>[...d,doc]);
   const [walkLog,setWalkLog]=useState([]);
@@ -6797,24 +7569,35 @@ export default function App() {
   const handleVerified=()=>setScreen("onboarding");
   const handleGoToPayment=(data)=>{ setPendingData(data); setScreen("payment"); };
   const handlePaySuccess=()=>setScreen("success");
-  const handleSuccessContinue=()=>{ setPlan(pendingData?.plan||"annual"); setPetData({...pendingData, birthday: pendingData?.birthday||""}); setShowWelcome(true); setScreen("app"); };
+  const handleSuccessContinue=()=>{
+    setPlan(pendingData?.plan||"annual");
+    const birthday = pendingData?.birthday||"";
+    // The program picked during onboarding (with an age-based fallback if it was
+    // somehow skipped) is what this purchase actually unlocks — the other program
+    // requires a separate purchase later (see the Learn tab upsell).
+    const purchasedProgram = pendingData?.program==="puppy" ? "puppy"
+      : pendingData?.program==="standard" ? "standard"
+      : getEnrolledProgram({birthday});
+    setPetData({...pendingData, birthday, enrolledProgram:purchasedProgram, purchasedPrograms:[purchasedProgram]});
+    setShowWelcome(true); setScreen("app");
+  };
   const handleDismissWelcome=()=>setShowWelcome(false);
 
   // Page content (shared by the single unified layout on phone & desktop)
   const renderWebPage = () => {
     if(showWelcome) return <WelcomeDashboard petData={petData} plan={plan} onDismiss={handleDismissWelcome}/>;
-    if(showVideo==="__library__") return <VideoLibraryScreen onOpenVideo={openVideo} onClose={closeVideo}/>;
+    if(showVideo==="__library__") return <VideoLibraryScreen onOpenVideo={openVideo} onClose={closeVideo} isVideoUnlocked={isVideoUnlocked} videoUnlocksWithLabel={videoUnlocksWithLabel}/>;
     if(showVideo) return <VideoScreen id={showVideo} onClose={closeVideo} onBack={goBackVideo}/>;
     if(showHandout==="__library__") return <HandoutLibraryScreen onOpenHandout={openHandout} onClose={closeHandout}/>;
     if(showHandout) return <HandoutScreen id={showHandout} onOpenHandout={openHandout} onBack={goBackHandout} onClose={closeHandout}/>;
     if(showDiag) return <BehaviorScreen onClose={()=>setShowDiag(false)} onOpenHandout={openHandout}/>;
-    if(showLifeRecord) return <PetLifeRecord petData={petData} setPetData={setPetData} onClose={()=>setShowLifeRecord(false)}/>;
+    if(showLifeRecord) return <PetLifeRecord petData={petData} setPetData={setPetData} onClose={()=>setShowLifeRecord(false)} onOpenSettings={()=>{setShowLifeRecord(false);navigateToPage("settings");}}/>;
     if(showGame) return <GameInstructionsScreen id={showGame} onClose={closeGame} onBack={closeGame}/>;
     switch(page){
       case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone}/>;
       case "live":      return <LiveScreen walkLog={walkLog} pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} initialTab={liveInitialTab} petData={petData} setPetData={setPetData}/>;
       case "bond":      return <BondScreen onOpenGame={openGame}/>;
-      case "learn":     return <LearnScreen petData={petData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo} openWeek={learnOpenWeek} setOpenWeek={setLearnOpenWeek} weekCompletedAt={weekCompletedAt} setWeekCompletedAt={setWeekCompletedAt}/>;
+      case "learn":     return <LearnScreen petData={petData} setPetData={setPetData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo} openWeek={learnOpenWeek} setOpenWeek={setLearnOpenWeek} weekCompletedAt={weekCompletedAt} setWeekCompletedAt={setWeekCompletedAt}/>;
       case "share":     return <ShareScreen/>;
       case "calendar":  return <CalendarScreen/>;
       case "store":     return <StoreScreen/>;
@@ -6829,6 +7612,13 @@ export default function App() {
     <ThemeContext.Provider value={T}>
       <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
         <style>{globalCss(T)}</style>
+
+        {/* Locked-video toast — shown when someone taps a video that isn't unlocked yet */}
+        {videoLockedMsg && (
+          <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",display:"flex",alignItems:"center",gap:"7px"}}>
+            <Icon name="lock" size={13}/>{videoLockedMsg}
+          </div>
+        )}
 
         {/* ── Auth screens (centered phone-style on all breakpoints) ── */}
         {isAuthScreen && (
