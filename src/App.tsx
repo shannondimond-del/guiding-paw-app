@@ -1,5 +1,11 @@
 import { useState, useEffect, useContext, createContext, useRef } from "react";
+import { createClient } from "@supabase/supabase-js";
 // build marker: trigger redeploy
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const ThemeContext = createContext();
 const useTheme = () => useContext(ThemeContext);
@@ -771,11 +777,6 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
 // SCREEN: SIGN IN — full simulated auth
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// Demo credentials — in a real app this would be a backend call
-const DEMO_ACCOUNTS = [
-  {email:"demo@guidingpaw.com",   password:"Training1!"},
-  {email:"test@guidingpaw.com",   password:"Paws1234!"},
-];
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_SECS = 30;
 
@@ -876,96 +877,9 @@ const GeneratePasswordBtn = ({onGenerate}) => {
   );
 };
 
-// ─── SAVED CREDENTIALS HELPERS ───────────────────────────────────────────────
-const SAVED_CREDS_KEY = "gp_saved_creds";
-const SESSION_KEY     = "gp_session";
-const SESSION_EXPIRED_FLAG_KEY = "gp_session_expired";
-// How long the person can be inactive before they're automatically signed out —
-// same idea as a banking app. A page refresh is NOT inactivity (it re-touches
-// the session on load), only walking away / leaving the app idle counts.
+// ─── INACTIVITY TIMEOUT ──────────────────────────────────────────────────────
+// How long the person can be inactive before they're automatically signed out.
 const INACTIVITY_LIMIT_MS = 15 * 60 * 1000; // 15 minutes
-
-function saveCredentials(email, pw) {
-  try {
-    // Store base64-encoded (not true encryption, but obscures plaintext in storage)
-    const payload = btoa(JSON.stringify({ email, pw, savedAt: Date.now() }));
-    localStorage.setItem(SAVED_CREDS_KEY, payload);
-  } catch {}
-}
-
-function loadSavedCredentials() {
-  try {
-    const raw = localStorage.getItem(SAVED_CREDS_KEY);
-    if (!raw) return null;
-    return JSON.parse(atob(raw));
-  } catch { return null; }
-}
-
-function clearSavedCredentials() {
-  try { localStorage.removeItem(SAVED_CREDS_KEY); } catch {}
-}
-
-// Sessions live in localStorage (not sessionStorage) so a page refresh — or even
-// closing and reopening the tab — keeps you signed in. What signs you out is
-// inactivity: every session carries a `lastActivity` timestamp that gets bumped
-// while the person is using the app, and is checked whenever the session is read.
-function saveSession(email) {
-  try { localStorage.setItem(SESSION_KEY, btoa(JSON.stringify({ email, lastActivity: Date.now() }))); } catch {}
-}
-
-// Bumps the "last active" timestamp on the current session without changing
-// who's signed in. Called on user interaction (clicks, key presses, scrolling)
-// while the app is open, and on page load, so refreshing never counts as idle.
-function touchSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw) return;
-    const data = JSON.parse(atob(raw));
-    localStorage.setItem(SESSION_KEY, btoa(JSON.stringify({ ...data, lastActivity: Date.now() })));
-  } catch {}
-}
-
-// Reads the session without touching/extending it — used for periodic inactivity
-// checks, where "checking the clock" must never itself count as activity.
-function peekSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(atob(raw));
-    if (!data?.email) return null;
-    if (Date.now() - (data.lastActivity||0) > INACTIVITY_LIMIT_MS) {
-      clearSession();
-      try { sessionStorage.setItem(SESSION_EXPIRED_FLAG_KEY, "1"); } catch {}
-      return null;
-    }
-    return data.email;
-  } catch { return null; }
-}
-
-// Returns the signed-in email if there's a valid, non-expired session, or null.
-// A session that's been inactive longer than INACTIVITY_LIMIT_MS is treated as
-// signed out (and cleared) — this is what actually logs someone out, not a refresh.
-// Unlike peekSession(), a successful read here DOES count as activity (used on
-// initial page load / the sign-in screen's mount check).
-function loadSession() {
-  const email = peekSession();
-  if (email) touchSession(); // opening/refreshing the app counts as activity
-  return email;
-}
-
-function clearSession() {
-  try { localStorage.removeItem(SESSION_KEY); } catch {}
-}
-
-// One-time flag read by the sign-in screen to show "signed out due to inactivity"
-// after an automatic (not user-initiated) sign-out. Cleared once read.
-function consumeSessionExpiredFlag() {
-  try {
-    const flagged = sessionStorage.getItem(SESSION_EXPIRED_FLAG_KEY) === "1";
-    if (flagged) sessionStorage.removeItem(SESSION_EXPIRED_FLAG_KEY);
-    return flagged;
-  } catch { return false; }
-}
 
 // ─── COUNTRY / PHONE VALIDATION ──────────────────────────────────────────────
 // Dial code + expected national significant-number length (digits only, not
@@ -1048,32 +962,9 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotError, setForgotError] = useState("");
   const [shake, setShake] = useState(false);
-  const [savedUser, setSavedUser] = useState(null); // pre-filled saved credential display
+  const [savedUser, setSavedUser] = useState(null);
   const [autoLogging, setAutoLogging] = useState(false);
   const [expiredNotice, setExpiredNotice] = useState(false);
-
-  // ── On mount: load saved credentials or active session ──
-  useState(() => {
-    // 1. Active session this browser tab (survives refresh — and even closing/
-    // reopening the tab, since it's now backed by localStorage) → auto sign in
-    const session = loadSession();
-    if (session) {
-      setAutoLogging(true);
-      setTimeout(() => { setAutoLogging(false); onSignIn(); }, 800);
-      return;
-    }
-    // 1b. No active session — check whether that's because it just expired from
-    // inactivity (as opposed to a normal, deliberate sign-out) and let the person know.
-    if (consumeSessionExpiredFlag()) setExpiredNotice(true);
-    // 2. Remembered credentials → pre-fill form
-    const saved = loadSavedCredentials();
-    if (saved) {
-      setEmail(saved.email);
-      setPw(saved.pw);
-      setRememberMe(true);
-      setSavedUser(saved.email);
-    }
-  });
 
   // Countdown timer for lockout
   useState(()=>{
@@ -1098,54 +989,50 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if(isLocked) return;
     if(!validate()){ triggerShake(); return; }
     setLoading(true);
     setErrors({});
-    // Simulate network delay
-    setTimeout(()=>{
-      const match = DEMO_ACCOUNTS.find(
-        a => a.email.toLowerCase()===email.trim().toLowerCase() && a.password===pw
-      );
-      if(match){
-        // Save credentials if "Remember me" checked
-        if(rememberMe) {
-          saveCredentials(email.trim().toLowerCase(), pw);
-        } else {
-          clearSavedCredentials();
-        }
-        // Save session for this browser tab
-        saveSession(email.trim().toLowerCase());
-        setLoading(false);
-        onSignIn();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password: pw,
+    });
+    if(error){
+      const next = attempts + 1;
+      setAttempts(next);
+      setLoading(false);
+      triggerShake();
+      if(next >= MAX_ATTEMPTS){
+        setLockedUntil(Date.now() + LOCKOUT_SECS * 1000);
+        setLockSecs(LOCKOUT_SECS);
+        setErrors({auth:`Too many failed attempts. Account locked for ${LOCKOUT_SECS} seconds.`});
       } else {
-        const next = attempts + 1;
-        setAttempts(next);
-        setLoading(false);
-        triggerShake();
-        if(next >= MAX_ATTEMPTS){
-          setLockedUntil(Date.now() + LOCKOUT_SECS * 1000);
-          setLockSecs(LOCKOUT_SECS);
-          setErrors({auth:`Too many failed attempts. Account locked for ${LOCKOUT_SECS} seconds.`});
-        } else {
-          const left = MAX_ATTEMPTS - next;
-          setErrors({auth:`Incorrect email or password. ${left} attempt${left===1?"":"s"} remaining.`});
-        }
+        const left = MAX_ATTEMPTS - next;
+        setErrors({auth: error.message || `Incorrect email or password. ${left} attempt${left===1?"":"s"} remaining.`});
       }
-    }, 1100);
+    } else {
+      setLoading(false);
+      // onAuthStateChange in the root App will handle navigation
+      onSignIn();
+    }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setLoading(true);
-    setTimeout(()=>{ setLoading(false); onSignIn(); }, 900);
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+    if(error){ setLoading(false); setErrors({auth: error.message}); }
+    // On success, Supabase redirects to Google — onAuthStateChange handles the return
   };
 
-  const handleForgot = () => {
+  const handleForgot = async () => {
     if(!validateEmail(forgotEmail)){ setForgotError("Please enter a valid email address."); return; }
     setForgotError("");
     setLoading(true);
-    setTimeout(()=>{ setLoading(false); setMode("forgot_sent"); }, 1000);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim());
+    setLoading(false);
+    if(error){ setForgotError(error.message); }
+    else { setMode("forgot_sent"); }
   };
 
   // ── FORGOT PASSWORD FLOW ──
@@ -1407,24 +1294,34 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
 
   const [sendError, setSendError] = useState("");
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if(!validate()) return;
     setLoading(true);
     setSendError("");
-    fetch("/api/send-code", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ email: email.trim() }),
-    })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error("send failed")))
-      .then(() => {
-        setLoading(false);
-        onVerify({ firstName, lastName, email, phone, countryCode, pw });
-      })
-      .catch(() => {
-        setLoading(false);
-        setSendError("We couldn't send the verification email right now. Please try again in a moment.");
-      });
+    const { error } = await supabase.auth.signUp({
+      email: email.trim(),
+      password: pw,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          phone,
+          country_code: countryCode,
+        },
+      },
+    });
+    setLoading(false);
+    if(error){
+      setSendError(error.message || "We couldn't create your account right now. Please try again in a moment.");
+    } else {
+      // Create/update contact in GoHighLevel (best-effort — don't block registration)
+      fetch("/api/create-contact", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email: email.trim(), firstName, lastName, phone, countryCode }),
+      }).catch(()=>{});
+      onVerify({ firstName, lastName, email: email.trim(), phone, countryCode, pw });
+    }
   };
 
   const inputStyle = (field) => ({
@@ -1554,7 +1451,10 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
           </button>
 
           <div style={{margin:"14px 0"}}><Divider/></div>
-          <GoogleBtn label="Sign up with Google" onClick={()=>onVerify({firstName:"Demo",lastName:"User",email:"demo@gmail.com",pw:"",googleAuth:true})}/>
+          <GoogleBtn label="Sign up with Google" onClick={async ()=>{
+            const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+            if(!error) { /* Supabase redirects to Google — onAuthStateChange handles the return */ }
+          }}/>
         </div>
       </ScrollBody>
     </PhoneShell>
@@ -1606,42 +1506,31 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
     }
   };
 
-  const handleVerify = (code) => {
+  const handleVerify = async (code) => {
     const entered = code || codeDigits.join("");
     if(entered.length < 6){ setCodeError(true); return; }
     setVerifying(true);
     setCodeError(false);
-    fetch("/api/verify-code", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ email: userData.email, code: entered }),
-    })
-      .then(r => r.ok ? r.json() : Promise.reject(new Error("verify failed")))
-      .then(({valid}) => {
-        setVerifying(false);
-        if(valid){
-          setPhase("verified");
-          setTimeout(()=>onVerified(), 2000);
-        } else {
-          setCodeError(true);
-        }
-      })
-      .catch(() => {
-        setVerifying(false);
-        setCodeError(true);
-      });
+    const { error } = await supabase.auth.verifyOtp({
+      email: userData.email,
+      token: entered,
+      type: "signup",
+    });
+    setVerifying(false);
+    if(error){
+      setCodeError(true);
+    } else {
+      setPhase("verified");
+      setTimeout(()=>onVerified(), 2000);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if(resendCooldown>0) return;
     startCooldown();
     setCodeDigits(["","","","","",""]);
     setCodeError(false);
-    fetch("/api/send-code", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ email: userData.email }),
-    }).catch(()=>{ /* resend is best-effort; user can just try again */ });
+    await supabase.auth.resend({ type: "signup", email: userData.email }).catch(()=>{});
   };
 
   if(phase==="verified") return (
@@ -2821,7 +2710,7 @@ function getCurrentPuppyWeek(puppyWeekDone={}){
   return { idx: safeIdx, week: PUPPY_CURRICULUM[safeIdx] };
 }
 
-const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,stdCompleted,graduated,onOpenHandout,onOpenVideo,pottyTimer,onOpenPottyTimer,assignDone={},setAssignDone=()=>{},routineDone={},setRoutineDone=()=>{}}) => {
+const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,stdCompleted,graduated,onOpenHandout,onOpenVideo,pottyTimer,onOpenPottyTimer,assignDone={},setAssignDone=()=>{},routineDone={},setRoutineDone=()=>{},petId=null}) => {
   const T=useTheme();
   const petName=petData?.name||"Luna";
   const breed=petData?.breed||"";
@@ -2858,17 +2747,14 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
     ? Math.round((Object.keys(puppyWeekDone||{}).filter(k=>puppyWeekDone[k]).length / PUPPY_CURRICULUM.length)*100)
     : 0;
 
-  // ── Streak: loaded from localStorage, updated on assignment completion ──
-  const [streak,setStreak]=useState(()=>loadStreak()||0);
+  // ── Streak: loaded from Supabase (via puppyStreak prop), updated on assignment completion ──
+  const [streak,setStreak]=useState(puppyStreak||0);
 
   const handleAssignComplete=(taskName)=>{
     const alreadyDone=!!assignDone[taskName];
     setAssignDone(d=>({...d,[taskName]:!alreadyDone}));
-    // Only bump the streak the first time a task is checked off, not when
-    // unchecking it (e.g. if it was checked by mistake).
     if(!alreadyDone){
-      const newStreak=updateStreakOnActivity();
-      setStreak(newStreak);
+      updateStreakOnActivity(petId, streak).then(newStreak=>setStreak(newStreak));
     }
   };
 
@@ -4054,53 +3940,69 @@ function getDailyTip() {
   return DAILY_TIPS[((dayIndex % DAILY_TIPS.length) + DAILY_TIPS.length) % DAILY_TIPS.length];
 }
 
-// ─── STREAK STORAGE HELPERS ───────────────────────────────────────────────────
-const STREAK_KEY = "gp_streak";
-const LAST_ACTIVITY_KEY = "gp_last_activity";
-
-function loadStreak() {
-  try {
-    const raw = localStorage.getItem(STREAK_KEY);
-    return raw ? parseInt(raw) : 0;
-  } catch { return 0; }
-}
-
-function saveStreak(n) {
-  try { localStorage.setItem(STREAK_KEY, String(n)); } catch {}
-}
-
-function loadLastActivity() {
-  try { return localStorage.getItem(LAST_ACTIVITY_KEY) || null; } catch { return null; }
-}
-
-function saveLastActivity(dateStr) {
-  try { localStorage.setItem(LAST_ACTIVITY_KEY, dateStr); } catch {}
-}
-
+// ─── STREAK HELPERS (Supabase-backed) ────────────────────────────────────────
 function todayStr() {
   return new Date().toISOString().slice(0,10); // "2026-06-02"
 }
 
-function updateStreakOnActivity() {
+// In-memory last-activity cache to avoid repeated DB reads within a session.
+let _lastActivityCache = null;
+let _streakCache = 0;
+
+async function updateStreakOnActivity(petIdVal, currentStreak) {
+  if (!petIdVal) return currentStreak || 0;
   const today = todayStr();
-  const last = loadLastActivity();
-  let streak = loadStreak();
-  if(last === today) return streak; // already logged today
-  if(last) {
+  // Read current streak row if we don't have a cache
+  if (_lastActivityCache === null) {
+    const { data } = await supabase.from("streaks").select("current_streak, last_activity_date").eq("pet_id", petIdVal).single();
+    if (data) { _lastActivityCache = data.last_activity_date; _streakCache = data.current_streak || 0; }
+  }
+  const last = _lastActivityCache;
+  let streak = _streakCache || currentStreak || 0;
+  if (last === today) return streak; // already logged today
+  if (last) {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yStr = yesterday.toISOString().slice(0,10);
-    if(last === yStr) {
-      streak = streak + 1; // continued streak
-    } else {
-      streak = 1; // broke streak, restart
-    }
+    streak = (last === yStr) ? streak + 1 : 1;
   } else {
-    streak = 1; // first time
+    streak = 1;
   }
-  saveStreak(streak);
-  saveLastActivity(today);
+  _streakCache = streak;
+  _lastActivityCache = today;
+  await supabase.from("streaks").upsert({ pet_id: petIdVal, current_streak: streak, last_activity_date: today }, { onConflict: "pet_id" });
   return streak;
+}
+
+// ─── SUPABASE PERSISTENCE HELPERS ─────────────────────────────────────────────
+// These are fire-and-forget — UI state is updated optimistically, and these
+// write the change to Supabase in the background.
+
+async function saveLesson(petIdVal, program, weekNumber, lessonKey, completed, extras = {}) {
+  if (!petIdVal) return;
+  await supabase.from("lesson_progress").upsert({
+    pet_id: petIdVal,
+    program,
+    week_number: weekNumber,
+    lesson_key: lessonKey,
+    completed,
+    ...extras,
+  }, { onConflict: "pet_id,program,week_number,lesson_key" });
+}
+
+async function savePet(petIdVal, fields) {
+  if (!petIdVal) return;
+  await supabase.from("pets").update(fields).eq("id", petIdVal);
+}
+
+async function saveDocument(petIdVal, doc) {
+  if (!petIdVal) return;
+  await supabase.from("pet_documents").insert({ pet_id: petIdVal, ...doc });
+}
+
+async function saveEnrollment(petIdVal, program) {
+  if (!petIdVal) return;
+  await supabase.from("program_enrollment").insert({ pet_id: petIdVal, program });
 }
 
 // ─── WEEKLY BADGES ────────────────────────────────────────────────────────────
@@ -4178,7 +4080,7 @@ const BadgeEarnedOverlay = ({badge, onClose}) => {
   );
 };
 
-const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo, openWeek, setOpenWeek, weekCompletedAt, setWeekCompletedAt}) => {
+const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, puppyWeekDone, setPuppyWeekDone, setPuppyStreak, stdCompleted, setStdCompleted, welcomeVideoWatched, setWelcomeVideoWatched, onOpenHandout, onOpenVideo, openWeek, setOpenWeek, weekCompletedAt, setWeekCompletedAt, petId=null}) => {
   const T=useTheme();
   // openWeek & weekCompletedAt come from App (lifted) so opening a lesson video and
   // hitting Back returns to exactly this same week, instead of losing progress.
@@ -4196,7 +4098,10 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
   const programKey = enrolledProgram;
   const video = WELCOME_VIDEO[programKey];
   const videoWatched = !!welcomeVideoWatched?.[programKey];
-  const markVideoWatched = () => setWelcomeVideoWatched(w=>({...w,[programKey]:true}));
+  const markVideoWatched = () => {
+    setWelcomeVideoWatched(w=>({...w,[programKey]:true}));
+    saveLesson(petId, programKey, 0, "__welcome_video__", false, { welcome_video_watched: true });
+  };
 
   // Add-the-other-program upsell (only relevant when only one is purchased)
   const missingProgram = purchasedPrograms.includes("standard") ? (purchasedPrograms.includes("puppy") ? null : "puppy")
@@ -4211,13 +4116,24 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
     setAddProgramSuccess(true);
     setViewProgram(programId);
     setTimeout(()=>setAddProgramSuccess(false),3000);
+    saveEnrollment(petId, programId);
   };
 
   // Standard lesson toggle
-  const toggleStd = (wid,lesson) => { const k=`${wid}::${lesson}`; setStdCompleted(c=>({...c,[k]:!c[k]})); };
+  const toggleStd = (wid,lesson) => {
+    const k=`${wid}::${lesson}`;
+    const newVal = !stdCompleted[k];
+    setStdCompleted(c=>({...c,[k]:newVal}));
+    saveLesson(petId, "standard", wid, lesson, newVal);
+  };
 
   // Puppy lesson toggle — uses lifted state
-  const togglePuppy = (wid,lesson) => { const k=`${wid}::${lesson}`; setPuppyCompleted(c=>({...c,[k]:!c[k]})); };
+  const togglePuppy = (wid,lesson) => {
+    const k=`${wid}::${lesson}`;
+    const newVal = !puppyCompleted[k];
+    setPuppyCompleted(c=>({...c,[k]:newVal}));
+    saveLesson(petId, "puppy", wid, lesson, newVal);
+  };
 
   // Is a week unlocked? Delegates to the shared isCurriculumWeekUnlocked function
   // (see top of file) so this always agrees with the Video Library's lock check.
@@ -4254,8 +4170,10 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
   // Puppy: mark whole week done, and record when — same as the standard program —
   // so the shared 7-day pacing gate above has a completion timestamp to check.
   const markPuppyWeekDone = (weekId, nextWeekLabel) => {
+    const now = Date.now();
     setPuppyWeekDone(d => ({...d,[weekId]:true}));
-    setWeekCompletedAt(d => ({...d,[weekId]:Date.now()}));
+    setWeekCompletedAt(d => ({...d,[weekId]:now}));
+    saveLesson(petId, "puppy", weekId, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
     setPuppyStreak(s => s+1);
     setOpenWeek(null); // collapse after marking done
     const unlockDateStr = new Date(Date.now()+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
@@ -4615,8 +4533,10 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
                       <>
                         <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>All lessons checked! Tap below to complete this week and start the 7-day unlock timer.</p>
                         <button onClick={()=>{
-                            setWeekCompletedAt(d=>({...d,[week.id]:Date.now()}));
-                            const unlockDateStr = new Date(Date.now()+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+                            const now = Date.now();
+                            setWeekCompletedAt(d=>({...d,[week.id]:now}));
+                            saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
+                            const unlockDateStr = new Date(now+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
                             showLearnToast(`Week complete! Take these next 7 days to practice and reinforce these skills — ${curriculum[wi+1].label} unlocks ${unlockDateStr}.`, "green");
                             setJustEarnedBadge({label: week.label, isFinal: false, program:"standard"});
                           }}
@@ -4645,7 +4565,9 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
                         // week already gets both from markPuppyWeekDone before this button
                         // is reachable, so we don't double-fire here for puppy.
                         if(isStandard && !weekCompletedAt[week.id]){
-                          setWeekCompletedAt(d=>({...d,[week.id]:Date.now()}));
+                          const now = Date.now();
+                          setWeekCompletedAt(d=>({...d,[week.id]:now}));
+                          saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
                           setJustEarnedBadge({label: week.label, isFinal:true, program:"standard"});
                           sendCertificateWebhook("standard", petData); // final week — fire the GHL certificate workflow
                         }
@@ -6540,7 +6462,7 @@ const simulateSendEmail = (type, details) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: SETTINGS (multi-tab: Profile / Settings / Contact / Sign Out)
 // ═══════════════════════════════════════════════════════════════════════════════
-const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHandoutLibrary,onOpenVideoLibrary,petData,setPetData,onOpenDiagnosis}) => {
+const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHandoutLibrary,onOpenVideoLibrary,petData,setPetData,onOpenDiagnosis,petId=null}) => {
   const T=useTheme();
   const [tab,setTab]=useState("profile");
   const [showSaved,setShowSaved]=useState(false);
@@ -6621,6 +6543,11 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     setPets(ps=>ps.map((p,i)=>i===activePet?{...p,[k]:v}:p));
     // Keep the primary pet's record (the one used across the whole app) in sync
     if(activePet===0 && setPetData) setPetData(d=>({...d,[k]:v}));
+    // Persist pet field change to Supabase
+    if(activePet===0 && petId){
+      const dbKey = k === "birthday" ? "birthday" : k;
+      savePet(petId, {[dbKey]: v});
+    }
   };
   const pet=pets[activePet];
 
@@ -7364,6 +7291,8 @@ export default function App() {
   const [petData,setPetData]=useState({name:"Luna",breed:"Labrador Retriever",birthday:""});
   const [pendingData,setPendingData]=useState(null);
   const [regData,setRegData]=useState(null); // from registration screen
+  const [userId, setUserId] = useState(null);
+  const [petId, setPetId] = useState(null);
   const [showPlus,setShowPlus]=useState(false);
   const [showDiag,setShowDiag]=useState(false);
   const [showLifeRecord,setShowLifeRecord]=useState(false);
@@ -7450,6 +7379,87 @@ export default function App() {
   // Tracks whether each program's required welcome video has been watched
   const [welcomeVideoWatched,setWelcomeVideoWatched]=useState({standard:false, puppy:false});
 
+  // ── Load all user data from Supabase (called on sign-in and session restore) ──
+  const loadUserData = async (authUserId) => {
+    setUserId(authUserId);
+    // 1. Users table
+    const { data: userData } = await supabase.from("users").select("*").eq("id", authUserId).single();
+    if (!userData) return false; // no user row yet — still onboarding
+    setPlan(userData.plan || "annual");
+    // 2. Pets
+    const { data: pets } = await supabase.from("pets").select("*").eq("owner_id", authUserId).limit(1);
+    const pet = pets?.[0];
+    if (!pet) return false;
+    setPetId(pet.id);
+    const petObj = {
+      name: pet.name, breed: pet.breed, gender: pet.gender, weight: pet.weight,
+      birthday: pet.birthday ? new Date(pet.birthday + "T00:00:00").toLocaleDateString("en-US", {month:"2-digit",day:"2-digit",year:"numeric"}) : "",
+    };
+    // 3. Pet documents
+    const { data: docs } = await supabase.from("pet_documents").select("*").eq("pet_id", pet.id);
+    if (docs?.length) petObj.docs = docs;
+    // 4. Program enrollment
+    const { data: enrollments } = await supabase.from("program_enrollment").select("*").eq("pet_id", pet.id);
+    if (enrollments?.length) {
+      petObj.purchasedPrograms = enrollments.map(e => e.program);
+      petObj.enrolledProgram = enrollments[0].program;
+    }
+    setPetData(petObj);
+    // 5. Lesson progress
+    const { data: progress } = await supabase.from("lesson_progress").select("*").eq("pet_id", pet.id);
+    if (progress?.length) {
+      const stdC = {}, puppyC = {}, weekDone = {}, weekCAt = {};
+      let welcomeVid = { standard: false, puppy: false };
+      progress.forEach(row => {
+        const key = `${row.week_number}::${row.lesson_key}`;
+        if (row.program === "standard") { if (row.completed) stdC[key] = true; }
+        else if (row.program === "puppy") { if (row.completed) puppyC[key] = true; }
+        if (row.week_completed_at) { weekDone[row.week_number] = true; weekCAt[row.week_number] = row.week_completed_at; }
+        if (row.welcome_video_watched) welcomeVid[row.program] = true;
+      });
+      setStdCompleted(stdC);
+      setPuppyCompleted(puppyC);
+      setPuppyWeekDone(weekDone);
+      setWeekCompletedAt(weekCAt);
+      setWelcomeVideoWatched(welcomeVid);
+    }
+    // 6. Streaks
+    const { data: streakData } = await supabase.from("streaks").select("*").eq("pet_id", pet.id).single();
+    if (streakData) setPuppyStreak(streakData.current_streak || 0);
+    return true;
+  };
+
+  // ── Supabase auth state listener (handles sign-in, sign-out, and session restore) ──
+  useEffect(() => {
+    // Check for existing session on mount (page refresh)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        loadUserData(session.user.id).then(ok => {
+          if (ok) { setPage("dashboard"); setScreen("app"); }
+          // If not ok, user is mid-onboarding — stay on current screen
+        });
+      }
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        _lastActivityCache = null;
+        _streakCache = 0;
+        setUserId(null);
+        setPetId(null);
+        setPetData({ name: "", breed: "", birthday: "" });
+        setPlan("annual");
+        setStdCompleted({});
+        setPuppyCompleted({});
+        setPuppyWeekDone({});
+        setPuppyStreak(0);
+        setWeekCompletedAt({});
+        setWelcomeVideoWatched({ standard: false, puppy: false });
+        setScreen("signin");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // ── Video locking: a video should only be watchable once the curriculum week
   // that references it is actually unlocked — otherwise someone could skip ahead
   // by browsing the Video Library directly.
@@ -7525,7 +7535,10 @@ export default function App() {
   const [videoLockedMsg,setVideoLockedMsg]=useState(null);
 
   const [quickAddDocs,setQuickAddDocs]=useState([]);
-  const handleQuickAdd=(doc)=>setQuickAddDocs(d=>[...d,doc]);
+  const handleQuickAdd=(doc)=>{
+    setQuickAddDocs(d=>[...d,doc]);
+    saveDocument(petId, doc);
+  };
   const [walkLog,setWalkLog]=useState([]);
   // Potty timer lives here (not inside the Potty Schedule screen) so it keeps
   // counting down and can show up as a small badge on the Dashboard too.
@@ -7537,49 +7550,106 @@ export default function App() {
   const navigateToPage=(p)=>{ if(p==="live") setLiveInitialTab("activity"); setPage(p); };
 
   // ── Inactivity auto-sign-out (bank-app style) ──
-  // While the app is open and signed in, any interaction bumps the session's
-  // "last activity" timestamp; a periodic check signs the person out only once
-  // they've gone INACTIVITY_LIMIT_MS with no interaction at all. A page refresh
-  // is not, by itself, inactivity — loadSession() re-touches on load too.
+  // Tracks last interaction time in a ref; a periodic check signs the person out
+  // via supabase.auth.signOut() once they've been idle for INACTIVITY_LIMIT_MS.
+  const lastActivityRef = useRef(Date.now());
   useEffect(() => {
     if (screen !== "app") return;
-    let lastBump = 0;
-    const bump = () => {
-      const now = Date.now();
-      if (now - lastBump < 5000) return; // throttle — no need to touch on every single pixel of mouse movement
-      lastBump = now;
-      touchSession();
-    };
+    const bump = () => { lastActivityRef.current = Date.now(); };
     const events = ["mousedown","mousemove","keydown","scroll","touchstart","wheel"];
     events.forEach(ev => window.addEventListener(ev, bump, {passive:true}));
     const checkId = setInterval(() => {
-      if (!peekSession()) { // expired (or missing) — sign out
+      if (Date.now() - lastActivityRef.current > INACTIVITY_LIMIT_MS) {
+        supabase.auth.signOut();
         setScreen("signin");
       }
-    }, 15000); // check every 15s — frequent enough to feel responsive, cheap enough to not matter
+    }, 15000);
     return () => {
       events.forEach(ev => window.removeEventListener(ev, bump));
       clearInterval(checkId);
     };
   }, [screen]);
 
-  const handleSignIn=()=>{ setPage("dashboard"); setScreen("app"); };
+  const handleSignIn=async ()=>{
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const ok = await loadUserData(session.user.id);
+      if (ok) { setPage("dashboard"); setScreen("app"); return; }
+    }
+    setPage("dashboard"); setScreen("app");
+  };
   const handleGoRegister=()=>setScreen("register");
   const handleRegistered=(ud)=>{ setRegData(ud); if(ud.googleAuth){ setScreen("onboarding"); } else { setScreen("verify"); } };
   const handleVerified=()=>setScreen("onboarding");
   const handleGoToPayment=(data)=>{ setPendingData(data); setScreen("payment"); };
   const handlePaySuccess=()=>setScreen("success");
-  const handleSuccessContinue=()=>{
+  const handleSuccessContinue=async ()=>{
     setPlan(pendingData?.plan||"annual");
     const birthday = pendingData?.birthday||"";
-    // The program picked during onboarding (with an age-based fallback if it was
-    // somehow skipped) is what this purchase actually unlocks — the other program
-    // requires a separate purchase later (see the Learn tab upsell).
     const purchasedProgram = pendingData?.program==="puppy" ? "puppy"
       : pendingData?.program==="standard" ? "standard"
       : getEnrolledProgram({birthday});
     setPetData({...pendingData, birthday, enrolledProgram:purchasedProgram, purchasedPrograms:[purchasedProgram]});
     setShowWelcome(true); setScreen("app");
+
+    // ── Write collected data to Supabase ──
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
+    const authId = session.user.id;
+    setUserId(authId);
+
+    // Convert MM/DD/YYYY → YYYY-MM-DD for Supabase date column
+    const parseBirthday = (b) => {
+      if (!b) return null;
+      const parts = b.split("/");
+      if (parts.length === 3) return `${parts[2]}-${parts[0].padStart(2,"0")}-${parts[1].padStart(2,"0")}`;
+      return b; // already ISO or unknown format
+    };
+
+    // 1. Upsert users
+    await supabase.from("users").upsert({
+      id: authId,
+      first_name: regData?.firstName || pendingData?.firstName || "",
+      last_name: regData?.lastName || pendingData?.lastName || "",
+      email: session.user.email,
+      phone: regData?.phone || "",
+      country_code: regData?.countryCode || "US",
+      role: pendingData?.role ? [pendingData.role] : [],
+      training_goals: pendingData?.issues || [],
+      preferred_training_time: Array.isArray(pendingData?.trainTime) ? pendingData.trainTime.join(", ") : (pendingData?.trainTime || ""),
+      plan: pendingData?.plan || "annual",
+      card_last4: pendingData?.cardLast4 || "",
+      renewal_date: pendingData?.renewalDate || null,
+    }, { onConflict: "id" });
+
+    // 2. Insert pet
+    const { data: petRow } = await supabase.from("pets").insert({
+      owner_id: authId,
+      name: pendingData?.name || "",
+      breed: pendingData?.breed || "",
+      birthday: parseBirthday(birthday),
+      gender: pendingData?.gender || "",
+      weight: pendingData?.weight || null,
+      pet_type: "dog",
+    }).select().single();
+    const newPetId = petRow?.id;
+    if (newPetId) setPetId(newPetId);
+
+    // 3. Insert program enrollment
+    if (newPetId) {
+      await supabase.from("program_enrollment").insert({
+        pet_id: newPetId,
+        program: purchasedProgram,
+      });
+    }
+
+    // 4. Insert initial streak
+    if (newPetId) {
+      await supabase.from("streaks").insert({
+        pet_id: newPetId,
+        current_streak: 0,
+      });
+    }
   };
   const handleDismissWelcome=()=>setShowWelcome(false);
 
@@ -7594,14 +7664,14 @@ export default function App() {
     if(showLifeRecord) return <PetLifeRecord petData={petData} setPetData={setPetData} onClose={()=>setShowLifeRecord(false)} onOpenSettings={()=>{setShowLifeRecord(false);navigateToPage("settings");}}/>;
     if(showGame) return <GameInstructionsScreen id={showGame} onClose={closeGame} onBack={closeGame}/>;
     switch(page){
-      case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone}/>;
+      case "dashboard": return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} puppyWeekDone={puppyWeekDone} puppyStreak={puppyStreak} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone} petId={petId}/>;
       case "live":      return <LiveScreen walkLog={walkLog} pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} initialTab={liveInitialTab} petData={petData} setPetData={setPetData}/>;
       case "bond":      return <BondScreen onOpenGame={openGame}/>;
-      case "learn":     return <LearnScreen petData={petData} setPetData={setPetData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo} openWeek={learnOpenWeek} setOpenWeek={setLearnOpenWeek} weekCompletedAt={weekCompletedAt} setWeekCompletedAt={setWeekCompletedAt}/>;
+      case "learn":     return <LearnScreen petData={petData} setPetData={setPetData} puppyCompleted={puppyCompleted} setPuppyCompleted={setPuppyCompleted} puppyWeekDone={puppyWeekDone} setPuppyWeekDone={setPuppyWeekDone} setPuppyStreak={setPuppyStreak} stdCompleted={stdCompleted} setStdCompleted={setStdCompleted} welcomeVideoWatched={welcomeVideoWatched} setWelcomeVideoWatched={setWelcomeVideoWatched} onOpenHandout={openHandout} onOpenVideo={openVideo} openWeek={learnOpenWeek} setOpenWeek={setLearnOpenWeek} weekCompletedAt={weekCompletedAt} setWeekCompletedAt={setWeekCompletedAt} petId={petId}/>;
       case "share":     return <ShareScreen/>;
       case "calendar":  return <CalendarScreen/>;
       case "store":     return <StoreScreen/>;
-      case "settings":  return <SettingsScreen onSignOut={()=>{clearSession();setScreen("signin");}} darkMode={darkMode} setDarkMode={setDarkMode} quickAddDocs={quickAddDocs} onOpenHandoutLibrary={openHandoutLibrary} onOpenVideoLibrary={openVideoLibrary} petData={petData} setPetData={setPetData} onOpenDiagnosis={openDiagnosis}/>;
+      case "settings":  return <SettingsScreen onSignOut={()=>{supabase.auth.signOut();setScreen("signin");}} darkMode={darkMode} setDarkMode={setDarkMode} quickAddDocs={quickAddDocs} onOpenHandoutLibrary={openHandoutLibrary} onOpenVideoLibrary={openVideoLibrary} petData={petData} setPetData={setPetData} onOpenDiagnosis={openDiagnosis} petId={petId}/>;
       default:          return <DashboardScreen petData={petData} plan={plan} onOpenRecord={()=>{setShowLifeRecord(true);setShowDiag(false);}} stdCompleted={stdCompleted} onOpenHandout={openHandout} onOpenVideo={openVideo} pottyTimer={pottyTimer} onOpenPottyTimer={goToPottyTimer} assignDone={assignDone} setAssignDone={setAssignDone} routineDone={routineDone} setRoutineDone={setRoutineDone}/>;
     }
   };
