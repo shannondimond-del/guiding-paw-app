@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 // build marker: trigger redeploy
 
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
 const ThemeContext = createContext();
@@ -104,11 +104,11 @@ const Icon = ({name, size=16, color="currentColor", style={}, strokeWidth=2}) =>
   const path = ICON_PATHS[name];
   if(!path) return null;
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
-      style={{display:"inline-block",verticalAlign:"middle",flexShrink:0,...style}}>
-      {path}
-    </svg>
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+           strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
+           style={{display:"inline-block",verticalAlign:"middle",flexShrink:0,...style}}>
+        {path}
+      </svg>
   );
 };
 
@@ -291,10 +291,10 @@ const LogoImg = ({size=56}) => {
   // A soft light badge behind the mark keeps it visible in dark mode too — the logo's
   // navy paw would otherwise nearly disappear against the app's dark navy sidebar.
   return (
-    <div style={{width:size,height:size,borderRadius:"50%",background:"#F7F1E4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,padding:size*0.09,boxSizing:"border-box"}}>
-      <img src={LOGO_DATA_URI} alt="Guiding Paw Training" width={size} height={size}
-        style={{width:"100%",height:"100%",objectFit:"contain",display:"block"}}/>
-    </div>
+      <div style={{width:size,height:size,borderRadius:"50%",background:"#F7F1E4",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,padding:size*0.09,boxSizing:"border-box"}}>
+        <img src={LOGO_DATA_URI} alt="Guiding Paw Training" width={size} height={size}
+             style={{width:"100%",height:"100%",objectFit:"contain",display:"block"}}/>
+      </div>
   );
 };
 
@@ -302,9 +302,9 @@ const LogoImg = ({size=56}) => {
 const PageLogoHeader = () => {
   const T=useTheme();
   return (
-    <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:"10px 0 4px",flexShrink:0}}>
-      <LogoImg size={44}/>
-    </div>
+      <div style={{display:"flex",justifyContent:"center",alignItems:"center",padding:"10px 0 4px",flexShrink:0}}>
+        <LogoImg size={44}/>
+      </div>
   );
 };
 
@@ -312,31 +312,31 @@ const TopBanner = ({setPage}) => {
   const T=useTheme();
   const pages=["live","bond","learn"];
   return (
-    <div style={{background:`linear-gradient(90deg,${T.green} 0%,#1C2636 45%,${T.brown} 100%)`,padding:"8px 0",flexShrink:0}}>
-      <div style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-        {["LIVE","BOND","LEARN"].map((w,i)=>(
-          <span key={w} style={{display:"flex",alignItems:"center"}}>
+      <div style={{background:`linear-gradient(90deg,${T.green} 0%,#1C2636 45%,${T.brown} 100%)`,padding:"8px 0",flexShrink:0}}>
+        <div style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+          {["LIVE","BOND","LEARN"].map((w,i)=>(
+              <span key={w} style={{display:"flex",alignItems:"center"}}>
             <button onClick={()=>setPage&&setPage(pages[i])} style={{background:"none",border:"none",cursor:"pointer",padding:"2px 4px",fontSize:"9.5px",fontWeight:"900",letterSpacing:".18em",color:"#c9a870",fontFamily:"'Lato',sans-serif",transition:"color .18s,opacity .18s"}}
-              onMouseEnter={e=>e.currentTarget.style.opacity="0.75"}
-              onMouseLeave={e=>e.currentTarget.style.opacity="1"}
+                    onMouseEnter={e=>e.currentTarget.style.opacity="0.75"}
+                    onMouseLeave={e=>e.currentTarget.style.opacity="1"}
             >{w}</button>
-            {i<2&&<span style={{margin:"0 9px",color:"#B08D57",fontSize:"7px"}}>◆</span>}
+                {i<2&&<span style={{margin:"0 9px",color:"#B08D57",fontSize:"7px"}}>◆</span>}
           </span>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
   );
 };
 
 const ThemeToggle = ({darkMode,setDarkMode}) => {
   const T=useTheme();
   return (
-    <button onClick={()=>setDarkMode(d=>!d)} style={{display:"flex",alignItems:"center",gap:"6px",background:"none",border:"none",cursor:"pointer",padding:"4px 2px"}}>
-      <Icon name={darkMode?"moon":"sun"} size={15} color={T.navText}/>
-      <div style={{width:"40px",height:"22px",borderRadius:"11px",background:darkMode?"rgba(176,141,87,.35)":"rgba(163,86,42,.2)",border:`1.5px solid ${darkMode?"rgba(176,141,87,.6)":"rgba(163,86,42,.35)"}`,position:"relative",transition:"all .3s"}}>
-        <div style={{position:"absolute",top:"2px",left:darkMode?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:darkMode?"#c9a870":"#A3562A",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.25)"}}/>
-      </div>
-    </button>
+      <button onClick={()=>setDarkMode(d=>!d)} style={{display:"flex",alignItems:"center",gap:"6px",background:"none",border:"none",cursor:"pointer",padding:"4px 2px"}}>
+        <Icon name={darkMode?"moon":"sun"} size={15} color={T.navText}/>
+        <div style={{width:"40px",height:"22px",borderRadius:"11px",background:darkMode?"rgba(176,141,87,.35)":"rgba(163,86,42,.2)",border:`1.5px solid ${darkMode?"rgba(176,141,87,.6)":"rgba(163,86,42,.35)"}`,position:"relative",transition:"all .3s"}}>
+          <div style={{position:"absolute",top:"2px",left:darkMode?"18px":"2px",width:"16px",height:"16px",borderRadius:"50%",background:darkMode?"#c9a870":"#A3562A",transition:"left .3s",boxShadow:"0 1px 4px rgba(0,0,0,.25)"}}/>
+        </div>
+      </button>
   );
 };
 
@@ -348,13 +348,13 @@ const GoldBtn = ({children,onClick,style={}}) => {
 const Field = ({label,type="text",value,onChange,placeholder}) => {
   const T=useTheme();
   return (
-    <div style={{marginBottom:"14px"}}>
-      <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>{label}</label>
-      <input type={type} value={value} placeholder={placeholder} onChange={e=>onChange(e.target.value)}
-        style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",transition:"all .2s"}}
-        onFocus={e=>{e.target.style.borderColor=T.gold;e.target.style.background=T.inputFocusBg;}}
-        onBlur={e=>{e.target.style.borderColor=T.inputBorder;e.target.style.background=T.inputBg;}} />
-    </div>
+      <div style={{marginBottom:"14px"}}>
+        <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>{label}</label>
+        <input type={type} value={value} placeholder={placeholder} onChange={e=>onChange(e.target.value)}
+               style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",transition:"all .2s"}}
+               onFocus={e=>{e.target.style.borderColor=T.gold;e.target.style.background=T.inputFocusBg;}}
+               onBlur={e=>{e.target.style.borderColor=T.inputBorder;e.target.style.background=T.inputBg;}} />
+      </div>
   );
 };
 
@@ -366,13 +366,13 @@ const Chip = ({label,selected,onClick,emoji=""}) => {
 };
 
 const ChipGroup = ({options,selected,onToggle,single=false}) => (
-  <div style={{display:"flex",flexWrap:"wrap",gap:"8px",marginBottom:"18px"}}>
-    {options.map(o=>{
-      const val=typeof o==="string"?o:o.value, label=typeof o==="string"?o:o.label, emoji=typeof o==="object"?o.emoji:"";
-      const isSel=single?selected===val:(selected||[]).includes(val);
-      return <Chip key={val} label={label} emoji={emoji} selected={isSel} onClick={()=>onToggle(val,single)}/>;
-    })}
-  </div>
+    <div style={{display:"flex",flexWrap:"wrap",gap:"8px",marginBottom:"18px"}}>
+      {options.map(o=>{
+        const val=typeof o==="string"?o:o.value, label=typeof o==="string"?o:o.label, emoji=typeof o==="object"?o.emoji:"";
+        const isSel=single?selected===val:(selected||[]).includes(val);
+        return <Chip key={val} label={label} emoji={emoji} selected={isSel} onClick={()=>onToggle(val,single)}/>;
+      })}
+    </div>
 );
 
 const ProgressDots = ({total,current}) => {
@@ -412,44 +412,44 @@ const SideNav = ({page,setPage,setShowDiag,setShowLifeRecord,setShowWelcome,setS
   const activeText = T.navActiveText;
   const mutedText = T.navText;
   return (
-    <>
-      {/* Mobile drawer backdrop — tapping it closes the nav */}
-      <div className={`sidebar-backdrop${mobileOpen?" open":""}`} onClick={()=>setMobileOpen&&setMobileOpen(false)}/>
-      <div className={`web-sidebar${mobileOpen?" open":""}`} style={{background:sidebarBg,borderRight:`1px solid ${T.navBarBorder}`}}>
-        {/* Logo area */}
-        <div style={{padding:"28px 22px 20px",borderBottom:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
-            <LogoImg size={40}/>
-            <div>
-              <div style={{fontSize:"13px",fontWeight:"900",color:T.navLogoText,letterSpacing:".08em",lineHeight:1.1}}>GUIDING PAW</div>
-              <div style={{fontSize:"9px",color:T.navLogoSub,letterSpacing:".2em",fontWeight:"600"}}>TRAINING</div>
+      <>
+        {/* Mobile drawer backdrop — tapping it closes the nav */}
+        <div className={`sidebar-backdrop${mobileOpen?" open":""}`} onClick={()=>setMobileOpen&&setMobileOpen(false)}/>
+        <div className={`web-sidebar${mobileOpen?" open":""}`} style={{background:sidebarBg,borderRight:`1px solid ${T.navBarBorder}`}}>
+          {/* Logo area */}
+          <div style={{padding:"28px 22px 20px",borderBottom:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+              <LogoImg size={40}/>
+              <div>
+                <div style={{fontSize:"13px",fontWeight:"900",color:T.navLogoText,letterSpacing:".08em",lineHeight:1.1}}>GUIDING PAW</div>
+                <div style={{fontSize:"9px",color:T.navLogoSub,letterSpacing:".2em",fontWeight:"600"}}>TRAINING</div>
+              </div>
             </div>
+            <button onClick={()=>setMobileOpen&&setMobileOpen(false)} className="hamburger-btn" style={{color:mutedText}}>
+              <Icon name="x" size={18}/>
+            </button>
           </div>
-          <button onClick={()=>setMobileOpen&&setMobileOpen(false)} className="hamburger-btn" style={{color:mutedText}}>
-            <Icon name="x" size={18}/>
-          </button>
+          {/* Nav items */}
+          <div style={{flex:1,overflowY:"auto",paddingTop:"10px"}}>
+            {navItems.map(item=>{
+              const isActive=page===item.id;
+              return (
+                  <button key={item.id} className={`sidebar-nav-btn${isActive?" active":""}`}
+                          onClick={()=>{setPage(item.id);setShowDiag&&setShowDiag(false);setShowLifeRecord&&setShowLifeRecord(false);setShowWelcome&&setShowWelcome(false);setShowVideo&&setShowVideo(null);setVideoHistory&&setVideoHistory([]);setShowGame&&setShowGame(null);setShowHandout&&setShowHandout(null);setHandoutHistory&&setHandoutHistory([]);setMobileOpen&&setMobileOpen(false);}}
+                          style={{color:isActive?activeText:mutedText,borderRight:isActive?`3px solid ${T.navActiveText}`:"3px solid transparent"}}>
+                    <span style={{width:"20px",display:"flex",justifyContent:"center"}}><Icon name={item.icon} size={17}/></span>
+                    <span style={{fontSize:"13px",fontWeight:isActive?"700":"500"}}>{item.label}</span>
+                  </button>
+              );
+            })}
+          </div>
+          {/* Bottom: theme toggle + sign out */}
+          <div style={{padding:"16px 22px",borderTop:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
+            <button onClick={onSignOut} style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:T.navSignOut,fontFamily:"'Lato',sans-serif",letterSpacing:".08em"}}>Sign out</button>
+          </div>
         </div>
-        {/* Nav items */}
-        <div style={{flex:1,overflowY:"auto",paddingTop:"10px"}}>
-          {navItems.map(item=>{
-            const isActive=page===item.id;
-            return (
-              <button key={item.id} className={`sidebar-nav-btn${isActive?" active":""}`}
-                onClick={()=>{setPage(item.id);setShowDiag&&setShowDiag(false);setShowLifeRecord&&setShowLifeRecord(false);setShowWelcome&&setShowWelcome(false);setShowVideo&&setShowVideo(null);setVideoHistory&&setVideoHistory([]);setShowGame&&setShowGame(null);setShowHandout&&setShowHandout(null);setHandoutHistory&&setHandoutHistory([]);setMobileOpen&&setMobileOpen(false);}}
-                style={{color:isActive?activeText:mutedText,borderRight:isActive?`3px solid ${T.navActiveText}`:"3px solid transparent"}}>
-                <span style={{width:"20px",display:"flex",justifyContent:"center"}}><Icon name={item.icon} size={17}/></span>
-                <span style={{fontSize:"13px",fontWeight:isActive?"700":"500"}}>{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        {/* Bottom: theme toggle + sign out */}
-        <div style={{padding:"16px 22px",borderTop:`1px solid ${T.navBarDivider}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-          <button onClick={onSignOut} style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:T.navSignOut,fontFamily:"'Lato',sans-serif",letterSpacing:".08em"}}>Sign out</button>
-        </div>
-      </div>
-    </>
+      </>
   );
 };
 
@@ -463,17 +463,17 @@ const ProtectedMedia = ({children, type="image"}) => {
   const handleDragStart=(e)=>e.preventDefault();
   const handleKeyDown=(e)=>{ if((e.ctrlKey||e.metaKey)&&(e.key==="s"||e.key==="p"||e.key==="S"||e.key==="P")) e.preventDefault(); };
   return (
-    <div
-      className="protected-content-wrap"
-      onContextMenu={handleContextMenu}
-      onDragStart={handleDragStart}
-      onKeyDown={handleKeyDown}
-      style={{position:"relative",userSelect:"none",WebkitUserSelect:"none"}}
-    >
-      {children}
-      {/* Transparent overlay blocks right-click on images/PDFs */}
-      <div style={{position:"absolute",inset:0,zIndex:5,background:"transparent"}} onContextMenu={handleContextMenu}/>
-    </div>
+      <div
+          className="protected-content-wrap"
+          onContextMenu={handleContextMenu}
+          onDragStart={handleDragStart}
+          onKeyDown={handleKeyDown}
+          style={{position:"relative",userSelect:"none",WebkitUserSelect:"none"}}
+      >
+        {children}
+        {/* Transparent overlay blocks right-click on images/PDFs */}
+        <div style={{position:"absolute",inset:0,zIndex:5,background:"transparent"}} onContextMenu={handleContextMenu}/>
+      </div>
   );
 };
 
@@ -550,8 +550,8 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
   };
 
   const liveDistanceMi = usingRealGps && walkPoints.length>=2
-    ? parseFloat(realDistanceMi().toFixed(2))
-    : simDistanceMi(walkElapsed);
+      ? parseFloat(realDistanceMi().toFixed(2))
+      : simDistanceMi(walkElapsed);
 
   const livePace=(secs,mi)=>{ if(mi<0.01) return "--'--\""; const paceMin=(secs/60)/mi; const pm=Math.floor(paceMin),ps=Math.round((paceMin-pm)*60); return `${pm}'${ps.toString().padStart(2,"0")}\"`; };
 
@@ -571,18 +571,18 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
     if(typeof navigator!=="undefined" && navigator.geolocation){
       setGpsStatus("locating");
       watchIdRef.current = navigator.geolocation.watchPosition(
-        (pos)=>{
-          setGpsStatus("active");
-          const {latitude,longitude}=pos.coords;
-          setWalkPoints(pts=>[...pts,{lat:latitude,lng:longitude,t:Date.now()}]);
-        },
-        ()=>{
-          // Permission denied, or location unavailable — keep the walk running with
-          // the simulated-distance fallback instead of blocking the person.
-          setGpsStatus("denied");
-          setWalkPoints(pts=>pts.length?pts:[{lat:BASE_LAT,lng:BASE_LNG}]);
-        },
-        {enableHighAccuracy:true, maximumAge:2000, timeout:12000}
+          (pos)=>{
+            setGpsStatus("active");
+            const {latitude,longitude}=pos.coords;
+            setWalkPoints(pts=>[...pts,{lat:latitude,lng:longitude,t:Date.now()}]);
+          },
+          ()=>{
+            // Permission denied, or location unavailable — keep the walk running with
+            // the simulated-distance fallback instead of blocking the person.
+            setGpsStatus("denied");
+            setWalkPoints(pts=>pts.length?pts:[{lat:BASE_LAT,lng:BASE_LNG}]);
+          },
+          {enableHighAccuracy:true, maximumAge:2000, timeout:12000}
       );
     } else {
       setGpsStatus("unsupported");
@@ -657,119 +657,119 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
   };
 
   return (
-    <div style={{position:"relative",flexShrink:0}}>
-      {/* Active walk banner */}
-      {walkActive&&(
-        <div style={{position:"absolute",bottom:"72px",left:0,right:0,background:"linear-gradient(90deg,rgba(47,79,62,.97),rgba(28,40,60,.97))",border:`1px solid rgba(76,175,125,.5)`,borderRadius:"16px 16px 0 0",padding:"12px 18px",zIndex:50}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"8px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <div style={{width:"9px",height:"9px",borderRadius:"50%",background:"#4caf7d",boxShadow:"0 0 0 4px rgba(76,175,125,.3)",animation:"pulse 1.5s infinite",flexShrink:0}}/>
-              <div>
-                <p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase"}}>Walk in Progress</p>
-                <p style={{fontSize:"9.5px",color:"rgba(255,255,255,.55)",marginTop:"1px",display:"flex",alignItems:"center",gap:"3px"}}>
-                  <Icon name="pin" size={9}/>
-                  {gpsStatus==="active"?"Live GPS tracking":gpsStatus==="locating"?"Finding your location…":gpsStatus==="denied"?"Location unavailable — estimating distance":gpsStatus==="unsupported"?"GPS not supported here — estimating distance":"Starting…"}
-                </p>
+      <div style={{position:"relative",flexShrink:0}}>
+        {/* Active walk banner */}
+        {walkActive&&(
+            <div style={{position:"absolute",bottom:"72px",left:0,right:0,background:"linear-gradient(90deg,rgba(47,79,62,.97),rgba(28,40,60,.97))",border:`1px solid rgba(76,175,125,.5)`,borderRadius:"16px 16px 0 0",padding:"12px 18px",zIndex:50}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"8px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                  <div style={{width:"9px",height:"9px",borderRadius:"50%",background:"#4caf7d",boxShadow:"0 0 0 4px rgba(76,175,125,.3)",animation:"pulse 1.5s infinite",flexShrink:0}}/>
+                  <div>
+                    <p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase"}}>Walk in Progress</p>
+                    <p style={{fontSize:"9.5px",color:"rgba(255,255,255,.55)",marginTop:"1px",display:"flex",alignItems:"center",gap:"3px"}}>
+                      <Icon name="pin" size={9}/>
+                      {gpsStatus==="active"?"Live GPS tracking":gpsStatus==="locating"?"Finding your location…":gpsStatus==="denied"?"Location unavailable — estimating distance":gpsStatus==="unsupported"?"GPS not supported here — estimating distance":"Starting…"}
+                    </p>
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
+                  <button onClick={restartWalk} style={{padding:"6px 11px",background:"rgba(176,141,87,.18)",border:"1.5px solid rgba(176,141,87,.6)",borderRadius:"9px",color:"#c9a870",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px"}} title="Restart walk timer"><Icon name="refresh" size={11}/>Restart</button>
+                  <button onClick={cancelWalk} style={{padding:"6px 11px",background:"rgba(28,38,54,.4)",border:"1.5px solid rgba(216,198,174,.3)",borderRadius:"9px",color:"rgba(216,198,174,.7)",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}} title="Cancel walk without saving"><Icon name="x" size={11} style={{marginRight:"2px"}}/>Cancel</button>
+                  <button onClick={stopWalk} style={{padding:"6px 11px",background:"rgba(224,122,95,.18)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"11px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Stop & Log</button>
+                </div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px"}}>
+                {[
+                  {label:"Duration",value:fmtDuration(walkElapsed)},
+                  {label:"Distance",value:`${liveDistanceMi} mi`},
+                  {label:"Pace",value:livePace(walkElapsed,liveDistanceMi)},
+                ].map(({label,value})=>(
+                    <div key={label} style={{background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px 10px",textAlign:"center"}}>
+                      <p style={{fontSize:"9px",color:"rgba(255,255,255,.5)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"2px"}}>{label}</p>
+                      <p style={{fontSize:"14px",fontWeight:"900",color:"#fff",fontVariantNumeric:"tabular-nums"}}>{value}</p>
+                    </div>
+                ))}
               </div>
             </div>
-            <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
-              <button onClick={restartWalk} style={{padding:"6px 11px",background:"rgba(176,141,87,.18)",border:"1.5px solid rgba(176,141,87,.6)",borderRadius:"9px",color:"#c9a870",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px"}} title="Restart walk timer"><Icon name="refresh" size={11}/>Restart</button>
-              <button onClick={cancelWalk} style={{padding:"6px 11px",background:"rgba(28,38,54,.4)",border:"1.5px solid rgba(216,198,174,.3)",borderRadius:"9px",color:"rgba(216,198,174,.7)",fontWeight:"900",fontSize:"10px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}} title="Cancel walk without saving"><Icon name="x" size={11} style={{marginRight:"2px"}}/>Cancel</button>
-              <button onClick={stopWalk} style={{padding:"6px 11px",background:"rgba(224,122,95,.18)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"11px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Stop & Log</button>
-            </div>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px"}}>
-            {[
-              {label:"Duration",value:fmtDuration(walkElapsed)},
-              {label:"Distance",value:`${liveDistanceMi} mi`},
-              {label:"Pace",value:livePace(walkElapsed,liveDistanceMi)},
-            ].map(({label,value})=>(
-              <div key={label} style={{background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px 10px",textAlign:"center"}}>
-                <p style={{fontSize:"9px",color:"rgba(255,255,255,.5)",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"2px"}}>{label}</p>
-                <p style={{fontSize:"14px",fontWeight:"900",color:"#fff",fontVariantNumeric:"tabular-nums"}}>{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        )}
 
-      {showPlus&&!walkActive&&(
-        <>
-        {/* Backdrop: click outside to close */}
-        <div onClick={()=>{setShowPlus(false);setQuickType(null);setQuickNote("");}} style={{position:"fixed",inset:0,zIndex:49,background:"transparent",cursor:"default"}}/>
-        <div className="rise" style={{position:"absolute",bottom:"72px",left:0,right:0,background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px 16px 0 0",padding:"16px 20px",zIndex:50,boxShadow:"0 -10px 30px rgba(0,0,0,.3)"}}>
-          <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",color:T.gold,textTransform:"uppercase",marginBottom:"10px"}}>Quick Add</p>
-
-          {!quickType&&(
+        {showPlus&&!walkActive&&(
             <>
-              {[
-                {id:"walk",label:"Start a Walk",desc:"Track walk duration",icon:"dog"},
-                {id:"homework",label:"Homework Assignment"},
-                {id:"progress",label:"Progress Notes"},
-                ...(plan==="pro"?[{id:"trainer",label:"Message a Trainer"}]:[]),
-              ].map(item=>(
-                <button key={item.id}
-                  onClick={()=>{
-                    if(item.id==="walk"){ startWalk(); return; }
-                    if(item.id==="trainer"){ setShowPlus(false); return; }
-                    setQuickType(item.id);
-                  }}
-                  style={{display:"block",width:"100%",textAlign:"left",padding:"10px 0",background:"none",border:"none",borderBottom:`1px solid ${T.divider}`,color:item.id==="walk"?"#4caf7d":T.text,fontSize:"13.5px",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontWeight:item.id==="walk"?"700":"400"}}>
-                  {item.icon&&<Icon name={item.icon} size={12} style={{marginRight:"5px"}}/>}{item.label}
-                </button>
-              ))}
-            </>
-          )}
+              {/* Backdrop: click outside to close */}
+              <div onClick={()=>{setShowPlus(false);setQuickType(null);setQuickNote("");}} style={{position:"fixed",inset:0,zIndex:49,background:"transparent",cursor:"default"}}/>
+              <div className="rise" style={{position:"absolute",bottom:"72px",left:0,right:0,background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px 16px 0 0",padding:"16px 20px",zIndex:50,boxShadow:"0 -10px 30px rgba(0,0,0,.3)"}}>
+                <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",color:T.gold,textTransform:"uppercase",marginBottom:"10px"}}>Quick Add</p>
 
-          {quickType&&(
-            <div>
-              <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"10px",textTransform:"capitalize"}}>{quickType === "homework" ? "Homework Assignment" : "Progress Notes"}</p>
-              <textarea
-                value={quickNote} onChange={e=>setQuickNote(e.target.value)}
-                placeholder={quickType==="homework"?"Describe the homework assignment…":"Add a progress note…"}
-                style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",minHeight:"72px",resize:"none",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}
-              />
-              <div style={{display:"flex",gap:"8px",marginBottom:"8px"}}>
-                <button onClick={()=>handleSaveNote(quickType)} style={{flex:1,padding:"9px",background:T.gold,border:"none",borderRadius:"9px",color:"#fff",fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Save Note</button>
-                <button onClick={()=>handleFileUpload(quickType)} style={{flex:1,padding:"9px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Upload File</button>
+                {!quickType&&(
+                    <>
+                      {[
+                        {id:"walk",label:"Start a Walk",desc:"Track walk duration",icon:"dog"},
+                        {id:"homework",label:"Homework Assignment"},
+                        {id:"progress",label:"Progress Notes"},
+                        ...(plan==="pro"?[{id:"trainer",label:"Message a Trainer"}]:[]),
+                      ].map(item=>(
+                          <button key={item.id}
+                                  onClick={()=>{
+                                    if(item.id==="walk"){ startWalk(); return; }
+                                    if(item.id==="trainer"){ setShowPlus(false); return; }
+                                    setQuickType(item.id);
+                                  }}
+                                  style={{display:"block",width:"100%",textAlign:"left",padding:"10px 0",background:"none",border:"none",borderBottom:`1px solid ${T.divider}`,color:item.id==="walk"?"#4caf7d":T.text,fontSize:"13.5px",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontWeight:item.id==="walk"?"700":"400"}}>
+                            {item.icon&&<Icon name={item.icon} size={12} style={{marginRight:"5px"}}/>}{item.label}
+                          </button>
+                      ))}
+                    </>
+                )}
+
+                {quickType&&(
+                    <div>
+                      <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"10px",textTransform:"capitalize"}}>{quickType === "homework" ? "Homework Assignment" : "Progress Notes"}</p>
+                      <textarea
+                          value={quickNote} onChange={e=>setQuickNote(e.target.value)}
+                          placeholder={quickType==="homework"?"Describe the homework assignment…":"Add a progress note…"}
+                          style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",minHeight:"72px",resize:"none",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}
+                      />
+                      <div style={{display:"flex",gap:"8px",marginBottom:"8px"}}>
+                        <button onClick={()=>handleSaveNote(quickType)} style={{flex:1,padding:"9px",background:T.gold,border:"none",borderRadius:"9px",color:"#fff",fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Save Note</button>
+                        <button onClick={()=>handleFileUpload(quickType)} style={{flex:1,padding:"9px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Upload File</button>
+                      </div>
+                      <button onClick={()=>{setQuickType(null);setQuickNote("");}} style={{background:"none",border:"none",color:T.textFaint,fontSize:"11px",cursor:"pointer"}}>← Back</button>
+                    </div>
+                )}
+
+                {!quickType&&<button onClick={()=>setShowPlus(false)} style={{marginTop:"10px",background:"none",border:"none",color:T.textFaint,fontSize:"12px",cursor:"pointer"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Close</button>}
               </div>
-              <button onClick={()=>{setQuickType(null);setQuickNote("");}} style={{background:"none",border:"none",color:T.textFaint,fontSize:"11px",cursor:"pointer"}}>← Back</button>
-            </div>
-          )}
-
-          {!quickType&&<button onClick={()=>setShowPlus(false)} style={{marginTop:"10px",background:"none",border:"none",color:T.textFaint,fontSize:"12px",cursor:"pointer"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Close</button>}
+            </>
+        )}
+        {/* Nav bar with labels, plus the quick-add button centered in the middle */}
+        <div style={{display:"flex",alignItems:"center",background:T.navBarBg,borderTop:`2px solid ${T.mode==="dark"?"rgba(176,141,87,0.3)":"rgba(28,38,54,0.15)"}`,padding:"6px 0 8px",transition:"background .4s"}}>
+          {[
+            {id:"dashboard",label:"Home",icon:"home"},
+            {id:"live",label:"Live",icon:"heart"},
+            {id:"bond",label:"Bond",icon:"handshake"},
+          ].map(({id,label,icon})=>(
+              <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
+                <Icon name={icon} size={18}/>
+                <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
+              </button>
+          ))}
+          <div style={{flex:1,display:"flex",justifyContent:"center"}}>
+            <button onClick={()=>{setShowPlus(v=>!v);setQuickType(null);setQuickNote("");}} title="Quick add" style={{width:"46px",height:"46px",borderRadius:"50%",background:`linear-gradient(135deg,${T.gold},${T.brown})`,border:`3px solid ${T.navBarBg}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 4px 16px rgba(176,141,87,.45)",marginTop:"-16px",transition:"all .2s",color:"#fff"}} onMouseEnter={e=>e.currentTarget.style.transform="scale(1.08)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+              <Icon name="plus" size={20} strokeWidth={2.5}/>
+            </button>
+          </div>
+          {[
+            {id:"learn",label:"Learn",icon:"brain"},
+            {id:"share",label:"Share",icon:"paw"},
+            {id:"store",label:"Shop",icon:"bag"},
+          ].map(({id,label,icon})=>(
+              <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
+                <Icon name={icon} size={18}/>
+                <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
+              </button>
+          ))}
         </div>
-        </>
-      )}
-      {/* Nav bar with labels, plus the quick-add button centered in the middle */}
-      <div style={{display:"flex",alignItems:"center",background:T.navBarBg,borderTop:`2px solid ${T.mode==="dark"?"rgba(176,141,87,0.3)":"rgba(28,38,54,0.15)"}`,padding:"6px 0 8px",transition:"background .4s"}}>
-        {[
-          {id:"dashboard",label:"Home",icon:"home"},
-          {id:"live",label:"Live",icon:"heart"},
-          {id:"bond",label:"Bond",icon:"handshake"},
-        ].map(({id,label,icon})=>(
-          <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
-            <Icon name={icon} size={18}/>
-            <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
-          </button>
-        ))}
-        <div style={{flex:1,display:"flex",justifyContent:"center"}}>
-          <button onClick={()=>{setShowPlus(v=>!v);setQuickType(null);setQuickNote("");}} title="Quick add" style={{width:"46px",height:"46px",borderRadius:"50%",background:`linear-gradient(135deg,${T.gold},${T.brown})`,border:`3px solid ${T.navBarBg}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",boxShadow:"0 4px 16px rgba(176,141,87,.45)",marginTop:"-16px",transition:"all .2s",color:"#fff"}} onMouseEnter={e=>e.currentTarget.style.transform="scale(1.08)"} onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}>
-            <Icon name="plus" size={20} strokeWidth={2.5}/>
-          </button>
-        </div>
-        {[
-          {id:"learn",label:"Learn",icon:"brain"},
-          {id:"share",label:"Share",icon:"paw"},
-          {id:"store",label:"Shop",icon:"bag"},
-        ].map(({id,label,icon})=>(
-          <button key={id} onClick={()=>setPage(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",background:"none",border:"none",cursor:"pointer",color:active===id?T.navActiveText:T.navTextStrong,transition:"color .2s"}}>
-            <Icon name={icon} size={18}/>
-            <span style={{fontSize:"8px",fontWeight:"700",letterSpacing:".06em",textTransform:"uppercase"}}>{label}</span>
-          </button>
-        ))}
       </div>
-    </div>
   );
 };
 
@@ -794,7 +794,7 @@ const checkPasswordRequirements = (pw="") => ({
 // Auto-capitalizes the first letter of each word as the person types — handles
 // hyphenated and apostrophe names reasonably (e.g. "mary-jane" → "Mary-Jane").
 const capitalizeName = (str="") =>
-  str.replace(/(^|[\s\-'])([a-zà-ÿ])/g, (m, sep, ch) => sep + ch.toUpperCase());
+    str.replace(/(^|[\s\-'])([a-zà-ÿ])/g, (m, sep, ch) => sep + ch.toUpperCase());
 
 const isPasswordValid = (pw="") => {
   const r = checkPasswordRequirements(pw);
@@ -831,14 +831,14 @@ const PasswordStrengthMeter = ({pw}) => {
   const order = {red:1, yellow:2, green:3};
   const filled = order[s.level]||0;
   return (
-    <div style={{marginTop:"8px"}}>
-      <div style={{display:"flex",gap:"3px",marginBottom:"4px"}}>
-        {[1,2,3].map(i=>(
-          <div key={i} style={{flex:1,height:"4px",borderRadius:"2px",background:i<=filled?s.color:(T.mode==="dark"?"rgba(255,255,255,.1)":"rgba(28,38,54,.1)"),transition:"background .3s"}}/>
-        ))}
+      <div style={{marginTop:"8px"}}>
+        <div style={{display:"flex",gap:"3px",marginBottom:"4px"}}>
+          {[1,2,3].map(i=>(
+              <div key={i} style={{flex:1,height:"4px",borderRadius:"2px",background:i<=filled?s.color:(T.mode==="dark"?"rgba(255,255,255,.1)":"rgba(28,38,54,.1)"),transition:"background .3s"}}/>
+          ))}
+        </div>
+        <p style={{fontSize:"10px",color:s.color,fontWeight:"700"}}>{s.label}</p>
       </div>
-      <p style={{fontSize:"10px",color:s.color,fontWeight:"700"}}>{s.label}</p>
-    </div>
   );
 };
 
@@ -853,16 +853,16 @@ const PasswordChecklist = ({pw}) => {
     {ok:r.number,  label:"1 number"},
   ];
   return (
-    <div style={{marginTop:"9px",display:"flex",flexDirection:"column",gap:"4px"}}>
-      {items.map((it,i)=>(
-        <div key={i} style={{display:"flex",alignItems:"center",gap:"7px"}}>
+      <div style={{marginTop:"9px",display:"flex",flexDirection:"column",gap:"4px"}}>
+        {items.map((it,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:"7px"}}>
           <span style={{width:"14px",height:"14px",borderRadius:"50%",border:`1.5px solid ${it.ok?"#4caf7d":T.chipBorder}`,background:it.ok?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             {it.ok && <Icon name="check" size={9} color="#fff" strokeWidth={3}/>}
           </span>
-          <span style={{fontSize:"11px",color:it.ok?T.textMuted:T.textFaint}}>{it.label}</span>
-        </div>
-      ))}
-    </div>
+              <span style={{fontSize:"11px",color:it.ok?T.textMuted:T.textFaint}}>{it.label}</span>
+            </div>
+        ))}
+      </div>
   );
 };
 
@@ -870,10 +870,10 @@ const PasswordChecklist = ({pw}) => {
 const GeneratePasswordBtn = ({onGenerate}) => {
   const T=useTheme();
   return (
-    <button type="button" onClick={onGenerate}
-      style={{marginTop:"8px",background:"none",border:"none",cursor:"pointer",color:T.gold,fontSize:"11.5px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"5px",padding:0}}>
-      <Icon name="dice" size={12} style={{marginRight:"4px"}}/>Generate secure password
-    </button>
+      <button type="button" onClick={onGenerate}
+              style={{marginTop:"8px",background:"none",border:"none",cursor:"pointer",color:T.gold,fontSize:"11.5px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"5px",padding:0}}>
+        <Icon name="dice" size={12} style={{marginRight:"4px"}}/>Generate secure password
+      </button>
   );
 };
 
@@ -929,21 +929,21 @@ const PhoneField = ({label="Phone Number", countryCode, onCountryChange, phone, 
   const T=useTheme();
   const country = findCountry(countryCode);
   return (
-    <div>
-      <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:error?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{label}</label>
-      <div style={{display:"flex",gap:"8px"}}>
-        <select value={countryCode} onChange={e=>{onCountryChange(e.target.value);onFocusClear&&onFocusClear();}}
-          style={{width:"128px",flexShrink:0,padding:"11px 8px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}>
-          {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.name} ({c.dial})</option>)}
-        </select>
-        <input type="tel" value={phone} placeholder={`${country.digits}-digit number`}
-          onChange={e=>{onPhoneChange(e.target.value.replace(/[^\d\s\-()]/g,""));onFocusClear&&onFocusClear();}}
-          style={{flex:1,minWidth:0,padding:"11px 14px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+      <div>
+        <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:error?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{label}</label>
+        <div style={{display:"flex",gap:"8px"}}>
+          <select value={countryCode} onChange={e=>{onCountryChange(e.target.value);onFocusClear&&onFocusClear();}}
+                  style={{width:"128px",flexShrink:0,padding:"11px 8px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}>
+            {COUNTRIES.map(c=><option key={c.code} value={c.code}>{c.name} ({c.dial})</option>)}
+          </select>
+          <input type="tel" value={phone} placeholder={`${country.digits}-digit number`}
+                 onChange={e=>{onPhoneChange(e.target.value.replace(/[^\d\s\-()]/g,""));onFocusClear&&onFocusClear();}}
+                 style={{flex:1,minWidth:0,padding:"11px 14px",background:T.inputBg,border:`1px solid ${error?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+        </div>
+        {error
+            ? <p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {error}</p>
+            : <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>Enter as {country.dial} followed by {country.digits} digits, e.g. {country.dial} {phone||"5551234567"}</p>}
       </div>
-      {error
-        ? <p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {error}</p>
-        : <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>Enter as {country.dial} followed by {country.digits} digits, e.g. {country.dial} {phone||"5551234567"}</p>}
-    </div>
   );
 };
 
@@ -1037,68 +1037,68 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
 
   // ── FORGOT PASSWORD FLOW ──
   if(mode === "forgot" || mode === "forgot_sent") return (
-    <PhoneShell>
-      <TopBanner/>
-      <ScrollBody>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
-          <button onClick={()=>setMode("signin")} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"13px",fontWeight:"700",padding:0,fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px"}}
-            onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textFaint}>← Back to Sign In</button>
-          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-        </div>
-
-        {mode==="forgot_sent" ? (
-          <div className="s1" style={{textAlign:"center",paddingTop:"20px"}}>
-            <div style={{width:"70px",height:"70px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px",boxShadow:`0 0 0 10px rgba(76,175,125,.1)`,color:"#fff"}}><Icon name="mail" size={32}/></div>
-            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"10px"}}>Check your inbox</h2>
-            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>We sent a password reset link to:</p>
-            <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"22px"}}>{forgotEmail}</p>
-            <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.6,marginBottom:"22px"}}>Didn't get it? Check your spam folder, or{" "}
-              <button onClick={()=>setMode("forgot")} style={{background:"none",border:"none",cursor:"pointer",color:T.gold,fontWeight:"700",fontSize:"12px",padding:0,fontFamily:"'Lato',sans-serif"}}>try again</button>.</p>
-            <GoldBtn onClick={()=>setMode("signin")}>Back to Sign In</GoldBtn>
+      <PhoneShell>
+        <TopBanner/>
+        <ScrollBody>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
+            <button onClick={()=>setMode("signin")} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"13px",fontWeight:"700",padding:0,fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px"}}
+                    onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textFaint}>← Back to Sign In</button>
+            <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
           </div>
-        ) : (
-          <>
-            <div className="s1" style={{textAlign:"center",marginBottom:"24px",paddingTop:"10px"}}>
-              <div style={{marginBottom:"10px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="key" size={40}/></div>
-              <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reset Password</h2>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.55}}>Enter your email and we'll send you a reset link.</p>
-            </div>
-            <div className="s2">
-              <div style={{marginBottom:"14px"}}>
-                <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email</label>
-                <input type="email" value={forgotEmail} onChange={e=>{setForgotEmail(e.target.value);setForgotError("");}} placeholder="you@example.com"
-                  style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${forgotError?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",transition:"border-color .2s"}}
-                  onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=forgotError?T.brown:T.inputBorder}/>
-                {forgotError&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"5px",fontWeight:"600"}}>{forgotError}</p>}
+
+          {mode==="forgot_sent" ? (
+              <div className="s1" style={{textAlign:"center",paddingTop:"20px"}}>
+                <div style={{width:"70px",height:"70px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px",boxShadow:`0 0 0 10px rgba(76,175,125,.1)`,color:"#fff"}}><Icon name="mail" size={32}/></div>
+                <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"10px"}}>Check your inbox</h2>
+                <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>We sent a password reset link to:</p>
+                <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"22px"}}>{forgotEmail}</p>
+                <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.6,marginBottom:"22px"}}>Didn't get it? Check your spam folder, or{" "}
+                  <button onClick={()=>setMode("forgot")} style={{background:"none",border:"none",cursor:"pointer",color:T.gold,fontWeight:"700",fontSize:"12px",padding:0,fontFamily:"'Lato',sans-serif"}}>try again</button>.</p>
+                <GoldBtn onClick={()=>setMode("signin")}>Back to Sign In</GoldBtn>
               </div>
-              <button onClick={handleForgot} disabled={loading} style={{width:"100%",padding:"13px",background:loading?"rgba(176,141,87,.4)":T.gold,color:"#fff",border:"none",borderRadius:"11px",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'Lato',sans-serif",cursor:loading?"wait":"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
-                {loading?<><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Sending…</>:"Send Reset Link →"}
-              </button>
-            </div>
-          </>
-        )}
-      </ScrollBody>
-    </PhoneShell>
+          ) : (
+              <>
+                <div className="s1" style={{textAlign:"center",marginBottom:"24px",paddingTop:"10px"}}>
+                  <div style={{marginBottom:"10px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="key" size={40}/></div>
+                  <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reset Password</h2>
+                  <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.55}}>Enter your email and we'll send you a reset link.</p>
+                </div>
+                <div className="s2">
+                  <div style={{marginBottom:"14px"}}>
+                    <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email</label>
+                    <input type="email" value={forgotEmail} onChange={e=>{setForgotEmail(e.target.value);setForgotError("");}} placeholder="you@example.com"
+                           style={{width:"100%",padding:"11px 14px",background:T.inputBg,border:`1px solid ${forgotError?T.brown:T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",transition:"border-color .2s"}}
+                           onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=forgotError?T.brown:T.inputBorder}/>
+                    {forgotError&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"5px",fontWeight:"600"}}>{forgotError}</p>}
+                  </div>
+                  <button onClick={handleForgot} disabled={loading} style={{width:"100%",padding:"13px",background:loading?"rgba(176,141,87,.4)":T.gold,color:"#fff",border:"none",borderRadius:"11px",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'Lato',sans-serif",cursor:loading?"wait":"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
+                    {loading?<><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Sending…</>:"Send Reset Link →"}
+                  </button>
+                </div>
+              </>
+          )}
+        </ScrollBody>
+      </PhoneShell>
   );
 
   // ── AUTO-LOGIN SPLASH ──
   if(autoLogging) return (
-    <PhoneShell>
-      <TopBanner/>
-      <ScrollBody>
-        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"400px",gap:"20px"}}>
-          <div style={{position:"relative",display:"inline-block"}}>
-            <div style={{position:"absolute",inset:"-10px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.35,animation:"glow 2.8s ease-in-out infinite"}}/>
-            <LogoImg size={72}/>
+      <PhoneShell>
+        <TopBanner/>
+        <ScrollBody>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"400px",gap:"20px"}}>
+            <div style={{position:"relative",display:"inline-block"}}>
+              <div style={{position:"absolute",inset:"-10px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.35,animation:"glow 2.8s ease-in-out infinite"}}/>
+              <LogoImg size={72}/>
+            </div>
+            <div style={{textAlign:"center"}}>
+              <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Welcome back! <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
+              <p style={{fontSize:"13px",color:T.textMuted}}>Signing you in…</p>
+            </div>
+            <span style={{width:"22px",height:"22px",border:"3px solid rgba(176,141,87,.3)",borderTopColor:T.gold,borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>
           </div>
-          <div style={{textAlign:"center"}}>
-            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Welcome back! <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
-            <p style={{fontSize:"13px",color:T.textMuted}}>Signing you in…</p>
-          </div>
-          <span style={{width:"22px",height:"22px",border:"3px solid rgba(176,141,87,.3)",borderTopColor:T.gold,borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>
-        </div>
-      </ScrollBody>
-    </PhoneShell>
+        </ScrollBody>
+      </PhoneShell>
   );
 
   // ── MAIN SIGN IN ──
@@ -1111,142 +1111,142 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode}) => {
   });
 
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <ScrollBody>
-        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"4px"}}>
-          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-        </div>
-
-        {/* Logo + tagline */}
-        <div className="s1" style={{textAlign:"center",marginBottom:"22px"}}>
-          <div style={{position:"relative",display:"inline-block",marginBottom:"12px"}}>
-            <div style={{position:"absolute",inset:"-10px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.35,animation:"glow 2.8s ease-in-out infinite"}}/>
-            <LogoImg size={72}/>
+      <PhoneShell>
+        <TopBanner/>
+        <ScrollBody>
+          <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"4px"}}>
+            <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
           </div>
-          <h1 style={{fontFamily:"'Inter',serif",fontSize:"26px",fontWeight:"700",color:T.text,marginBottom:"6px"}}>Guiding Paw</h1>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5,maxWidth:"260px",margin:"0 auto 10px"}}>Your daily guide to raising a well-behaved dog!</p>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-            {["LIVE","BOND","LEARN"].map((w,i)=>(
-              <span key={w} style={{display:"flex",alignItems:"center",gap:"6px"}}>
+
+          {/* Logo + tagline */}
+          <div className="s1" style={{textAlign:"center",marginBottom:"22px"}}>
+            <div style={{position:"relative",display:"inline-block",marginBottom:"12px"}}>
+              <div style={{position:"absolute",inset:"-10px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.35,animation:"glow 2.8s ease-in-out infinite"}}/>
+              <LogoImg size={72}/>
+            </div>
+            <h1 style={{fontFamily:"'Inter',serif",fontSize:"26px",fontWeight:"700",color:T.text,marginBottom:"6px"}}>Guiding Paw</h1>
+            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5,maxWidth:"260px",margin:"0 auto 10px"}}>Your daily guide to raising a well-behaved dog!</p>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+              {["LIVE","BOND","LEARN"].map((w,i)=>(
+                  <span key={w} style={{display:"flex",alignItems:"center",gap:"6px"}}>
                 <span style={{fontSize:"11px",fontWeight:"900",letterSpacing:".2em",color:T.gold}}>{w}</span>
-                {i<2&&<Icon name="paw" size={13} color={T.gold}/>}
+                    {i<2&&<Icon name="paw" size={13} color={T.gold}/>}
               </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Signed out due to inactivity (not a manual sign-out) */}
-        {expiredNotice && (
-          <div className="s1" style={{background:"rgba(224,122,95,.1)",border:"1px solid rgba(224,122,95,.3)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
-            <Icon name="clock" size={16} color="#e07a5f" style={{flexShrink:0}}/>
-            <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"600",lineHeight:1.4}}>You've been signed out after a period of inactivity, for your security. Please sign in again.</p>
-          </div>
-        )}
-
-        {/* Saved user greeting */}
-        {savedUser && (
-          <div className="s1" style={{background:"rgba(176,141,87,.09)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
-            <div style={{width:"34px",height:"34px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff"}}><Icon name="paw" size={17}/></div>
-            <div style={{flex:1,minWidth:0}}>
-              <p style={{fontSize:"11px",color:T.textFaint,marginBottom:"1px"}}>Signing in as</p>
-              <p style={{fontSize:"13px",fontWeight:"700",color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{savedUser}</p>
-            </div>
-            <button onClick={()=>{clearSavedCredentials();setSavedUser(null);setEmail("");setPw("");setRememberMe(false);}}
-              style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:T.textFaint,fontFamily:"'Lato',sans-serif",flexShrink:0,padding:"4px 6px",borderRadius:"6px",transition:"all .18s"}}
-              onMouseEnter={e=>{e.currentTarget.style.background="rgba(176,141,87,.12)";e.currentTarget.style.color=T.text;}}
-              onMouseLeave={e=>{e.currentTarget.style.background="none";e.currentTarget.style.color=T.textFaint;}}>
-              Not you?
-            </button>
-          </div>
-        )}
-
-        {/* Auth error banner */}
-        {errors.auth&&(
-          <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",display:"flex",gap:"8px",alignItems:"flex-start",animation:shake?"shake .4s":"none"}}>
-            <span style={{fontSize:"15px",flexShrink:0}}><Icon name={isLocked?"lock":"alert"} size={15}/></span>
-            <div>
-              <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"700",marginBottom:isLocked?3:0}}>{errors.auth}</p>
-              {isLocked&&<p style={{fontSize:"11px",color:T.textMuted}}>Try again in <strong style={{color:T.gold}}>{lockSecs}s</strong></p>}
+              ))}
             </div>
           </div>
-        )}
 
-        <div className="s2" style={{animation:shake?"shake .4s":"none"}}>
-          {/* Email */}
-          <div style={{marginBottom:"14px"}}>
-            <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email</label>
-            <input type="email" value={email} placeholder="you@example.com" onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined,auth:undefined}));}}
-              style={inputStyle("email")}
-              onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
-            {errors.email&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
-          </div>
-
-          {/* Password with show/hide */}
-          <div style={{marginBottom:"8px"}}>
-            <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.pw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Password</label>
-            <div style={{position:"relative"}}>
-              <input type={showPw?"text":"password"} value={pw} placeholder="Min 8 characters" onChange={e=>{setPw(e.target.value);setErrors(r=>({...r,pw:undefined,auth:undefined}));}}
-                onKeyDown={e=>{ if(e.key==="Enter" && !loading && !isLocked) handleSignIn(); }}
-                style={{...inputStyle("pw"),paddingRight:"44px"}}
-                onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
-              <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>
-                <Icon name={showPw?"eyeOff":"eye"} size={16}/>
-              </button>
-            </div>
-            {errors.pw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
-          </div>
-
-          {/* Remember me + Forgot password */}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
-            <label style={{display:"flex",alignItems:"center",gap:"7px",cursor:"pointer"}}>
-              <div onClick={()=>setRememberMe(v=>!v)} style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${rememberMe?T.gold:T.inputBorder}`,background:rememberMe?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s",cursor:"pointer"}}>
-                {rememberMe&&<Icon name="check" size={11} color={T.gold} strokeWidth={3}/>}
+          {/* Signed out due to inactivity (not a manual sign-out) */}
+          {expiredNotice && (
+              <div className="s1" style={{background:"rgba(224,122,95,.1)",border:"1px solid rgba(224,122,95,.3)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
+                <Icon name="clock" size={16} color="#e07a5f" style={{flexShrink:0}}/>
+                <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"600",lineHeight:1.4}}>You've been signed out after a period of inactivity, for your security. Please sign in again.</p>
               </div>
-              <span style={{fontSize:"12px",color:T.textMuted,userSelect:"none"}}>Remember me</span>
-            </label>
-            <TextLink onClick={()=>{setForgotEmail(email);setForgotError("");setMode("forgot");}}>Forgot password?</TextLink>
-          </div>
-
-          {/* Sign in button */}
-          <button onClick={handleSignIn} disabled={loading||isLocked} style={{
-            width:"100%",padding:"13px",borderRadius:"11px",border:"none",
-            background: isLocked?"rgba(128,128,128,.2)":loading?"rgba(176,141,87,.4)":T.gold,
-            color: isLocked?"rgba(216,198,174,.3)":"#fff",
-            fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
-            fontFamily:"'Lato',sans-serif",cursor:loading||isLocked?"not-allowed":"pointer",
-            boxShadow:isLocked?"none":"0 4px 18px rgba(176,141,87,.28)",
-            display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",transition:"all .2s",
-          }}>
-            {isLocked
-              ? <><Icon name="lock" size={13}/>{`Locked (${lockSecs}s)`}</>
-              : loading
-                ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Signing in…</>
-                : "Sign In"}
-          </button>
-
-          {/* Attempts bar */}
-          {attempts > 0 && !isLocked && (
-            <div style={{marginTop:"10px"}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
-                <span style={{fontSize:"10px",color:T.textFaint}}>Failed attempts</span>
-                <span style={{fontSize:"10px",color:attempts>=3?"#e07a5f":T.textFaint,fontWeight:"700"}}>{attempts}/{MAX_ATTEMPTS}</span>
-              </div>
-              <div style={{height:"4px",borderRadius:"4px",background:"rgba(255,255,255,.06)",overflow:"hidden"}}>
-                <div style={{height:"100%",width:`${(attempts/MAX_ATTEMPTS)*100}%`,borderRadius:"4px",background:attempts>=4?"#e07a5f":attempts>=3?"#f0a058":T.gold,transition:"width .3s"}}/>
-              </div>
-            </div>
           )}
 
-          <div style={{margin:"16px 0"}}><Divider/></div>
-          <GoogleBtn label="Continue with Google" onClick={handleGoogleSignIn}/>
-        </div>
+          {/* Saved user greeting */}
+          {savedUser && (
+              <div className="s1" style={{background:"rgba(176,141,87,.09)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px"}}>
+                <div style={{width:"34px",height:"34px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:"#fff"}}><Icon name="paw" size={17}/></div>
+                <div style={{flex:1,minWidth:0}}>
+                  <p style={{fontSize:"11px",color:T.textFaint,marginBottom:"1px"}}>Signing in as</p>
+                  <p style={{fontSize:"13px",fontWeight:"700",color:T.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{savedUser}</p>
+                </div>
+                <button onClick={()=>{clearSavedCredentials();setSavedUser(null);setEmail("");setPw("");setRememberMe(false);}}
+                        style={{background:"none",border:"none",cursor:"pointer",fontSize:"11px",color:T.textFaint,fontFamily:"'Lato',sans-serif",flexShrink:0,padding:"4px 6px",borderRadius:"6px",transition:"all .18s"}}
+                        onMouseEnter={e=>{e.currentTarget.style.background="rgba(176,141,87,.12)";e.currentTarget.style.color=T.text;}}
+                        onMouseLeave={e=>{e.currentTarget.style.background="none";e.currentTarget.style.color=T.textFaint;}}>
+                  Not you?
+                </button>
+              </div>
+          )}
 
-        <p className="s3" style={{textAlign:"center",fontSize:"12.5px",color:T.textMuted,marginTop:"20px"}}>
-          New here? <TextLink onClick={goSignUp}>Get started free</TextLink>
-        </p>
-      </ScrollBody>
-    </PhoneShell>
+          {/* Auth error banner */}
+          {errors.auth&&(
+              <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",display:"flex",gap:"8px",alignItems:"flex-start",animation:shake?"shake .4s":"none"}}>
+                <span style={{fontSize:"15px",flexShrink:0}}><Icon name={isLocked?"lock":"alert"} size={15}/></span>
+                <div>
+                  <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"700",marginBottom:isLocked?3:0}}>{errors.auth}</p>
+                  {isLocked&&<p style={{fontSize:"11px",color:T.textMuted}}>Try again in <strong style={{color:T.gold}}>{lockSecs}s</strong></p>}
+                </div>
+              </div>
+          )}
+
+          <div className="s2" style={{animation:shake?"shake .4s":"none"}}>
+            {/* Email */}
+            <div style={{marginBottom:"14px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email</label>
+              <input type="email" value={email} placeholder="you@example.com" onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined,auth:undefined}));}}
+                     style={inputStyle("email")}
+                     onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
+              {errors.email&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
+            </div>
+
+            {/* Password with show/hide */}
+            <div style={{marginBottom:"8px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.pw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Password</label>
+              <div style={{position:"relative"}}>
+                <input type={showPw?"text":"password"} value={pw} placeholder="Min 8 characters" onChange={e=>{setPw(e.target.value);setErrors(r=>({...r,pw:undefined,auth:undefined}));}}
+                       onKeyDown={e=>{ if(e.key==="Enter" && !loading && !isLocked) handleSignIn(); }}
+                       style={{...inputStyle("pw"),paddingRight:"44px"}}
+                       onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
+                <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}>
+                  <Icon name={showPw?"eyeOff":"eye"} size={16}/>
+                </button>
+              </div>
+              {errors.pw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
+            </div>
+
+            {/* Remember me + Forgot password */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
+              <label style={{display:"flex",alignItems:"center",gap:"7px",cursor:"pointer"}}>
+                <div onClick={()=>setRememberMe(v=>!v)} style={{width:"18px",height:"18px",borderRadius:"5px",border:`2px solid ${rememberMe?T.gold:T.inputBorder}`,background:rememberMe?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s",cursor:"pointer"}}>
+                  {rememberMe&&<Icon name="check" size={11} color={T.gold} strokeWidth={3}/>}
+                </div>
+                <span style={{fontSize:"12px",color:T.textMuted,userSelect:"none"}}>Remember me</span>
+              </label>
+              <TextLink onClick={()=>{setForgotEmail(email);setForgotError("");setMode("forgot");}}>Forgot password?</TextLink>
+            </div>
+
+            {/* Sign in button */}
+            <button onClick={handleSignIn} disabled={loading||isLocked} style={{
+              width:"100%",padding:"13px",borderRadius:"11px",border:"none",
+              background: isLocked?"rgba(128,128,128,.2)":loading?"rgba(176,141,87,.4)":T.gold,
+              color: isLocked?"rgba(216,198,174,.3)":"#fff",
+              fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
+              fontFamily:"'Lato',sans-serif",cursor:loading||isLocked?"not-allowed":"pointer",
+              boxShadow:isLocked?"none":"0 4px 18px rgba(176,141,87,.28)",
+              display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",transition:"all .2s",
+            }}>
+              {isLocked
+                  ? <><Icon name="lock" size={13}/>{`Locked (${lockSecs}s)`}</>
+                  : loading
+                      ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Signing in…</>
+                      : "Sign In"}
+            </button>
+
+            {/* Attempts bar */}
+            {attempts > 0 && !isLocked && (
+                <div style={{marginTop:"10px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:"4px"}}>
+                    <span style={{fontSize:"10px",color:T.textFaint}}>Failed attempts</span>
+                    <span style={{fontSize:"10px",color:attempts>=3?"#e07a5f":T.textFaint,fontWeight:"700"}}>{attempts}/{MAX_ATTEMPTS}</span>
+                  </div>
+                  <div style={{height:"4px",borderRadius:"4px",background:"rgba(255,255,255,.06)",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${(attempts/MAX_ATTEMPTS)*100}%`,borderRadius:"4px",background:attempts>=4?"#e07a5f":attempts>=3?"#f0a058":T.gold,transition:"width .3s"}}/>
+                  </div>
+                </div>
+            )}
+
+            <div style={{margin:"16px 0"}}><Divider/></div>
+            <GoogleBtn label="Continue with Google" onClick={handleGoogleSignIn}/>
+          </div>
+
+          <p className="s3" style={{textAlign:"center",fontSize:"12.5px",color:T.textMuted,marginTop:"20px"}}>
+            New here? <TextLink onClick={goSignUp}>Get started free</TextLink>
+          </p>
+        </ScrollBody>
+      </PhoneShell>
   );
 };
 
@@ -1333,131 +1333,131 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
   });
 
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{padding:"10px 20px 0",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"13px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px",padding:0}}
-          onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textMuted}>← Sign In</button>
-        <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-      </div>
-
-      <ScrollBody>
-        {/* Header */}
-        <div className="s1" style={{textAlign:"center",marginBottom:"24px",paddingTop:"8px"}}>
-          <div style={{position:"relative",display:"inline-block",marginBottom:"10px"}}>
-            <div style={{position:"absolute",inset:"-8px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.3,animation:"glow 2.8s ease-in-out infinite"}}/>
-            <LogoImg size={56}/>
-          </div>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"5px"}}>Create Your Account</h2>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Let's start with your basic info.</p>
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{padding:"10px 20px 0",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
+          <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"13px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px",padding:0}}
+                  onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textMuted}>← Sign In</button>
+          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
         </div>
 
-        <div className="s2">
-          {/* Name row */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"14px"}}>
-            {[{key:"firstName",label:"First Name",val:firstName,set:setFirstName,ph:"Jane"},
-              {key:"lastName", label:"Last Name", val:lastName, set:setLastName, ph:"Smith"}].map(f=>(
-              <div key={f.key}>
-                <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors[f.key]?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{f.label}</label>
-                <input value={f.val} placeholder={f.ph} onChange={e=>{f.set(capitalizeName(e.target.value));setErrors(r=>({...r,[f.key]:undefined}));}}
-                  style={inputStyle(f.key)}
-                  onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors[f.key]?T.brown:T.inputBorder}/>
-                {errors[f.key]&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors[f.key]}</p>}
-              </div>
-            ))}
-          </div>
-
-          {/* Email */}
-          <div style={{marginBottom:"14px"}}>
-            <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email Address</label>
-            <input type="email" value={email} placeholder="you@example.com"
-              onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined}));}}
-              style={inputStyle("email")}
-              onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
-            {errors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
-          </div>
-
-          {/* Phone (country selector first, so we know which number format to validate) */}
-          <div style={{marginBottom:"14px"}}>
-            <PhoneField countryCode={countryCode} onCountryChange={setCountryCode} phone={phone} onPhoneChange={setPhone}
-              error={errors.phone} onFocusClear={()=>setErrors(r=>({...r,phone:undefined}))}/>
-          </div>
-
-          {/* Password */}
-          <div style={{marginBottom:"16px"}}>
-            <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.pw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Password</label>
-            <div style={{position:"relative"}}>
-              <input type={showPw?"text":"password"} value={pw} placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
-                onChange={e=>{setPw(e.target.value);setErrors(r=>({...r,pw:undefined}));}}
-                style={{...inputStyle("pw"),paddingRight:"44px"}}
-                onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
-              <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showPw?"eyeOff":"eye"} size={16}/></button>
+        <ScrollBody>
+          {/* Header */}
+          <div className="s1" style={{textAlign:"center",marginBottom:"24px",paddingTop:"8px"}}>
+            <div style={{position:"relative",display:"inline-block",marginBottom:"10px"}}>
+              <div style={{position:"absolute",inset:"-8px",borderRadius:"50%",border:`1px solid ${T.gold}`,opacity:.3,animation:"glow 2.8s ease-in-out infinite"}}/>
+              <LogoImg size={56}/>
             </div>
-            {errors.pw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
-            <PasswordStrengthMeter pw={pw}/>
-            <GeneratePasswordBtn onGenerate={handleGeneratePw}/>
-            <PasswordChecklist pw={pw}/>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"5px"}}>Create Your Account</h2>
+            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Let's start with your basic info.</p>
           </div>
 
-          {/* Confirm Password */}
-          <div style={{marginBottom:"20px"}}>
-            <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.confirmPw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Confirm Password</label>
-            <div style={{position:"relative"}}>
-              <input type={showConfirmPw?"text":"password"} value={confirmPw} placeholder="Re-enter your password"
-                onChange={e=>{setConfirmPw(e.target.value);setErrors(r=>({...r,confirmPw:undefined}));}}
-                style={{...inputStyle("confirmPw"),paddingRight:"44px"}}
-                onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.confirmPw?T.brown:T.inputBorder}/>
-              <button onClick={()=>setShowConfirmPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmPw?"eyeOff":"eye"} size={16}/></button>
+          <div className="s2">
+            {/* Name row */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"14px"}}>
+              {[{key:"firstName",label:"First Name",val:firstName,set:setFirstName,ph:"Jane"},
+                {key:"lastName", label:"Last Name", val:lastName, set:setLastName, ph:"Smith"}].map(f=>(
+                  <div key={f.key}>
+                    <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors[f.key]?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>{f.label}</label>
+                    <input value={f.val} placeholder={f.ph} onChange={e=>{f.set(capitalizeName(e.target.value));setErrors(r=>({...r,[f.key]:undefined}));}}
+                           style={inputStyle(f.key)}
+                           onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors[f.key]?T.brown:T.inputBorder}/>
+                    {errors[f.key]&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors[f.key]}</p>}
+                  </div>
+              ))}
             </div>
-            {errors.confirmPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.confirmPw}</p>}
-            {!errors.confirmPw && confirmPw.length>0 && confirmPw===pw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
-          </div>
 
-          {/* Legal agreements — required checkboxes */}
-          <div style={{background:T.cardInner,border:`1px solid ${errors.legal?T.brown:T.cardInnerBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"14px"}}>
-            <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:errors.legal?"#e07a5f":T.gold,marginBottom:"10px"}}>Required Agreements</p>
-            {[
-              {key:"privacy",  label:"Privacy Policy",   url:"https://guidingpaw.com/privacy-policy",                          agreed:agreedPrivacy,  set:setAgreedPrivacy},
-              {key:"terms",    label:"Terms of Service",  url:"https://guidingpaw.com/terms-of-service",                        agreed:agreedTerms,    set:setAgreedTerms},
-              {key:"liability",label:"Liability Waiver & Assumption of Risk", url:"https://guidingpaw.com/liability-waiver-and-assumption-of-risk", agreed:agreedLiability,set:setAgreedLiability},
-            ].map(({key,label,url,agreed,set})=>(
-              <div key={key} style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"10px",cursor:"pointer"}} onClick={()=>{set(v=>!v);setErrors(r=>({...r,legal:undefined}));}}>
-                <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${agreed?T.gold:T.inputBorder}`,background:agreed?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px",transition:"all .2s"}}>
-                  {agreed&&<Icon name="check" size={12} color={T.gold} strokeWidth={3}/>}
-                </div>
-                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,userSelect:"none"}}>
-                  I have read and agree to the{" "}
-                  <a href={url} target="_blank" rel="noreferrer"
-                    onClick={e=>e.stopPropagation()}
-                    style={{color:T.gold,fontWeight:"700",textDecoration:"underline"}}>{label}</a>
-                </p>
+            {/* Email */}
+            <div style={{marginBottom:"14px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Email Address</label>
+              <input type="email" value={email} placeholder="you@example.com"
+                     onChange={e=>{setEmail(e.target.value);setErrors(r=>({...r,email:undefined}));}}
+                     style={inputStyle("email")}
+                     onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.email?T.brown:T.inputBorder}/>
+              {errors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.email}</p>}
+            </div>
+
+            {/* Phone (country selector first, so we know which number format to validate) */}
+            <div style={{marginBottom:"14px"}}>
+              <PhoneField countryCode={countryCode} onCountryChange={setCountryCode} phone={phone} onPhoneChange={setPhone}
+                          error={errors.phone} onFocusClear={()=>setErrors(r=>({...r,phone:undefined}))}/>
+            </div>
+
+            {/* Password */}
+            <div style={{marginBottom:"16px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.pw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Password</label>
+              <div style={{position:"relative"}}>
+                <input type={showPw?"text":"password"} value={pw} placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
+                       onChange={e=>{setPw(e.target.value);setErrors(r=>({...r,pw:undefined}));}}
+                       style={{...inputStyle("pw"),paddingRight:"44px"}}
+                       onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.pw?T.brown:T.inputBorder}/>
+                <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showPw?"eyeOff":"eye"} size={16}/></button>
               </div>
-            ))}
-            {errors.legal&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginTop:"4px"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.legal}</p>}
+              {errors.pw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.pw}</p>}
+              <PasswordStrengthMeter pw={pw}/>
+              <GeneratePasswordBtn onGenerate={handleGeneratePw}/>
+              <PasswordChecklist pw={pw}/>
+            </div>
+
+            {/* Confirm Password */}
+            <div style={{marginBottom:"20px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".14em",textTransform:"uppercase",color:errors.confirmPw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Confirm Password</label>
+              <div style={{position:"relative"}}>
+                <input type={showConfirmPw?"text":"password"} value={confirmPw} placeholder="Re-enter your password"
+                       onChange={e=>{setConfirmPw(e.target.value);setErrors(r=>({...r,confirmPw:undefined}));}}
+                       style={{...inputStyle("confirmPw"),paddingRight:"44px"}}
+                       onFocus={e=>e.target.style.borderColor=T.gold} onBlur={e=>e.target.style.borderColor=errors.confirmPw?T.brown:T.inputBorder}/>
+                <button onClick={()=>setShowConfirmPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmPw?"eyeOff":"eye"} size={16}/></button>
+              </div>
+              {errors.confirmPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.confirmPw}</p>}
+              {!errors.confirmPw && confirmPw.length>0 && confirmPw===pw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
+            </div>
+
+            {/* Legal agreements — required checkboxes */}
+            <div style={{background:T.cardInner,border:`1px solid ${errors.legal?T.brown:T.cardInnerBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"14px"}}>
+              <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:errors.legal?"#e07a5f":T.gold,marginBottom:"10px"}}>Required Agreements</p>
+              {[
+                {key:"privacy",  label:"Privacy Policy",   url:"https://guidingpaw.com/privacy-policy",                          agreed:agreedPrivacy,  set:setAgreedPrivacy},
+                {key:"terms",    label:"Terms of Service",  url:"https://guidingpaw.com/terms-of-service",                        agreed:agreedTerms,    set:setAgreedTerms},
+                {key:"liability",label:"Liability Waiver & Assumption of Risk", url:"https://guidingpaw.com/liability-waiver-and-assumption-of-risk", agreed:agreedLiability,set:setAgreedLiability},
+              ].map(({key,label,url,agreed,set})=>(
+                  <div key={key} style={{display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"10px",cursor:"pointer"}} onClick={()=>{set(v=>!v);setErrors(r=>({...r,legal:undefined}));}}>
+                    <div style={{width:"20px",height:"20px",borderRadius:"5px",border:`2px solid ${agreed?T.gold:T.inputBorder}`,background:agreed?"rgba(176,141,87,.2)":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px",transition:"all .2s"}}>
+                      {agreed&&<Icon name="check" size={12} color={T.gold} strokeWidth={3}/>}
+                    </div>
+                    <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,userSelect:"none"}}>
+                      I have read and agree to the{" "}
+                      <a href={url} target="_blank" rel="noreferrer"
+                         onClick={e=>e.stopPropagation()}
+                         style={{color:T.gold,fontWeight:"700",textDecoration:"underline"}}>{label}</a>
+                    </p>
+                  </div>
+              ))}
+              {errors.legal&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginTop:"4px"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {errors.legal}</p>}
+            </div>
+
+            {/* CTA */}
+            {sendError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginBottom:"10px",textAlign:"center"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {sendError}</p>}
+            <button onClick={handleContinue} disabled={loading} style={{
+              width:"100%",padding:"13px",borderRadius:"11px",border:"none",
+              background:loading?"rgba(176,141,87,.4)":allAgreed?T.gold:"rgba(176,141,87,.35)",
+              color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
+              fontFamily:"'Lato',sans-serif",cursor:loading?"wait":"pointer",
+              boxShadow:allAgreed?"0 4px 18px rgba(176,141,87,.28)":"none",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",transition:"all .2s",
+            }}>
+              {loading
+                  ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Creating account…</>
+                  : "Send Verification Email →"}
+            </button>
+
+            <div style={{margin:"14px 0"}}><Divider/></div>
+            <GoogleBtn label="Sign up with Google" onClick={async ()=>{
+              const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+              if(!error) { /* Supabase redirects to Google — onAuthStateChange handles the return */ }
+            }}/>
           </div>
-
-          {/* CTA */}
-          {sendError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"600",marginBottom:"10px",textAlign:"center"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {sendError}</p>}
-          <button onClick={handleContinue} disabled={loading} style={{
-            width:"100%",padding:"13px",borderRadius:"11px",border:"none",
-            background:loading?"rgba(176,141,87,.4)":allAgreed?T.gold:"rgba(176,141,87,.35)",
-            color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
-            fontFamily:"'Lato',sans-serif",cursor:loading?"wait":"pointer",
-            boxShadow:allAgreed?"0 4px 18px rgba(176,141,87,.28)":"none",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",transition:"all .2s",
-          }}>
-            {loading
-              ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Creating account…</>
-              : "Send Verification Email →"}
-          </button>
-
-          <div style={{margin:"14px 0"}}><Divider/></div>
-          <GoogleBtn label="Sign up with Google" onClick={async ()=>{
-            const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
-            if(!error) { /* Supabase redirects to Google — onAuthStateChange handles the return */ }
-          }}/>
-        </div>
-      </ScrollBody>
-    </PhoneShell>
+        </ScrollBody>
+      </PhoneShell>
   );
 };
 
@@ -1467,20 +1467,27 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
 const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
   const T = useTheme();
   const [phase, setPhase] = useState("waiting"); // "waiting" | "verified"
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [resendError, setResendError] = useState("");
+  const [resending, setResending] = useState(false);
   const [codeDigits, setCodeDigits] = useState(["","","","","",""]);
   const [codeError, setCodeError] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const inputRefs = [0,1,2,3,4,5].map(()=>({ current:null }));
 
-  // Resend cooldown ticker
+  // Resend cooldown ticker — starts once, the moment this screen mounts
+  // (i.e. the moment the first code is sent), not when the user clicks Resend.
   const startCooldown = () => {
     setResendCooldown(60);
     const id = setInterval(()=>{
       setResendCooldown(s=>{ if(s<=1){ clearInterval(id); return 0; } return s-1; });
     },1000);
+    return id;
   };
-  useState(()=>{ startCooldown(); });
+  useEffect(()=>{
+    const id = startCooldown();
+    return ()=>clearInterval(id);
+  },[]);
 
   const handleDigit = (idx, val) => {
     const d = val.replace(/\D/g,"").slice(-1);
@@ -1526,102 +1533,115 @@ const EmailVerificationScreen = ({userData, onVerified, onBack}) => {
   };
 
   const handleResend = async () => {
-    if(resendCooldown>0) return;
-    startCooldown();
+    if(resendCooldown>0 || resending) return;
+    setResending(true);
+    setResendError("");
     setCodeDigits(["","","","","",""]);
     setCodeError(false);
-    await supabase.auth.resend({ type: "signup", email: userData.email }).catch(()=>{});
+    const { error } = await supabase.auth.resend({ type: "signup", email: userData.email });
+    setResending(false);
+    // Start the cooldown regardless, so the button can't be hammered — but only
+    // tell the user it worked if Supabase actually confirms it did.
+    startCooldown();
+    if(error){
+      setResendError(
+          error.message?.toLowerCase().includes("rate limit")
+              ? "You've requested a code too recently. Please wait a bit longer and try again."
+              : "We couldn't resend the code right now. Please try again in a moment."
+      );
+    }
   };
 
   if(phase==="verified") return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
-        <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"20px",animation:"successPop .5s cubic-bezier(.22,1,.36,1) both",boxShadow:`0 0 0 12px rgba(76,175,125,.1),0 0 0 24px rgba(76,175,125,.05)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px",animation:"fadeUp .4s .3s both"}}>Email Verified!</h2>
-        <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,animation:"fadeUp .4s .5s both"}}>Welcome, <strong style={{color:T.gold}}>{userData.firstName}</strong>! Taking you to setup…</p>
-        <div style={{marginTop:"20px",display:"flex",gap:"6px",animation:"fadeUp .4s .7s both"}}>
-          {[0,1,2].map(i=><div key={i} style={{width:"8px",height:"8px",borderRadius:"50%",background:T.gold,animation:`bounce .8s ${i*0.15}s infinite`}}/>)}
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
+          <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"20px",animation:"successPop .5s cubic-bezier(.22,1,.36,1) both",boxShadow:`0 0 0 12px rgba(76,175,125,.1),0 0 0 24px rgba(76,175,125,.05)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px",animation:"fadeUp .4s .3s both"}}>Email Verified!</h2>
+          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,animation:"fadeUp .4s .5s both"}}>Welcome, <strong style={{color:T.gold}}>{userData.firstName}</strong>! Taking you to setup…</p>
+          <div style={{marginTop:"20px",display:"flex",gap:"6px",animation:"fadeUp .4s .7s both"}}>
+            {[0,1,2].map(i=><div key={i} style={{width:"8px",height:"8px",borderRadius:"50%",background:T.gold,animation:`bounce .8s ${i*0.15}s infinite`}}/>)}
+          </div>
         </div>
-      </div>
-    </PhoneShell>
+      </PhoneShell>
   );
 
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{padding:"10px 20px 0",display:"flex",alignItems:"center",flexShrink:0}}>
-        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"13px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px",padding:0}}
-          onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textMuted}>← Back</button>
-      </div>
-
-      <ScrollBody>
-        <div className="s1" style={{textAlign:"center",marginBottom:"28px",paddingTop:"12px"}}>
-          <div style={{marginBottom:"14px",animation:"fadeUp .5s both",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="mail" size={52}/></div>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Check your email</h2>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"4px"}}>We sent a 6-digit verification code to:</p>
-          <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"16px"}}>{userData.email}</p>
-          <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",display:"inline-block"}}>
-            <p style={{fontSize:"11px",color:T.textMuted,display:"flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={11}/>Check your inbox (and spam folder) — the code can take a minute to arrive.</p>
-          </div>
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{padding:"10px 20px 0",display:"flex",alignItems:"center",flexShrink:0}}>
+          <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"13px",fontWeight:"700",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",gap:"4px",padding:0}}
+                  onMouseEnter={e=>e.currentTarget.style.color=T.text} onMouseLeave={e=>e.currentTarget.style.color=T.textMuted}>← Back</button>
         </div>
 
-        {/* 6-digit code input */}
-        <div className="s2" style={{marginBottom:"24px"}}>
-          <p style={{fontSize:"10px",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",color:codeError?T.brown:T.gold,marginBottom:"12px",textAlign:"center"}}>Enter Verification Code</p>
-          <div style={{display:"flex",gap:"8px",justifyContent:"center",marginBottom:"10px"}}>
-            {codeDigits.map((d,i)=>(
-              <input
-                key={i} id={`vcode-${i}`}
-                type="text" inputMode="numeric" maxLength={1}
-                value={d}
-                onChange={e=>handleDigit(i,e.target.value)}
-                onKeyDown={e=>handleKeyDown(i,e)}
-                style={{
-                  width:"42px",height:"52px",textAlign:"center",
-                  fontSize:"22px",fontWeight:"900",
-                  background:d?T.inputFocusBg:T.inputBg,
-                  border:`2px solid ${codeError?"#e07a5f":d?T.gold:T.inputBorder}`,
-                  borderRadius:"12px",color:T.text,outline:"none",
-                  fontFamily:"'Lato',sans-serif",transition:"border-color .2s",
-                  caretColor:"transparent",
-                }}
-                onFocus={e=>{ e.target.style.borderColor=T.gold; e.target.select(); }}
-                onBlur={e=>{ e.target.style.borderColor=codeError?"#e07a5f":d?T.gold:T.inputBorder; }}
-              />
-            ))}
+        <ScrollBody>
+          <div className="s1" style={{textAlign:"center",marginBottom:"28px",paddingTop:"12px"}}>
+            <div style={{marginBottom:"14px",animation:"fadeUp .5s both",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="mail" size={52}/></div>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Check your email</h2>
+            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"4px"}}>We sent a 6-digit verification code to:</p>
+            <p style={{fontSize:"14px",fontWeight:"700",color:T.gold,marginBottom:"16px"}}>{userData.email}</p>
+            <div style={{background:"rgba(176,141,87,.08)",border:"1px solid rgba(176,141,87,.2)",borderRadius:"10px",padding:"9px 12px",display:"inline-block"}}>
+              <p style={{fontSize:"11px",color:T.textMuted,display:"flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={11}/>Check your inbox (and spam folder) — the code can take a minute to arrive.</p>
+            </div>
           </div>
-          {codeError&&<p style={{textAlign:"center",fontSize:"11px",color:"#e07a5f",fontWeight:"700",display:"flex",alignItems:"center",justifyContent:"center",gap:"4px"}}><Icon name="alert" size={11}/> Invalid code. Please try again.</p>}
-        </div>
 
-        {/* Verify button */}
-        <button onClick={()=>handleVerify()} disabled={verifying} style={{
-          width:"100%",padding:"13px",borderRadius:"11px",border:"none",
-          background:verifying?"rgba(176,141,87,.4)":T.gold,
-          color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
-          fontFamily:"'Lato',sans-serif",cursor:verifying?"wait":"pointer",
-          boxShadow:"0 4px 18px rgba(176,141,87,.28)",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",marginBottom:"18px",
-        }}>
-          {verifying
-            ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Verifying…</>
-            : "Verify Email →"}
-        </button>
+          {/* 6-digit code input */}
+          <div className="s2" style={{marginBottom:"24px"}}>
+            <p style={{fontSize:"10px",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",color:codeError?T.brown:T.gold,marginBottom:"12px",textAlign:"center"}}>Enter Verification Code</p>
+            <div style={{display:"flex",gap:"8px",justifyContent:"center",marginBottom:"10px"}}>
+              {codeDigits.map((d,i)=>(
+                  <input
+                      key={i} id={`vcode-${i}`}
+                      type="text" inputMode="numeric" maxLength={1}
+                      value={d}
+                      onChange={e=>handleDigit(i,e.target.value)}
+                      onKeyDown={e=>handleKeyDown(i,e)}
+                      style={{
+                        width:"42px",height:"52px",textAlign:"center",
+                        fontSize:"22px",fontWeight:"900",
+                        background:d?T.inputFocusBg:T.inputBg,
+                        border:`2px solid ${codeError?"#e07a5f":d?T.gold:T.inputBorder}`,
+                        borderRadius:"12px",color:T.text,outline:"none",
+                        fontFamily:"'Lato',sans-serif",transition:"border-color .2s",
+                        caretColor:"transparent",
+                      }}
+                      onFocus={e=>{ e.target.style.borderColor=T.gold; e.target.select(); }}
+                      onBlur={e=>{ e.target.style.borderColor=codeError?"#e07a5f":d?T.gold:T.inputBorder; }}
+                  />
+              ))}
+            </div>
+            {codeError&&<p style={{textAlign:"center",fontSize:"11px",color:"#e07a5f",fontWeight:"700",display:"flex",alignItems:"center",justifyContent:"center",gap:"4px"}}><Icon name="alert" size={11}/> Invalid code. Please try again.</p>}
+          </div>
 
-        {/* Resend */}
-        <div style={{textAlign:"center"}}>
-          <p style={{fontSize:"12px",color:T.textMuted,marginBottom:"6px"}}>Didn't receive a code?</p>
-          <button onClick={handleResend} disabled={resendCooldown>0} style={{background:"none",border:"none",cursor:resendCooldown>0?"not-allowed":"pointer",color:resendCooldown>0?T.textFaint:T.gold,fontWeight:"700",fontSize:"13px",fontFamily:"'Lato',sans-serif",padding:0,transition:"color .2s"}}>
-            {resendCooldown>0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
+          {/* Verify button */}
+          <button onClick={()=>handleVerify()} disabled={verifying} style={{
+            width:"100%",padding:"13px",borderRadius:"11px",border:"none",
+            background:verifying?"rgba(176,141,87,.4)":T.gold,
+            color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
+            fontFamily:"'Lato',sans-serif",cursor:verifying?"wait":"pointer",
+            boxShadow:"0 4px 18px rgba(176,141,87,.28)",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",marginBottom:"18px",
+          }}>
+            {verifying
+                ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Verifying…</>
+                : "Verify Email →"}
           </button>
-        </div>
 
-        <div style={{marginTop:"20px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px"}}>
-          <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.6}}>
-            <Icon name="mail" size={12} style={{marginRight:"3px"}}/><strong style={{color:T.text}}>Can't find it?</strong> Check your spam or promotions folder. The email comes from <span style={{color:T.gold,fontWeight:"700"}}>noreply@guidingpaw.com</span>
-          </p>
-        </div>
-      </ScrollBody>
-    </PhoneShell>
+          {/* Resend */}
+          <div style={{textAlign:"center"}}>
+            <p style={{fontSize:"12px",color:T.textMuted,marginBottom:"6px"}}>Didn't receive a code?</p>
+            <button onClick={handleResend} disabled={resendCooldown>0 || resending} style={{background:"none",border:"none",cursor:(resendCooldown>0||resending)?"not-allowed":"pointer",color:(resendCooldown>0||resending)?T.textFaint:T.gold,fontWeight:"700",fontSize:"13px",fontFamily:"'Lato',sans-serif",padding:0,transition:"color .2s"}}>
+              {resending ? "Sending…" : resendCooldown>0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
+            </button>
+            {resendError && <p style={{marginTop:"8px",fontSize:"11px",color:"#e07a5f",fontWeight:"700",display:"flex",alignItems:"center",justifyContent:"center",gap:"4px"}}><Icon name="alert" size={11}/> {resendError}</p>}
+          </div>
+
+          <div style={{marginTop:"20px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px"}}>
+            <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.6}}>
+              <Icon name="mail" size={12} style={{marginRight:"3px"}}/><strong style={{color:T.text}}>Can't find it?</strong> Check your spam or promotions folder. The email comes from <span style={{color:T.gold,fontWeight:"700"}}>noreply@guidingpaw.com</span>
+            </p>
+          </div>
+        </ScrollBody>
+      </PhoneShell>
   );
 };
 
@@ -1648,18 +1668,18 @@ const OnboardingScreen = ({userData, onGoToPayment, darkMode, setDarkMode}) => {
     else setStep(s=>s+1);
   };
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{padding:"12px 26px 0",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
-        <ProgressDots total={steps.length} current={step}/>
-        <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-      </div>
-      <ScrollBody>
-        {step>0&&<BackBtn onClick={()=>setStep(s=>s-1)}/>}
-        <div className="slide">{steps[step]?.content}</div>
-        <GoldBtn onClick={handleNext} style={{marginTop:"18px"}}>{steps[step]?.nextLabel||"Continue →"}</GoldBtn>
-      </ScrollBody>
-    </PhoneShell>
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{padding:"12px 26px 0",display:"flex",justifyContent:"space-between",alignItems:"center",flexShrink:0}}>
+          <ProgressDots total={steps.length} current={step}/>
+          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
+        </div>
+        <ScrollBody>
+          {step>0&&<BackBtn onClick={()=>setStep(s=>s-1)}/>}
+          <div className="slide">{steps[step]?.content}</div>
+          <GoldBtn onClick={handleNext} style={{marginTop:"18px"}}>{steps[step]?.nextLabel||"Continue →"}</GoldBtn>
+        </ScrollBody>
+      </PhoneShell>
   );
 };
 
@@ -1698,98 +1718,98 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
   };
 
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{padding:"10px 18px 0",display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
-        <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"20px",padding:"2px 6px 2px 0"}}>‹</button>
-        <p style={{fontSize:"11px",fontWeight:"700",color:T.textMuted,letterSpacing:".12em",textTransform:"uppercase"}}>Secure Checkout</p>
-        <Icon name="lock" size={13} style={{marginLeft:"auto"}}/>
-      </div>
-      <ScrollBody pad="18px 22px">
-
-        {/* Order summary */}
-        <div className="s1" style={{background:T.green,borderRadius:"16px",padding:"16px",marginBottom:"18px",position:"relative",overflow:"hidden"}}>
-          <div style={{position:"absolute",right:"12px",top:"10px",opacity:.12}}><Icon name="paw" size={40}/></div>
-          <p style={{fontSize:"9px",fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",color:"rgba(255,255,255,.5)",marginBottom:"6px"}}>Order Summary</p>
-          <p style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"4px"}}>Guiding Paw {pd.name}</p>
-          <div style={{display:"flex",alignItems:"baseline",gap:"4px",marginBottom:"10px"}}>
-            <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL,display:"inline-flex",alignItems:"center",gap:"5px"}}>{promoApplied&&<Icon name="tag" size={20}/>}{pd.price}</span>
-            <span style={{fontSize:"13px",color:"rgba(255,255,255,.5)"}}>{pd.per}</span>
-            {promoApplied&&<span style={{fontSize:"11px",color:T.success,fontWeight:"700",marginLeft:"4px"}}>−10% applied!</span>}
-          </div>
-          <p style={{fontSize:"11px",color:"rgba(255,255,255,.45)",lineHeight:1.5}}>{pd.trial}</p>
-          <div style={{display:"flex",gap:"10px",marginTop:"10px",flexWrap:"wrap"}}>
-            {["Cancel anytime","No contracts","7-day free trial"].map(r=><span key={r} style={{fontSize:"10px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
-          </div>
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{padding:"10px 18px 0",display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
+          <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:T.textMuted,fontSize:"20px",padding:"2px 6px 2px 0"}}>‹</button>
+          <p style={{fontSize:"11px",fontWeight:"700",color:T.textMuted,letterSpacing:".12em",textTransform:"uppercase"}}>Secure Checkout</p>
+          <Icon name="lock" size={13} style={{marginLeft:"auto"}}/>
         </div>
+        <ScrollBody pad="18px 22px">
 
-        {/* Apple Pay / Google Pay */}
-        <div className="s2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px",marginBottom:"16px"}}>
-          <button onClick={handlePay} style={{padding:"11px",borderRadius:"12px",background:"#000",color:"#fff",border:"none",fontSize:"13px",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",fontFamily:"'Lato',sans-serif",boxShadow:"0 2px 8px rgba(0,0,0,.2)"}}>
-            <svg width="16" height="16" viewBox="0 0 814 1000" fill="white"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-157.2-116.7c-44.2-66.5-81.5-174.6-81.5-278.1 0-159.4 104.2-243.9 206.5-243.9 54.6 0 100 36.4 133.4 36.4 31.8 0 81.5-38.5 143.7-38.5 23.3 0 106.7 2.2 162.3 92.4zm-220-173.7c27.8-32.8 47.5-78.5 47.5-124.3 0-6.3-.6-12.7-1.9-18.4-44.6 1.6-97.8 30.6-130.3 65.4-25.6 28.8-49.5 74.5-49.5 121.3 0 7 1.3 14 1.9 16.2 3.2.6 8.3 1.3 13.4 1.3 40.1 0 88.5-27.1 119-61.5z"/></svg>
-            Apple Pay
-          </button>
-          <button onClick={handlePay} style={{padding:"11px",borderRadius:"12px",background:"#fff",color:"#3c4043",border:"1px solid #dadce0",fontSize:"13px",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",fontFamily:"'Lato',sans-serif",boxShadow:"0 2px 8px rgba(0,0,0,.1)"}}>
-            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-            Google Pay
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="s2" style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
-          <div style={{flex:1,height:"1px",background:T.divider}}/><span style={{fontSize:"11px",color:T.textFaint,fontWeight:"700"}}>or pay with card</span><div style={{flex:1,height:"1px",background:T.divider}}/>
-        </div>
-
-        {/* Card fields */}
-        <div className="s3">
-          {[
-            {label:"Name on Card",val:cardName,set:setCardName,ph:"Jane Smith",type:"text"},
-            {label:"Card Number",val:cardNum,set:(v)=>setCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
-          ].map(f=>(
-            <div key={f.label} style={{marginBottom:"12px"}}>
-              <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
-              <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
-                style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+          {/* Order summary */}
+          <div className="s1" style={{background:T.green,borderRadius:"16px",padding:"16px",marginBottom:"18px",position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",right:"12px",top:"10px",opacity:.12}}><Icon name="paw" size={40}/></div>
+            <p style={{fontSize:"9px",fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",color:"rgba(255,255,255,.5)",marginBottom:"6px"}}>Order Summary</p>
+            <p style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"4px"}}>Guiding Paw {pd.name}</p>
+            <div style={{display:"flex",alignItems:"baseline",gap:"4px",marginBottom:"10px"}}>
+              <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL,display:"inline-flex",alignItems:"center",gap:"5px"}}>{promoApplied&&<Icon name="tag" size={20}/>}{pd.price}</span>
+              <span style={{fontSize:"13px",color:"rgba(255,255,255,.5)"}}>{pd.per}</span>
+              {promoApplied&&<span style={{fontSize:"11px",color:T.success,fontWeight:"700",marginLeft:"4px"}}>−10% applied!</span>}
             </div>
-          ))}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
-            {[{label:"Expiry",val:expiry,set:(v)=>setExpiry(fmtExpiry(v)),ph:"MM/YY"},{label:"CVV",val:cvv,set:setCvv,ph:"•••"}].map(f=>(
-              <div key={f.label}>
-                <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
-                <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
-                  style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-              </div>
+            <p style={{fontSize:"11px",color:"rgba(255,255,255,.45)",lineHeight:1.5}}>{pd.trial}</p>
+            <div style={{display:"flex",gap:"10px",marginTop:"10px",flexWrap:"wrap"}}>
+              {["Cancel anytime","No contracts","7-day free trial"].map(r=><span key={r} style={{fontSize:"10px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
+            </div>
+          </div>
+
+          {/* Apple Pay / Google Pay */}
+          <div className="s2" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px",marginBottom:"16px"}}>
+            <button onClick={handlePay} style={{padding:"11px",borderRadius:"12px",background:"#000",color:"#fff",border:"none",fontSize:"13px",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",fontFamily:"'Lato',sans-serif",boxShadow:"0 2px 8px rgba(0,0,0,.2)"}}>
+              <svg width="16" height="16" viewBox="0 0 814 1000" fill="white"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-157.2-116.7c-44.2-66.5-81.5-174.6-81.5-278.1 0-159.4 104.2-243.9 206.5-243.9 54.6 0 100 36.4 133.4 36.4 31.8 0 81.5-38.5 143.7-38.5 23.3 0 106.7 2.2 162.3 92.4zm-220-173.7c27.8-32.8 47.5-78.5 47.5-124.3 0-6.3-.6-12.7-1.9-18.4-44.6 1.6-97.8 30.6-130.3 65.4-25.6 28.8-49.5 74.5-49.5 121.3 0 7 1.3 14 1.9 16.2 3.2.6 8.3 1.3 13.4 1.3 40.1 0 88.5-27.1 119-61.5z"/></svg>
+              Apple Pay
+            </button>
+            <button onClick={handlePay} style={{padding:"11px",borderRadius:"12px",background:"#fff",color:"#3c4043",border:"1px solid #dadce0",fontSize:"13px",fontWeight:"700",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",fontFamily:"'Lato',sans-serif",boxShadow:"0 2px 8px rgba(0,0,0,.1)"}}>
+              <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              Google Pay
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="s2" style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"16px"}}>
+            <div style={{flex:1,height:"1px",background:T.divider}}/><span style={{fontSize:"11px",color:T.textFaint,fontWeight:"700"}}>or pay with card</span><div style={{flex:1,height:"1px",background:T.divider}}/>
+          </div>
+
+          {/* Card fields */}
+          <div className="s3">
+            {[
+              {label:"Name on Card",val:cardName,set:setCardName,ph:"Jane Smith",type:"text"},
+              {label:"Card Number",val:cardNum,set:(v)=>setCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
+            ].map(f=>(
+                <div key={f.label} style={{marginBottom:"12px"}}>
+                  <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
+                  <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
+                         style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                </div>
             ))}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
+              {[{label:"Expiry",val:expiry,set:(v)=>setExpiry(fmtExpiry(v)),ph:"MM/YY"},{label:"CVV",val:cvv,set:setCvv,ph:"•••"}].map(f=>(
+                  <div key={f.label}>
+                    <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
+                    <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
+                           style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                  </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Promo code */}
-        <div className="s4" style={{marginBottom:"18px"}}>
-          <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>Promo Code</label>
-          <div style={{display:"flex",gap:"8px"}}>
-            <input value={promo} onChange={e=>{setPromo(e.target.value);setPromoError(false);setPromoApplied(false);}} placeholder="Enter code (try PAWS10)"
-              style={{flex:1,padding:"11px 13px",background:T.inputBg,border:`1px solid ${promoError?T.brown:promoApplied?T.success:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-            <button onClick={applyPromo} style={{padding:"11px 15px",borderRadius:"10px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Lato',sans-serif"}}>Apply</button>
+          {/* Promo code */}
+          <div className="s4" style={{marginBottom:"18px"}}>
+            <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>Promo Code</label>
+            <div style={{display:"flex",gap:"8px"}}>
+              <input value={promo} onChange={e=>{setPromo(e.target.value);setPromoError(false);setPromoApplied(false);}} placeholder="Enter code (try PAWS10)"
+                     style={{flex:1,padding:"11px 13px",background:T.inputBg,border:`1px solid ${promoError?T.brown:promoApplied?T.success:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+              <button onClick={applyPromo} style={{padding:"11px 15px",borderRadius:"10px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Lato',sans-serif"}}>Apply</button>
+            </div>
+            {promoApplied&&<p style={{fontSize:"11px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Code applied — 10% off your first payment!</p>}
+            {promoError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"700",marginTop:"5px"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Invalid code. Try PAWS10 for a demo.</p>}
           </div>
-          {promoApplied&&<p style={{fontSize:"11px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Code applied — 10% off your first payment!</p>}
-          {promoError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"700",marginTop:"5px"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Invalid code. Try PAWS10 for a demo.</p>}
-        </div>
 
-        {/* Pay button */}
-        <button onClick={handlePay} disabled={loading} style={{
-          width:"100%",padding:"15px",borderRadius:"12px",border:"none",cursor:loading?"wait":"pointer",
-          background:loading?"rgba(176,141,87,.4)":T.gold,
-          color:"#fff",fontSize:"15px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
-          fontFamily:"'Lato',sans-serif",boxShadow:"0 4px 20px rgba(176,141,87,.4)",transition:"all .2s",
-          display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",
-        }}>
-          {loading
-            ? <><span style={{display:"inline-block",width:"16px",height:"16px",border:"2.5px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .7s linear infinite"}}/>Processing…</>
-            : <>Start My Free Trial</>}
-        </button>
-        <p style={{textAlign:"center",fontSize:"10px",color:T.textFaint,marginTop:"10px",lineHeight:1.5}}>Your card won't be charged during the 7-day trial. Cancel anytime.</p>
-      </ScrollBody>
-    </PhoneShell>
+          {/* Pay button */}
+          <button onClick={handlePay} disabled={loading} style={{
+            width:"100%",padding:"15px",borderRadius:"12px",border:"none",cursor:loading?"wait":"pointer",
+            background:loading?"rgba(176,141,87,.4)":T.gold,
+            color:"#fff",fontSize:"15px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
+            fontFamily:"'Lato',sans-serif",boxShadow:"0 4px 20px rgba(176,141,87,.4)",transition:"all .2s",
+            display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",
+          }}>
+            {loading
+                ? <><span style={{display:"inline-block",width:"16px",height:"16px",border:"2.5px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .7s linear infinite"}}/>Processing…</>
+                : <>Start My Free Trial</>}
+          </button>
+          <p style={{textAlign:"center",fontSize:"10px",color:T.textFaint,marginTop:"10px",lineHeight:1.5}}>Your card won't be charged during the 7-day trial. Cancel anytime.</p>
+        </ScrollBody>
+      </PhoneShell>
   );
 };
 
@@ -1806,41 +1826,41 @@ const SuccessScreen = ({petData, onContinue}) => {
     return ()=>{clearTimeout(t1);clearTimeout(t2);};
   });
   return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
-        {/* Animated checkmark ring */}
-        <div style={{position:"relative",marginBottom:"24px"}}>
-          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 0 12px rgba(76,175,125,.12), 0 0 0 24px rgba(76,175,125,.06)`,animation:"successPop .5s cubic-bezier(.22,1,.36,1) both"}}>
-            <span style={{animation:"checkIn .4s .2s both",display:"block"}}><Icon name="check" size={42} color={T.success} strokeWidth={3}/></span>
+      <PhoneShell>
+        <TopBanner/>
+        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
+          {/* Animated checkmark ring */}
+          <div style={{position:"relative",marginBottom:"24px"}}>
+            <div style={{width:"90px",height:"90px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 0 12px rgba(76,175,125,.12), 0 0 0 24px rgba(76,175,125,.06)`,animation:"successPop .5s cubic-bezier(.22,1,.36,1) both"}}>
+              <span style={{animation:"checkIn .4s .2s both",display:"block"}}><Icon name="check" size={42} color={T.success} strokeWidth={3}/></span>
+            </div>
+          </div>
+
+          <div style={{animation:phase>=1?"fadeUp .5s both":"none",opacity:phase>=1?1:0}}>
+            <p style={{fontSize:"11px",fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",color:T.gold,marginBottom:"8px"}}>Payment Successful</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"26px",fontWeight:"700",color:T.text,marginBottom:"8px",lineHeight:1.25}}>Welcome to Guiding Paw!</h2>
+            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"20px"}}>Your <strong style={{color:T.goldL}}>{pd.name}</strong> plan is active. Your 7-day free trial starts now.</p>
+
+            <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"24px",textAlign:"left"}}>
+              {[
+                {icon:"paw",label:"Plan",val:pd.name},
+                {icon:"card",label:"Billed",val:pd.price+pd.per},
+                {icon:"calendar",label:"Trial ends",val:"Mar 16, 2026"},
+                {icon:"mail",label:"Receipt sent to",val:"you@example.com"},
+              ].map(({icon,label,val})=>(
+                  <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.divider}`}}>
+                    <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name={icon} size={11}/>{label}</span>
+                    <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{val}</span>
+                  </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{width:"100%",animation:phase>=2?"fadeUp .45s .05s both":"none",opacity:phase>=2?1:0}}>
+            <GoldBtn onClick={onContinue}>Let's Get Started <Icon name="paw" size={13} style={{marginLeft:"2px"}}/></GoldBtn>
           </div>
         </div>
-
-        <div style={{animation:phase>=1?"fadeUp .5s both":"none",opacity:phase>=1?1:0}}>
-          <p style={{fontSize:"11px",fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",color:T.gold,marginBottom:"8px"}}>Payment Successful</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"26px",fontWeight:"700",color:T.text,marginBottom:"8px",lineHeight:1.25}}>Welcome to Guiding Paw!</h2>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"20px"}}>Your <strong style={{color:T.goldL}}>{pd.name}</strong> plan is active. Your 7-day free trial starts now.</p>
-
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"24px",textAlign:"left"}}>
-            {[
-              {icon:"paw",label:"Plan",val:pd.name},
-              {icon:"card",label:"Billed",val:pd.price+pd.per},
-              {icon:"calendar",label:"Trial ends",val:"Mar 16, 2026"},
-              {icon:"mail",label:"Receipt sent to",val:"you@example.com"},
-            ].map(({icon,label,val})=>(
-              <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name={icon} size={11}/>{label}</span>
-                <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{val}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{width:"100%",animation:phase>=2?"fadeUp .45s .05s both":"none",opacity:phase>=2?1:0}}>
-          <GoldBtn onClick={onContinue}>Let's Get Started <Icon name="paw" size={13} style={{marginLeft:"2px"}}/></GoldBtn>
-        </div>
-      </div>
-    </PhoneShell>
+      </PhoneShell>
   );
 };
 
@@ -1852,39 +1872,39 @@ const WelcomeDashboard = ({petData, plan, onDismiss}) => {
   const petName=petData?.name||"Luna";
   const breed=petData?.breed||"";
   return (
-    <ScrollBody>
-      {/* Hero welcome banner */}
-      <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"22px 18px",marginBottom:"18px",textAlign:"center",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",right:"-10px",top:"-10px",opacity:.08}}><Icon name="paw" size={80}/></div>
-        <LogoImg size={52}/>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:"#fff",margin:"12px 0 6px",lineHeight:1.25}}>Welcome, {petName}!</h2>
-        <p style={{fontSize:"13px",color:"rgba(255,255,255,.6)",lineHeight:1.55,marginBottom:"14px"}}>Your training journey starts today. Here's everything ready for you.</p>
-        <div style={{display:"flex",justifyContent:"center",gap:"12px",flexWrap:"wrap"}}>
-          {["Day 1","First Lesson","Goal Set"].map(t=>(
-            <span key={t} style={{fontSize:"11px",fontWeight:"700",color:T.success}}>{t}</span>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick-start cards */}
-      <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,marginBottom:"10px"}} className="s2">Your First Steps</p>
-      {[
-        {icon:"clipboard",title:"Complete Today's Assignment",desc:"Your first lesson is ready and waiting.",cta:"Start Lesson",color:T.gold},
-        {icon:"paw",title:"Set Up Pet Profile",desc:breed?`We've saved ${breed} — you can add more details anytime.`:"Add your pet's breed to unlock personalized training tips.",cta:"Go to Settings",color:T.goldL},
-        {icon:"calendar",title:"Build Your Daily Routine",desc:"Set your training schedule for maximum consistency.",cta:"Build Routine",color:T.success},
-      ].map(({icon,title,desc,cta,color},i)=>(
-        <div key={title} className={`s${i+3}`} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"10px",display:"flex",gap:"12px",alignItems:"flex-start"}}>
-          <span style={{fontSize:"24px",flexShrink:0}}>{icon}</span>
-          <div style={{flex:1}}>
-            <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{title}</p>
-            <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.5,marginBottom:"8px"}}>{desc}</p>
-            <span style={{fontSize:"11px",fontWeight:"700",color,letterSpacing:".06em"}}>{cta} →</span>
+      <ScrollBody>
+        {/* Hero welcome banner */}
+        <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"22px 18px",marginBottom:"18px",textAlign:"center",position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",right:"-10px",top:"-10px",opacity:.08}}><Icon name="paw" size={80}/></div>
+          <LogoImg size={52}/>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:"#fff",margin:"12px 0 6px",lineHeight:1.25}}>Welcome, {petName}!</h2>
+          <p style={{fontSize:"13px",color:"rgba(255,255,255,.6)",lineHeight:1.55,marginBottom:"14px"}}>Your training journey starts today. Here's everything ready for you.</p>
+          <div style={{display:"flex",justifyContent:"center",gap:"12px",flexWrap:"wrap"}}>
+            {["Day 1","First Lesson","Goal Set"].map(t=>(
+                <span key={t} style={{fontSize:"11px",fontWeight:"700",color:T.success}}>{t}</span>
+            ))}
           </div>
         </div>
-      ))}
 
-      <GoldBtn onClick={onDismiss} style={{marginTop:"6px"}}>Go to My Dashboard →</GoldBtn>
-    </ScrollBody>
+        {/* Quick-start cards */}
+        <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:T.gold,marginBottom:"10px"}} className="s2">Your First Steps</p>
+        {[
+          {icon:"clipboard",title:"Complete Today's Assignment",desc:"Your first lesson is ready and waiting.",cta:"Start Lesson",color:T.gold},
+          {icon:"paw",title:"Set Up Pet Profile",desc:breed?`We've saved ${breed} — you can add more details anytime.`:"Add your pet's breed to unlock personalized training tips.",cta:"Go to Settings",color:T.goldL},
+          {icon:"calendar",title:"Build Your Daily Routine",desc:"Set your training schedule for maximum consistency.",cta:"Build Routine",color:T.success},
+        ].map(({icon,title,desc,cta,color},i)=>(
+            <div key={title} className={`s${i+3}`} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"10px",display:"flex",gap:"12px",alignItems:"flex-start"}}>
+              <span style={{fontSize:"24px",flexShrink:0}}>{icon}</span>
+              <div style={{flex:1}}>
+                <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{title}</p>
+                <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.5,marginBottom:"8px"}}>{desc}</p>
+                <span style={{fontSize:"11px",fontWeight:"700",color,letterSpacing:".06em"}}>{cta} →</span>
+              </div>
+            </div>
+        ))}
+
+        <GoldBtn onClick={onDismiss} style={{marginTop:"6px"}}>Go to My Dashboard →</GoldBtn>
+      </ScrollBody>
   );
 };
 
@@ -1906,27 +1926,27 @@ function buildSteps(data,set,toggle,T){
   // program is picked here is the ONLY curriculum this account gets access to; the
   // other program has to be purchased separately later (see the Learn tab upsell).
   steps.push({content:(()=>{
-    const weeksOld = ageInWeeks(data.birthday||"");
-    const suggested = (weeksOld!==null && weeksOld<20) ? "puppy" : "standard";
-    const options=[
-      {id:"standard", title:"Standard Training", sub:"6-Week Program", desc:"For dogs generally 20+ weeks old. Leash pressure, e-collar foundations, off-leash reliability."},
-      {id:"puppy", title:"Puppy Training", sub:"12-Week Program", desc:"For puppies under ~20 weeks old. Structure, socialization, foundational skills, and kennel/potty training."},
-    ];
-    return (<>
-      <SectionTitle>Choose Your Training Program</SectionTitle>
-      <p style={{fontSize:"12px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>This is the program your purchase unlocks. Based on {data.name||"your dog"}'s birthday, we suggest <strong style={{color:T.gold}}>{suggested==="puppy"?"Puppy Training":"Standard Training"}</strong> — but you can choose either.</p>
-      <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"6px"}}>
-        {options.map(o=>(
-          <div key={o.id} onClick={()=>set("program",o.id)} style={{padding:"14px 16px",borderRadius:"14px",cursor:"pointer",border:`2px solid ${(data.program||suggested)===o.id?T.gold:T.chipBorder}`,background:(data.program||suggested)===o.id?"rgba(176,141,87,.12)":T.chipBg,transition:"all .2s",position:"relative"}}>
-            {suggested===o.id && <div style={{position:"absolute",top:"-9px",right:"12px",background:T.gold,color:"#fff",fontSize:"9px",fontWeight:"900",letterSpacing:".08em",padding:"2px 8px",borderRadius:"10px"}}>SUGGESTED</div>}
-            <p style={{fontSize:"14px",fontWeight:"700",color:(data.program||suggested)===o.id?T.gold:T.text,marginBottom:"2px"}}>{o.title} <span style={{fontWeight:"400",color:T.textMuted,fontSize:"12px"}}>— {o.sub}</span></p>
-            <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.4}}>{o.desc}</p>
-          </div>
-        ))}
-      </div>
-      <p style={{fontSize:"11px",color:T.textFaint,lineHeight:1.4}}>You'll only get access to the program you pick — the other one can be added later from the Learn tab for an additional purchase.</p>
-    </>);
-  })()});
+      const weeksOld = ageInWeeks(data.birthday||"");
+      const suggested = (weeksOld!==null && weeksOld<20) ? "puppy" : "standard";
+      const options=[
+        {id:"standard", title:"Standard Training", sub:"6-Week Program", desc:"For dogs generally 20+ weeks old. Leash pressure, e-collar foundations, off-leash reliability."},
+        {id:"puppy", title:"Puppy Training", sub:"12-Week Program", desc:"For puppies under ~20 weeks old. Structure, socialization, foundational skills, and kennel/potty training."},
+      ];
+      return (<>
+        <SectionTitle>Choose Your Training Program</SectionTitle>
+        <p style={{fontSize:"12px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>This is the program your purchase unlocks. Based on {data.name||"your dog"}'s birthday, we suggest <strong style={{color:T.gold}}>{suggested==="puppy"?"Puppy Training":"Standard Training"}</strong> — but you can choose either.</p>
+        <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"6px"}}>
+          {options.map(o=>(
+              <div key={o.id} onClick={()=>set("program",o.id)} style={{padding:"14px 16px",borderRadius:"14px",cursor:"pointer",border:`2px solid ${(data.program||suggested)===o.id?T.gold:T.chipBorder}`,background:(data.program||suggested)===o.id?"rgba(176,141,87,.12)":T.chipBg,transition:"all .2s",position:"relative"}}>
+                {suggested===o.id && <div style={{position:"absolute",top:"-9px",right:"12px",background:T.gold,color:"#fff",fontSize:"9px",fontWeight:"900",letterSpacing:".08em",padding:"2px 8px",borderRadius:"10px"}}>SUGGESTED</div>}
+                <p style={{fontSize:"14px",fontWeight:"700",color:(data.program||suggested)===o.id?T.gold:T.text,marginBottom:"2px"}}>{o.title} <span style={{fontWeight:"400",color:T.textMuted,fontSize:"12px"}}>— {o.sub}</span></p>
+                <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.4}}>{o.desc}</p>
+              </div>
+          ))}
+        </div>
+        <p style={{fontSize:"11px",color:T.textFaint,lineHeight:1.4}}>You'll only get access to the program you pick — the other one can be added later from the Learn tab for an additional purchase.</p>
+      </>);
+    })()});
   // Knows — dog only
   steps.push({content:(<><SectionTitle>What does your dog know?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]} selected={data.knows} onToggle={v=>toggle("knows",v,false)}/></>)});
   steps.push({content:(<><SectionTitle>Behavior issues to work on?</SectionTitle><p style={{fontSize:"12px",color:T.textMuted,marginBottom:"12px"}}>Select all that apply</p><ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]} selected={data.issues} onToggle={v=>toggle("issues",v,false)}/></>)});
@@ -1934,58 +1954,58 @@ function buildSteps(data,set,toggle,T){
   steps.push({content:(<><SectionTitle>Daily training time?</SectionTitle><ChipGroup options={["5 – 10 min","15 – 30 min","More than 30 min"]} selected={data.trainTime} onToggle={v=>toggle("trainTime",v,false)}/></>)});
   // Clock — scrollable hour/minute pickers
   steps.push({content:(<><SectionTitle>Preferred training time?</SectionTitle><div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"12px",margin:"20px 0"}}>
-    <div style={{textAlign:"center"}}>
-      <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Hour</p>
-      <div style={{height:"100px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"10px",width:"64px",scrollSnapType:"y mandatory"}}>
-        {Array.from({length:12},(_,i)=>i+1).map(h=><div key={h} onClick={()=>set("trainHour",String(h))} style={{height:"36px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:data.trainHour===String(h)?"rgba(176,141,87,.2)":"transparent",color:data.trainHour===String(h)?T.gold:T.text,fontSize:"18px",fontWeight:"700"}}>{h}</div>)}
+      <div style={{textAlign:"center"}}>
+        <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Hour</p>
+        <div style={{height:"100px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"10px",width:"64px",scrollSnapType:"y mandatory"}}>
+          {Array.from({length:12},(_,i)=>i+1).map(h=><div key={h} onClick={()=>set("trainHour",String(h))} style={{height:"36px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:data.trainHour===String(h)?"rgba(176,141,87,.2)":"transparent",color:data.trainHour===String(h)?T.gold:T.text,fontSize:"18px",fontWeight:"700"}}>{h}</div>)}
+        </div>
       </div>
-    </div>
-    <div style={{fontSize:"28px",color:T.gold,fontWeight:"900",paddingTop:"20px"}}>:</div>
-    <div style={{textAlign:"center"}}>
-      <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Min</p>
-      <div style={{height:"100px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"10px",width:"64px",scrollSnapType:"y mandatory"}}>
-        {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m=><div key={m} onClick={()=>set("trainMin",m)} style={{height:"36px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:(data.trainMin||"00")===m?"rgba(176,141,87,.2)":"transparent",color:(data.trainMin||"00")===m?T.gold:T.text,fontSize:"18px",fontWeight:"700"}}>{m}</div>)}
+      <div style={{fontSize:"28px",color:T.gold,fontWeight:"900",paddingTop:"20px"}}>:</div>
+      <div style={{textAlign:"center"}}>
+        <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Min</p>
+        <div style={{height:"100px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"10px",width:"64px",scrollSnapType:"y mandatory"}}>
+          {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m=><div key={m} onClick={()=>set("trainMin",m)} style={{height:"36px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:(data.trainMin||"00")===m?"rgba(176,141,87,.2)":"transparent",color:(data.trainMin||"00")===m?T.gold:T.text,fontSize:"18px",fontWeight:"700"}}>{m}</div>)}
+        </div>
       </div>
-    </div>
-    <div style={{textAlign:"center",paddingTop:"20px"}}>
-      <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>AM/PM</p>
-      <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>set("trainAmPm",ap)} style={{padding:"10px 14px",borderRadius:"8px",fontWeight:"700",fontSize:"13px",border:`1px solid ${data.trainAmPm===ap?T.gold:T.inputBorder}`,background:data.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:data.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
-    </div>
-  </div></>)});
+      <div style={{textAlign:"center",paddingTop:"20px"}}>
+        <p style={{fontSize:"10px",color:T.gold,letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>AM/PM</p>
+        <div style={{display:"flex",flexDirection:"column",gap:"6px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>set("trainAmPm",ap)} style={{padding:"10px 14px",borderRadius:"8px",fontWeight:"700",fontSize:"13px",border:`1px solid ${data.trainAmPm===ap?T.gold:T.inputBorder}`,background:data.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:data.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
+      </div>
+    </div></>)});
   // CHANGE 6: Plan selection only — payment handled on dedicated screen
   steps.push({content:(
-    <>
-      <div style={{background:T.green,borderRadius:"12px",padding:"12px 14px",marginBottom:"18px",textAlign:"center"}}>
-        <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:"#8de0b0",marginBottom:"2px"}}>Your Goal</p>
-        <p style={{fontSize:"13px",fontWeight:"700",color:"#d0f0e0",lineHeight:1.4}}>Build a well-trained, confident pet with daily guidance</p>
-      </div>
-      <SectionTitle>Choose Your Plan</SectionTitle>
-      <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"12px"}}>
-        {[
-          {id:"monthly",name:"Monthly",price:"$14.99",per:"/mo",desc:"Full access to all training programs",badge:null,highlight:false,savings:null},
-          {id:"annual",name:"Annual",price:"$99",per:"/yr",desc:"Full access to all training programs",badge:"MOST POPULAR",highlight:true,savings:"Save $80/yr vs monthly — just $8.25/mo"},
-          {id:"pro",name:"Pro Coaching",price:"$39",per:"/mo",desc:"Full training programs + TRAINER MESSAGING + VIDEO FEEDBACK",badge:"PREMIUM",highlight:false,savings:null},        ].map(p=>(
-          <div key={p.id} onClick={()=>set("plan",p.id)} style={{padding:p.highlight?"16px":"13px 14px",borderRadius:"14px",cursor:"pointer",border:`2px solid ${data.plan===p.id?T.gold:p.highlight?"#B08D57":T.chipBorder}`,background:data.plan===p.id?"rgba(176,141,87,.15)":p.highlight?"rgba(176,141,87,.07)":T.chipBg,transition:"all .2s",position:"relative",transform:p.highlight?"scale(1.02)":"scale(1)"}}>
-            {p.badge&&<div style={{position:"absolute",top:"-10px",right:"10px",background:p.id==="annual"?T.gold:T.brown,color:"white",fontSize:"9px",fontWeight:"900",letterSpacing:".1em",padding:"3px 9px",borderRadius:"10px"}}>{p.badge}</div>}
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-              <div style={{flex:1}}>
-                <p style={{fontSize:p.highlight?"15px":"13.5px",fontWeight:"700",color:data.plan===p.id?T.gold:p.highlight?T.goldLight:T.text,marginBottom:"3px"}}>{p.name}</p>
-                <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.4}}>{p.desc}</p>
-                {p.savings&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>{p.savings}</p>}
-              </div>
-              <div style={{textAlign:"right",marginLeft:"10px"}}>
-                <span style={{fontSize:p.highlight?"20px":"16px",fontWeight:"900",color:T.gold}}>{p.price}</span>
-                <span style={{fontSize:"11px",color:T.textMuted}}>{p.per}</span>
-              </div>
-            </div>
+        <>
+          <div style={{background:T.green,borderRadius:"12px",padding:"12px 14px",marginBottom:"18px",textAlign:"center"}}>
+            <p style={{fontSize:"10px",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",color:"#8de0b0",marginBottom:"2px"}}>Your Goal</p>
+            <p style={{fontSize:"13px",fontWeight:"700",color:"#d0f0e0",lineHeight:1.4}}>Build a well-trained, confident pet with daily guidance</p>
           </div>
-        ))}
-      </div>
-      <div style={{display:"flex",justifyContent:"center",gap:"14px",marginBottom:"4px",flexWrap:"wrap"}}>
-        {["Cancel anytime","No contracts"].map(r=><span key={r} style={{fontSize:"11px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
-      </div>
-    </>
-  ),nextLabel:"Continue to Payment →"});
+          <SectionTitle>Choose Your Plan</SectionTitle>
+          <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"12px"}}>
+            {[
+              {id:"monthly",name:"Monthly",price:"$14.99",per:"/mo",desc:"Full access to all training programs",badge:null,highlight:false,savings:null},
+              {id:"annual",name:"Annual",price:"$99",per:"/yr",desc:"Full access to all training programs",badge:"MOST POPULAR",highlight:true,savings:"Save $80/yr vs monthly — just $8.25/mo"},
+              {id:"pro",name:"Pro Coaching",price:"$39",per:"/mo",desc:"Full training programs + TRAINER MESSAGING + VIDEO FEEDBACK",badge:"PREMIUM",highlight:false,savings:null},        ].map(p=>(
+                <div key={p.id} onClick={()=>set("plan",p.id)} style={{padding:p.highlight?"16px":"13px 14px",borderRadius:"14px",cursor:"pointer",border:`2px solid ${data.plan===p.id?T.gold:p.highlight?"#B08D57":T.chipBorder}`,background:data.plan===p.id?"rgba(176,141,87,.15)":p.highlight?"rgba(176,141,87,.07)":T.chipBg,transition:"all .2s",position:"relative",transform:p.highlight?"scale(1.02)":"scale(1)"}}>
+                  {p.badge&&<div style={{position:"absolute",top:"-10px",right:"10px",background:p.id==="annual"?T.gold:T.brown,color:"white",fontSize:"9px",fontWeight:"900",letterSpacing:".1em",padding:"3px 9px",borderRadius:"10px"}}>{p.badge}</div>}
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:p.highlight?"15px":"13.5px",fontWeight:"700",color:data.plan===p.id?T.gold:p.highlight?T.goldLight:T.text,marginBottom:"3px"}}>{p.name}</p>
+                      <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.4}}>{p.desc}</p>
+                      {p.savings&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>{p.savings}</p>}
+                    </div>
+                    <div style={{textAlign:"right",marginLeft:"10px"}}>
+                      <span style={{fontSize:p.highlight?"20px":"16px",fontWeight:"900",color:T.gold}}>{p.price}</span>
+                      <span style={{fontSize:"11px",color:T.textMuted}}>{p.per}</span>
+                    </div>
+                  </div>
+                </div>
+            ))}
+          </div>
+          <div style={{display:"flex",justifyContent:"center",gap:"14px",marginBottom:"4px",flexWrap:"wrap"}}>
+            {["Cancel anytime","No contracts"].map(r=><span key={r} style={{fontSize:"11px",color:T.success,fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="check" size={10} strokeWidth={3}/>{r}</span>)}
+          </div>
+        </>
+    ),nextLabel:"Continue to Payment →"});
   return steps;
 }
 
@@ -2590,99 +2610,99 @@ const ShareScreen = () => {
   };
 
   return (
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"18px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Share & Refer</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Spread the Word <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
-        <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px",lineHeight:1.55}}>Know someone whose dog could use some help? Share Guiding Paw and help them transform their relationship with their pup.</p>
-      </div>
+      <ScrollBody>
+        <div className="s1" style={{marginBottom:"18px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Share & Refer</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Spread the Word <Icon name="paw" size={17} style={{marginLeft:"2px"}}/></h2>
+          <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px",lineHeight:1.55}}>Know someone whose dog could use some help? Share Guiding Paw and help them transform their relationship with their pup.</p>
+        </div>
 
-      {/* Referral code card */}
-      <div className="s2" style={{background:T.mode==="dark"?"rgba(176,141,87,.1)":"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.35)`,borderRadius:"16px",padding:"18px",marginBottom:"14px",textAlign:"center"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px"}}>Your Referral Code</p>
-        <div style={{fontFamily:"'Inter',serif",fontSize:"32px",fontWeight:"900",color:T.text,letterSpacing:".2em",marginBottom:"8px"}}>{REFERRAL_CODE}</div>
-        <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Friends who use your code get a special welcome — and you're helping someone give their dog a better life.</p>
-        <button onClick={()=>handleCopy(REFERRAL_CODE)}
-          style={{background:T.gold,border:"none",borderRadius:"10px",padding:"10px 24px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",letterSpacing:".06em",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
-          {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Code"}
-        </button>
-      </div>
-
-      {/* Share link */}
-      <div className="s3" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Your Referral Link</p>
-        <div style={{display:"flex",gap:"8px",alignItems:"center"}}>
-          <div style={{flex:1,background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",padding:"9px 12px",overflow:"hidden"}}>
-            <p style={{fontSize:"11.5px",color:T.textMuted,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{REFERRAL_LINK}</p>
-          </div>
-          <button onClick={()=>handleCopy(REFERRAL_LINK)}
-            style={{background:T.gold,border:"none",borderRadius:"9px",padding:"9px 14px",fontSize:"12px",fontWeight:"700",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0,transition:"all .2s"}}>
-            {copied?<Icon name="check" size={11} strokeWidth={3}/>:"Copy"}
+        {/* Referral code card */}
+        <div className="s2" style={{background:T.mode==="dark"?"rgba(176,141,87,.1)":"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.35)`,borderRadius:"16px",padding:"18px",marginBottom:"14px",textAlign:"center"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px"}}>Your Referral Code</p>
+          <div style={{fontFamily:"'Inter',serif",fontSize:"32px",fontWeight:"900",color:T.text,letterSpacing:".2em",marginBottom:"8px"}}>{REFERRAL_CODE}</div>
+          <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Friends who use your code get a special welcome — and you're helping someone give their dog a better life.</p>
+          <button onClick={()=>handleCopy(REFERRAL_CODE)}
+                  style={{background:T.gold,border:"none",borderRadius:"10px",padding:"10px 24px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",letterSpacing:".06em",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
+            {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Code"}
           </button>
         </div>
-      </div>
 
-      {/* Native share button */}
-      <button onClick={handleNativeShare} className="btn-gold"
-        style={{width:"100%",padding:"13px",background:T.gold,color:"#fff",border:"none",borderRadius:"11px",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'Lato',sans-serif",cursor:"pointer",boxShadow:"0 4px 18px rgba(176,141,87,.28)",marginBottom:"14px",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
-        <Icon name="link" size={15} style={{marginRight:"3px"}}/> Share Guiding Paw
-      </button>
-
-      {/* Social platform buttons */}
-      <div className="s4" style={{marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"10px"}}>Share On</p>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px"}}>
-          {socials.map(({name,emoji,color,url,note})=>(
-            <button key={name}
-              onClick={()=>{ if(url){ window.open(url,"_blank"); } else { handleCopy(REFERRAL_LINK); setShareMsg(`Link copied — paste it on ${name}!`); } }}
-              style={{background:T.mode==="dark"?`${color}18`:`${color}12`,border:`1px solid ${color}44`,borderRadius:"12px",padding:"12px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:"9px",transition:"all .18s",textAlign:"left"}}
-              onMouseEnter={e=>{e.currentTarget.style.background=`${color}28`;e.currentTarget.style.borderColor=`${color}88`;}}
-              onMouseLeave={e=>{e.currentTarget.style.background=T.mode==="dark"?`${color}18`:`${color}12`;e.currentTarget.style.borderColor=`${color}44`;}}>
-              <span style={{flexShrink:0,color:T.text,display:"flex",alignItems:"center"}}><Icon name={emoji} size={19}/></span>
-              <div style={{minWidth:0}}>
-                <p style={{fontSize:"12px",fontWeight:"700",color:T.text,lineHeight:1.2}}>{name}</p>
-                {note&&<p style={{fontSize:"9.5px",color:T.textFaint,lineHeight:1.3,marginTop:"1px"}}>{note}</p>}
-              </div>
+        {/* Share link */}
+        <div className="s3" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Your Referral Link</p>
+          <div style={{display:"flex",gap:"8px",alignItems:"center"}}>
+            <div style={{flex:1,background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",padding:"9px 12px",overflow:"hidden"}}>
+              <p style={{fontSize:"11.5px",color:T.textMuted,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{REFERRAL_LINK}</p>
+            </div>
+            <button onClick={()=>handleCopy(REFERRAL_LINK)}
+                    style={{background:T.gold,border:"none",borderRadius:"9px",padding:"9px 14px",fontSize:"12px",fontWeight:"700",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0,transition:"all .2s"}}>
+              {copied?<Icon name="check" size={11} strokeWidth={3}/>:"Copy"}
             </button>
+          </div>
+        </div>
+
+        {/* Native share button */}
+        <button onClick={handleNativeShare} className="btn-gold"
+                style={{width:"100%",padding:"13px",background:T.gold,color:"#fff",border:"none",borderRadius:"11px",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'Lato',sans-serif",cursor:"pointer",boxShadow:"0 4px 18px rgba(176,141,87,.28)",marginBottom:"14px",display:"flex",alignItems:"center",justifyContent:"center",gap:"8px"}}>
+          <Icon name="link" size={15} style={{marginRight:"3px"}}/> Share Guiding Paw
+        </button>
+
+        {/* Social platform buttons */}
+        <div className="s4" style={{marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"10px"}}>Share On</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px"}}>
+            {socials.map(({name,emoji,color,url,note})=>(
+                <button key={name}
+                        onClick={()=>{ if(url){ window.open(url,"_blank"); } else { handleCopy(REFERRAL_LINK); setShareMsg(`Link copied — paste it on ${name}!`); } }}
+                        style={{background:T.mode==="dark"?`${color}18`:`${color}12`,border:`1px solid ${color}44`,borderRadius:"12px",padding:"12px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:"9px",transition:"all .18s",textAlign:"left"}}
+                        onMouseEnter={e=>{e.currentTarget.style.background=`${color}28`;e.currentTarget.style.borderColor=`${color}88`;}}
+                        onMouseLeave={e=>{e.currentTarget.style.background=T.mode==="dark"?`${color}18`:`${color}12`;e.currentTarget.style.borderColor=`${color}44`;}}>
+                  <span style={{flexShrink:0,color:T.text,display:"flex",alignItems:"center"}}><Icon name={emoji} size={19}/></span>
+                  <div style={{minWidth:0}}>
+                    <p style={{fontSize:"12px",fontWeight:"700",color:T.text,lineHeight:1.2}}>{name}</p>
+                    {note&&<p style={{fontSize:"9.5px",color:T.textFaint,lineHeight:1.3,marginTop:"1px"}}>{note}</p>}
+                  </div>
+                </button>
+            ))}
+          </div>
+        </div>
+
+        {shareMsg&&<p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"700",textAlign:"center",marginTop:"10px"}}>{shareMsg}</p>}
+
+        {/* Pre-written message */}
+        <div className="s5" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Ready-to-Send Message</p>
+          <div style={{background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",padding:"12px 14px",marginBottom:"10px"}}>
+            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.7}}>{shareText}</p>
+          </div>
+          <button onClick={()=>handleCopy(shareText)}
+                  style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",fontSize:"12px",fontWeight:"700",color:T.gold,cursor:"pointer",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
+            {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Message"}
+          </button>
+        </div>
+
+        {/* Social media follow */}
+        <div className="s6" style={{background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"14px",padding:"14px 16px"}}>
+          <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Follow Guiding Paw</p>
+          <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,marginBottom:"10px"}}>Stay connected for training tips, success stories, and community support.</p>
+          {[
+            {name:"Instagram",emoji:"camera",handle:"@guidingpawtraining",url:"https://instagram.com/guidingpawtraining"},
+            {name:"Facebook", emoji:"bookOpen",handle:"Guiding Paw Training",url:"https://facebook.com/guidingpawtraining"},
+            {name:"TikTok",   emoji:"music",handle:"@guidingpawtraining",url:"https://tiktok.com/@guidingpawtraining"},
+          ].map(({name,emoji,handle,url})=>(
+              <a key={name} href={url} target="_blank" rel="noopener noreferrer"
+                 style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:name!=="TikTok"?`1px solid ${T.divider}`:"none",textDecoration:"none"}}>
+                <span style={{width:"24px",display:"flex",justifyContent:"center",color:T.text}}><Icon name={emoji} size={17}/></span>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{name}</p>
+                  <p style={{fontSize:"11px",color:T.textFaint}}>{handle}</p>
+                </div>
+                <span style={{color:T.textFaint,fontSize:"14px"}}>›</span>
+              </a>
           ))}
         </div>
-      </div>
-
-      {shareMsg&&<p style={{fontSize:"11px",color:"#4caf7d",fontWeight:"700",textAlign:"center",marginTop:"10px"}}>{shareMsg}</p>}
-
-      {/* Pre-written message */}
-      <div className="s5" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Ready-to-Send Message</p>
-        <div style={{background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",padding:"12px 14px",marginBottom:"10px"}}>
-          <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.7}}>{shareText}</p>
-        </div>
-        <button onClick={()=>handleCopy(shareText)}
-          style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",fontSize:"12px",fontWeight:"700",color:T.gold,cursor:"pointer",fontFamily:"'Lato',sans-serif",transition:"all .2s"}}>
-          {copied?<><Icon name="check" size={11} strokeWidth={3}/> Copied!</>:"Copy Message"}
-        </button>
-      </div>
-
-      {/* Social media follow */}
-      <div className="s6" style={{background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"14px",padding:"14px 16px"}}>
-        <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"6px"}}>Follow Guiding Paw</p>
-        <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,marginBottom:"10px"}}>Stay connected for training tips, success stories, and community support.</p>
-        {[
-          {name:"Instagram",emoji:"camera",handle:"@guidingpawtraining",url:"https://instagram.com/guidingpawtraining"},
-          {name:"Facebook", emoji:"bookOpen",handle:"Guiding Paw Training",url:"https://facebook.com/guidingpawtraining"},
-          {name:"TikTok",   emoji:"music",handle:"@guidingpawtraining",url:"https://tiktok.com/@guidingpawtraining"},
-        ].map(({name,emoji,handle,url})=>(
-          <a key={name} href={url} target="_blank" rel="noopener noreferrer"
-            style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:name!=="TikTok"?`1px solid ${T.divider}`:"none",textDecoration:"none"}}>
-            <span style={{width:"24px",display:"flex",justifyContent:"center",color:T.text}}><Icon name={emoji} size={17}/></span>
-            <div style={{flex:1}}>
-              <p style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{name}</p>
-              <p style={{fontSize:"11px",color:T.textFaint}}>{handle}</p>
-            </div>
-            <span style={{color:T.textFaint,fontSize:"14px"}}>›</span>
-          </a>
-        ))}
-      </div>
-    </ScrollBody>
+      </ScrollBody>
   );
 };
 
@@ -2694,11 +2714,11 @@ const ShareScreen = () => {
 function getCurrentStdWeek(stdCompleted={}){
   const stdCurriculum = STANDARD_CURRICULUM;
   const isGraduated = stdCurriculum.filter(w=>!w.graduation).every(w=>
-    w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`])
+      w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`])
   );
   const idx = isGraduated
-    ? stdCurriculum.length - 1
-    : stdCurriculum.findIndex((w)=> !w.graduation && !w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]));
+      ? stdCurriculum.length - 1
+      : stdCurriculum.findIndex((w)=> !w.graduation && !w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]));
   const safeIdx = Math.max(0, idx);
   return { isGraduated, idx: safeIdx, week: stdCurriculum[safeIdx] };
 }
@@ -2734,9 +2754,9 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   const currentStdWeekIdx = stdCurrent.idx;
   const currentStdWeek = stdCurrent.week;
   const stdProgress = isGraduated ? 100 : Math.round(
-    (stdCurriculum.filter(w=>!w.graduation).filter(w=>
-      w.lessons.every(l=>!!(stdCompleted||{})[`${w.id}::${l}`])
-    ).length / stdCurriculum.filter(w=>!w.graduation).length) * 100
+      (stdCurriculum.filter(w=>!w.graduation).filter(w=>
+          w.lessons.every(l=>!!(stdCompleted||{})[`${w.id}::${l}`])
+      ).length / stdCurriculum.filter(w=>!w.graduation).length) * 100
   );
 
   // Puppy (shared with the Learn screen via getCurrentPuppyWeek)
@@ -2744,8 +2764,8 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   const currentPuppyWeekIdx = isPuppy ? puppyCurrent.idx : 0;
   const currentPuppyWeek = isPuppy ? puppyCurrent.week : PUPPY_CURRICULUM[0];
   const puppyProgress=isPuppy
-    ? Math.round((Object.keys(puppyWeekDone||{}).filter(k=>puppyWeekDone[k]).length / PUPPY_CURRICULUM.length)*100)
-    : 0;
+      ? Math.round((Object.keys(puppyWeekDone||{}).filter(k=>puppyWeekDone[k]).length / PUPPY_CURRICULUM.length)*100)
+      : 0;
 
   // ── Streak: loaded from Supabase (via puppyStreak prop), updated on assignment completion ──
   const [streak,setStreak]=useState(puppyStreak||0);
@@ -2765,18 +2785,18 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   // active week's tasks, or graduation/maintenance work once the program is done ──
   const graduationWeek = STANDARD_CURRICULUM[STANDARD_CURRICULUM.length-1];
   const trainingFocusTasks = isGraduated
-    ? (graduationWeek?.tasks||[])
-    : isPuppy
-      ? (currentPuppyWeek?.tasks||[])
-      : (currentStdWeek?.tasks||[]);
+      ? (graduationWeek?.tasks||[])
+      : isPuppy
+          ? (currentPuppyWeek?.tasks||[])
+          : (currentStdWeek?.tasks||[]);
   const trainingFocusLabel = isGraduated
-    ? "Graduation & Beyond"
-    : isPuppy
-      ? `${currentPuppyWeek?.label}: ${currentPuppyWeek?.sublabel}`
-      : (currentStdWeek?.label || "This Week");
+      ? "Graduation & Beyond"
+      : isPuppy
+          ? `${currentPuppyWeek?.label}: ${currentPuppyWeek?.sublabel}`
+          : (currentStdWeek?.label || "This Week");
   const trainingFocusDetail = trainingFocusTasks.length
-    ? trainingFocusTasks.slice(0,2).map(t=>t.name).join(" · ")
-    : "Recall";
+      ? trainingFocusTasks.slice(0,2).map(t=>t.name).join(" · ")
+      : "Recall";
 
   // ── CHANGE 5: Enrichment suggestion pulled from the pup's breed profile ──
   const enrichmentDetail = bd.enrichment || "Puzzle toy or scent-based sniff game";
@@ -2796,306 +2816,306 @@ const DashboardScreen = ({petData,plan,onOpenRecord,puppyWeekDone,puppyStreak,st
   const pottyDone=pottyActive&&pottyRemaining===0;
 
   return (
-    <ScrollBody>
-      <div className="s1" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",gap:"10px"}}>
-        <div>
-          <p style={{fontSize:"11px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase"}}>Welcome</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>{petName}'s Dashboard</h2>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
-          {/* Small live potty-timer badge — visible from the dashboard while the timer runs */}
-          {pottyActive&&(
-            <button onClick={onOpenPottyTimer} title="Potty timer"
-              style={{display:"flex",alignItems:"center",gap:"5px",padding:"5px 10px",borderRadius:"20px",cursor:"pointer",fontFamily:"'Lato',sans-serif",
-                background:pottyDone?"rgba(224,122,95,.14)":"rgba(176,141,87,.14)",
-                border:`1px solid ${pottyDone?"#e07a5f":T.gold}`}}>
-              <Icon name="droplet" size={12} color={pottyDone?"#e07a5f":T.gold}/>
-              <span style={{fontSize:"11px",fontWeight:"900",color:pottyDone?"#e07a5f":T.gold,fontVariantNumeric:"tabular-nums"}}>
+      <ScrollBody>
+        <div className="s1" style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px",gap:"10px"}}>
+          <div>
+            <p style={{fontSize:"11px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase"}}>Welcome</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>{petName}'s Dashboard</h2>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:"10px",flexShrink:0}}>
+            {/* Small live potty-timer badge — visible from the dashboard while the timer runs */}
+            {pottyActive&&(
+                <button onClick={onOpenPottyTimer} title="Potty timer"
+                        style={{display:"flex",alignItems:"center",gap:"5px",padding:"5px 10px",borderRadius:"20px",cursor:"pointer",fontFamily:"'Lato',sans-serif",
+                          background:pottyDone?"rgba(224,122,95,.14)":"rgba(176,141,87,.14)",
+                          border:`1px solid ${pottyDone?"#e07a5f":T.gold}`}}>
+                  <Icon name="droplet" size={12} color={pottyDone?"#e07a5f":T.gold}/>
+                  <span style={{fontSize:"11px",fontWeight:"900",color:pottyDone?"#e07a5f":T.gold,fontVariantNumeric:"tabular-nums"}}>
                 {pottyDone?"GO NOW!":fmtPottyTime(pottyRemaining)}
               </span>
-            </button>
-          )}
-          <LogoImg size={38}/>
-        </div>
-      </div>
-
-      {/* Daily Trainer Tip */}
-      <div className="s1" style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"14px",padding:"13px 15px",marginBottom:"13px",display:"flex",gap:"11px",alignItems:"flex-start"}}>
-        <span style={{flexShrink:0,marginTop:"1px",color:T.gold}}><Icon name={dailyTip.emoji} size={22}/></span>
-        <div>
-          <p style={{fontSize:"9px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Trainer Tip of the Day</p>
-          <p style={{fontSize:"12.5px",color:T.text,lineHeight:1.6,fontStyle:"italic"}}>"{dailyTip.tip}"</p>
-        </div>
-      </div>
-
-      {/* Streak + Progress */}
-      <div className="s2" style={{display:"flex",gap:"10px",marginBottom:"13px"}}>
-        <div style={{width:"84px",flexShrink:0,background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"14px",padding:"12px 8px",textAlign:"center"}}>
-          <div style={{marginBottom:"2px",display:"flex",color:isGraduated?T.gold:"#e07a5f"}}><Icon name={isGraduated?"trophy":"flame"} size={22}/></div>
-          <div style={{fontSize:"22px",fontWeight:"900",color:T.gold,lineHeight:1}}>{streak}</div>
-          <div style={{fontSize:"8px",color:T.textMuted,letterSpacing:".07em",textTransform:"uppercase",marginTop:"3px",lineHeight:1.3}}>{isGraduated?"Day\nStreak":"Active\nDays"}</div>
-        </div>
-        <div style={{flex:1,background:T.progressCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"12px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",marginBottom:"5px"}}>
-            <span style={{fontSize:"10px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".07em"}}>Progress</span>
-            <span style={{fontSize:"11px",fontWeight:"700",color:T.gold}}>{isPuppy?puppyProgress:stdProgress}%</span>
+                </button>
+            )}
+            <LogoImg size={38}/>
           </div>
-          <div style={{background:T.mode==="dark"?"rgba(255,255,255,.08)":"rgba(0,0,0,.08)",borderRadius:"5px",height:"7px",overflow:"hidden",marginBottom:"6px"}}>
-            <div style={{width:`${isPuppy?puppyProgress:stdProgress}%`,height:"100%",background:`linear-gradient(90deg,${T.green},${T.gold})`,borderRadius:"5px",transition:"width .5s"}}/>
+        </div>
+
+        {/* Daily Trainer Tip */}
+        <div className="s1" style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"14px",padding:"13px 15px",marginBottom:"13px",display:"flex",gap:"11px",alignItems:"flex-start"}}>
+          <span style={{flexShrink:0,marginTop:"1px",color:T.gold}}><Icon name={dailyTip.emoji} size={22}/></span>
+          <div>
+            <p style={{fontSize:"9px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Trainer Tip of the Day</p>
+            <p style={{fontSize:"12.5px",color:T.text,lineHeight:1.6,fontStyle:"italic"}}>"{dailyTip.tip}"</p>
           </div>
-          <p style={{fontSize:"10.5px",color:T.textMuted}}>
-            {isPuppy
-              ? <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentPuppyWeek.label} — {currentPuppyWeek.sublabel}</span></>
-              : isGraduated
-                ? <span style={{color:"#4caf7d",fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="gradCap" size={12}/>Program Complete — Maintenance Mode</span>
-                : <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentStdWeek?.label}</span></>
-            }
-          </p>
-          {!isPuppy && !isGraduated && streak > 0 && (
-            <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>
-              <Icon name="flame" size={12} style={{marginRight:"3px"}}/>{streak}-day streak — keep going!
+        </div>
+
+        {/* Streak + Progress */}
+        <div className="s2" style={{display:"flex",gap:"10px",marginBottom:"13px"}}>
+          <div style={{width:"84px",flexShrink:0,background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"14px",padding:"12px 8px",textAlign:"center"}}>
+            <div style={{marginBottom:"2px",display:"flex",color:isGraduated?T.gold:"#e07a5f"}}><Icon name={isGraduated?"trophy":"flame"} size={22}/></div>
+            <div style={{fontSize:"22px",fontWeight:"900",color:T.gold,lineHeight:1}}>{streak}</div>
+            <div style={{fontSize:"8px",color:T.textMuted,letterSpacing:".07em",textTransform:"uppercase",marginTop:"3px",lineHeight:1.3}}>{isGraduated?"Day\nStreak":"Active\nDays"}</div>
+          </div>
+          <div style={{flex:1,background:T.progressCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"12px"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:"5px"}}>
+              <span style={{fontSize:"10px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".07em"}}>Progress</span>
+              <span style={{fontSize:"11px",fontWeight:"700",color:T.gold}}>{isPuppy?puppyProgress:stdProgress}%</span>
+            </div>
+            <div style={{background:T.mode==="dark"?"rgba(255,255,255,.08)":"rgba(0,0,0,.08)",borderRadius:"5px",height:"7px",overflow:"hidden",marginBottom:"6px"}}>
+              <div style={{width:`${isPuppy?puppyProgress:stdProgress}%`,height:"100%",background:`linear-gradient(90deg,${T.green},${T.gold})`,borderRadius:"5px",transition:"width .5s"}}/>
+            </div>
+            <p style={{fontSize:"10.5px",color:T.textMuted}}>
+              {isPuppy
+                  ? <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentPuppyWeek.label} — {currentPuppyWeek.sublabel}</span></>
+                  : isGraduated
+                      ? <span style={{color:"#4caf7d",fontWeight:"700",display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="gradCap" size={12}/>Program Complete — Maintenance Mode</span>
+                      : <>Phase: <span style={{color:T.text,fontWeight:"700"}}>{currentStdWeek?.label}</span></>
+              }
             </p>
-          )}
+            {!isPuppy && !isGraduated && streak > 0 && (
+                <p style={{fontSize:"10px",color:T.textFaint,marginTop:"3px"}}>
+                  <Icon name="flame" size={12} style={{marginRight:"3px"}}/>{streak}-day streak — keep going!
+                </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Puppy Daily Schedule block — shown only for puppy program */}
-      {isPuppy && (
-        <div className="s3" style={{background:T.assignCard,border:`1px solid ${T.cardInnerBorder}`,borderLeft:`4px solid #4caf7d`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(76,175,125,.1)":"0 4px 20px rgba(76,175,125,.15)"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
-            <div style={{flex:1}}>
-              <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Puppy Daily Schedule</p>
-              <p style={{fontFamily:"'Inter',serif",fontSize:"16px",fontWeight:"700",color:T.text,lineHeight:1.25}}>{currentPuppyWeek.label}: {currentPuppyWeek.sublabel}</p>
-            </div>
-            <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
-              <div style={{fontSize:"9px",fontWeight:"700",color:"#4caf7d"}}>WEEK</div>
-              <div style={{fontSize:"18px",fontWeight:"900",color:"#4caf7d"}}>{currentPuppyWeekIdx+1}</div>
-            </div>
-          </div>
-          {PUPPY_DAILY_SCHEDULE[currentPuppyWeek.id]?.map((item,i,arr)=>(
-            <div key={item.time+item.task} style={{display:"flex",alignItems:"flex-start",gap:"10px",padding:"9px 0",borderBottom:i<arr.length-1?`1px solid ${T.divider}`:"none"}}>
-              <div style={{background:"rgba(76,175,125,.15)",borderRadius:"7px",padding:"4px 8px",flexShrink:0,minWidth:"52px",textAlign:"center"}}>
-                <span style={{fontSize:"10.5px",fontWeight:"900",color:"#4caf7d"}}>{item.time}</span>
+        {/* Puppy Daily Schedule block — shown only for puppy program */}
+        {isPuppy && (
+            <div className="s3" style={{background:T.assignCard,border:`1px solid ${T.cardInnerBorder}`,borderLeft:`4px solid #4caf7d`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(76,175,125,.1)":"0 4px 20px rgba(76,175,125,.15)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Puppy Daily Schedule</p>
+                  <p style={{fontFamily:"'Inter',serif",fontSize:"16px",fontWeight:"700",color:T.text,lineHeight:1.25}}>{currentPuppyWeek.label}: {currentPuppyWeek.sublabel}</p>
+                </div>
+                <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
+                  <div style={{fontSize:"9px",fontWeight:"700",color:"#4caf7d"}}>WEEK</div>
+                  <div style={{fontSize:"18px",fontWeight:"900",color:"#4caf7d"}}>{currentPuppyWeekIdx+1}</div>
+                </div>
               </div>
-              <div style={{flex:1}}>
-                <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}><Linkify text={item.task} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
-                <p style={{fontSize:"10.5px",color:T.textMuted}}><Linkify text={item.detail} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
-              </div>
-              <span style={{flexShrink:0}}><Icon name={item.emoji} size={16}/></span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Standard: Today's Assignment — current week tasks */}
-      {!isPuppy && !isGraduated && currentStdWeek && (
-      <div className="s3" style={{background:T.assignCard,border:`1px solid ${T.cardInnerBorder}`,borderLeft:`4px solid ${T.gold}`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(176,141,87,.12)":"0 4px 20px rgba(176,141,87,.18)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"8px"}}>
-          <div style={{flex:1}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Today's Assignment</p>
-            <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,lineHeight:1.2}}>{currentStdWeek.label}</p>
-            {currentStdWeek.goal && <p style={{fontSize:"11px",color:T.textMuted,marginTop:"4px",lineHeight:1.5}}>{currentStdWeek.goal.slice(0,120)}{currentStdWeek.goal.length>120?"…":""}</p>}
-          </div>
-          <div style={{background:"rgba(176,141,87,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
-            <div style={{fontSize:"9px",fontWeight:"700",color:T.gold}}>WEEK</div>
-            <div style={{fontSize:"18px",fontWeight:"900",color:T.gold}}>{currentStdWeekIdx}</div>
-          </div>
-        </div>
-        {/* Task checklist from weekly sheet */}
-        {currentStdWeek.tasks && currentStdWeek.tasks.length > 0 && (
-          <div style={{marginTop:"10px",marginBottom:"12px"}}>
-            <p style={{fontSize:"9px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"7px"}}>Today's Tasks</p>
-            {currentStdWeek.tasks.map((task,ti)=>{
-              const done=!!assignDone[task.name];
-              return (
-                <div key={ti} onClick={()=>handleAssignComplete(task.name)}
-                  style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(176,141,87,.05)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(176,141,87,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
-                  <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                    {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
+              {PUPPY_DAILY_SCHEDULE[currentPuppyWeek.id]?.map((item,i,arr)=>(
+                  <div key={item.time+item.task} style={{display:"flex",alignItems:"flex-start",gap:"10px",padding:"9px 0",borderBottom:i<arr.length-1?`1px solid ${T.divider}`:"none"}}>
+                    <div style={{background:"rgba(76,175,125,.15)",borderRadius:"7px",padding:"4px 8px",flexShrink:0,minWidth:"52px",textAlign:"center"}}>
+                      <span style={{fontSize:"10.5px",fontWeight:"900",color:"#4caf7d"}}>{item.time}</span>
+                    </div>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}><Linkify text={item.task} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
+                      <p style={{fontSize:"10.5px",color:T.textMuted}}><Linkify text={item.detail} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="puppy"/></p>
+                    </div>
+                    <span style={{flexShrink:0}}><Icon name={item.emoji} size={16}/></span>
                   </div>
+              ))}
+            </div>
+        )}
+
+        {/* Standard: Today's Assignment — current week tasks */}
+        {!isPuppy && !isGraduated && currentStdWeek && (
+            <div className="s3" style={{background:T.assignCard,border:`1px solid ${T.cardInnerBorder}`,borderLeft:`4px solid ${T.gold}`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(176,141,87,.12)":"0 4px 20px rgba(176,141,87,.18)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"8px"}}>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Today's Assignment</p>
+                  <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,lineHeight:1.2}}>{currentStdWeek.label}</p>
+                  {currentStdWeek.goal && <p style={{fontSize:"11px",color:T.textMuted,marginTop:"4px",lineHeight:1.5}}>{currentStdWeek.goal.slice(0,120)}{currentStdWeek.goal.length>120?"…":""}</p>}
+                </div>
+                <div style={{background:"rgba(176,141,87,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
+                  <div style={{fontSize:"9px",fontWeight:"700",color:T.gold}}>WEEK</div>
+                  <div style={{fontSize:"18px",fontWeight:"900",color:T.gold}}>{currentStdWeekIdx}</div>
+                </div>
+              </div>
+              {/* Task checklist from weekly sheet */}
+              {currentStdWeek.tasks && currentStdWeek.tasks.length > 0 && (
+                  <div style={{marginTop:"10px",marginBottom:"12px"}}>
+                    <p style={{fontSize:"9px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"7px"}}>Today's Tasks</p>
+                    {currentStdWeek.tasks.map((task,ti)=>{
+                      const done=!!assignDone[task.name];
+                      return (
+                          <div key={ti} onClick={()=>handleAssignComplete(task.name)}
+                               style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(176,141,87,.05)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(176,141,87,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
+                            <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
+                              {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
+                            </div>
+                            <div style={{flex:1,minWidth:0}}>
+                              <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
+                              <p style={{fontSize:"10px",color:T.textFaint}}>{task.sessionsPerDay} sessions/day · {task.sessionLength}</p>
+                            </div>
+                          </div>
+                      );
+                    })}
+                  </div>
+              )}
+              {breed ? (
+                  <div style={{background:T.mode==="dark"?"rgba(176,141,87,.07)":"rgba(176,141,87,.06)",border:`1px solid rgba(176,141,87,.22)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"7px",marginBottom:"7px"}}>
+                      <div style={{background:T.gold,borderRadius:"6px",padding:"3px 9px"}}>
+                        <span style={{fontSize:"9px",fontWeight:"900",color:"#fff",letterSpacing:".1em",textTransform:"uppercase",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="dog" size={10}/>{breed}</span>
+                      </div>
+                      <span style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".08em",textTransform:"uppercase"}}>Breed Insights</span>
+                    </div>
+                    <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}>{bd.tip}</p>
+                  </div>
+              ) : (
+                  <div style={{background:T.mode==="dark"?"rgba(176,141,87,.06)":"rgba(176,141,87,.04)",border:`1px solid rgba(176,141,87,.15)`,borderRadius:"10px",padding:"10px 13px",marginBottom:"12px"}}>
+                    <p style={{fontSize:"11.5px",color:T.textFaint,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0}}/><span>Add your dog's breed in <span style={{color:T.gold,fontWeight:"700"}}>Settings → Pet Profile</span> for breed-specific tips.</span></p>
+                  </div>
+              )}
+              {Object.keys(assignDone).length > 0 && (
+                  <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
+                    <Icon name="flame" size={16} color="#e07a5f"/>
+                    <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>
+                      {Object.values(assignDone).filter(Boolean).length}/{currentStdWeek.tasks.length} tasks done today — streak: {streak} day{streak!==1?"s":""}!
+                    </p>
+                  </div>
+              )}
+            </div>
+        )}
+
+        {/* Graduation: Maintenance Plan */}
+        {!isPuppy && isGraduated && (
+            <div className="s3" style={{background:T.assignCard,border:`1px solid rgba(76,175,125,.35)`,borderLeft:`4px solid #4caf7d`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(76,175,125,.1)":"0 4px 20px rgba(76,175,125,.15)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}><Icon name="gradCap" size={10} style={{marginRight:"3px"}}/>Maintenance Plan</p>
+                  <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,lineHeight:1.2}}>Graduation & Beyond</p>
+                  <p style={{fontSize:"11px",color:T.textMuted,marginTop:"4px",lineHeight:1.5}}>Keep skills sharp with daily integration. Your streak tracks how often you log in and stay active.</p>
+                </div>
+                <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
+                  <Icon name="trophy" size={16} color={T.gold}/>
+                  <div style={{fontSize:"8px",fontWeight:"700",color:"#4caf7d",marginTop:"2px"}}>GRAD</div>
+                </div>
+              </div>
+              {STANDARD_CURRICULUM[STANDARD_CURRICULUM.length-1]?.tasks?.map((task,ti)=>{
+                const done=!!assignDone[task.name];
+                return (
+                    <div key={ti} onClick={()=>handleAssignComplete(task.name)}
+                         style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(76,175,125,.04)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(76,175,125,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
+                      <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":"rgba(76,175,125,.4)"}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
+                        {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
+                      </div>
+                      <div style={{flex:1,minWidth:0}}>
+                        <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
+                        <p style={{fontSize:"10px",color:T.textFaint}}>{task.sessionsPerDay} sessions/day · {task.sessionLength}</p>
+                      </div>
+                    </div>
+                );
+              })}
+              {Object.keys(assignDone).length > 0 && (
+                  <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px",marginTop:"8px"}}>
+                    <Icon name="trophy" size={16} color={T.gold}/>
+                    <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Active {streak} day{streak!==1?"s":""} — great maintenance!</p>
+                  </div>
+              )}
+            </div>
+        )}
+
+        {/* CHANGE 5: Daily Routine Builder */}
+        <div className="s4" style={{background:T.routineCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"13px"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
+            <div>
+              <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Daily Routine Builder</p>
+              <p style={{fontFamily:"'Inter',serif",fontSize:"14px",color:T.text,fontWeight:"700"}}>Today's Plan for {petName}</p>
+            </div>
+          </div>
+          {routineItems.map(({icon,label,detail,sub},i)=>{
+            const done=!!routineDone[i];
+            const isGame=label==="Engagement Game";
+            return (
+                <div key={label} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<routineItems.length-1?`1px solid ${T.divider}`:"none",cursor:"pointer"}}
+                     onClick={()=>setRoutineDone(r=>({...r,[i]:!r[i]}))}>
+                  <span style={{width:"28px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={19}/></span>
                   <div style={{flex:1,minWidth:0}}>
-                    <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
-                    <p style={{fontSize:"10px",color:T.textFaint}}>{task.sessionsPerDay} sessions/day · {task.sessionLength}</p>
+                    <p style={{fontSize:"13px",fontWeight:"700",color:done?T.textMuted:T.text,textDecoration:done?"line-through":"none"}}>{label}</p>
+                    <p style={{fontSize:"11px",color:T.textFaint,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{detail}</p>
+                    {sub&&<p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",marginTop:"1px"}}>{sub}</p>}
+                  </div>
+                  {isGame&&(
+                      <button onClick={(e)=>{e.stopPropagation();setShowGameInfo(true);}} title="How to play"
+                              style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"4px",cursor:"pointer",flexShrink:0,color:T.gold,fontSize:"10px",fontWeight:"700",fontFamily:"'Lato',sans-serif"}}>
+                        <Icon name="info" size={12}/>How to Play
+                      </button>
+                  )}
+                  <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
+                    {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-        {breed ? (
-          <div style={{background:T.mode==="dark"?"rgba(176,141,87,.07)":"rgba(176,141,87,.06)",border:`1px solid rgba(176,141,87,.22)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"7px",marginBottom:"7px"}}>
-              <div style={{background:T.gold,borderRadius:"6px",padding:"3px 9px"}}>
-                <span style={{fontSize:"9px",fontWeight:"900",color:"#fff",letterSpacing:".1em",textTransform:"uppercase",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="dog" size={10}/>{breed}</span>
-              </div>
-              <span style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".08em",textTransform:"uppercase"}}>Breed Insights</span>
-            </div>
-            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}>{bd.tip}</p>
-          </div>
-        ) : (
-          <div style={{background:T.mode==="dark"?"rgba(176,141,87,.06)":"rgba(176,141,87,.04)",border:`1px solid rgba(176,141,87,.15)`,borderRadius:"10px",padding:"10px 13px",marginBottom:"12px"}}>
-            <p style={{fontSize:"11.5px",color:T.textFaint,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0}}/><span>Add your dog's breed in <span style={{color:T.gold,fontWeight:"700"}}>Settings → Pet Profile</span> for breed-specific tips.</span></p>
-          </div>
-        )}
-        {Object.keys(assignDone).length > 0 && (
-          <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
-            <Icon name="flame" size={16} color="#e07a5f"/>
-            <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>
-              {Object.values(assignDone).filter(Boolean).length}/{currentStdWeek.tasks.length} tasks done today — streak: {streak} day{streak!==1?"s":""}!
-            </p>
-          </div>
-        )}
-      </div>
-      )}
+            );
+          })}
+        </div>
 
-      {/* Graduation: Maintenance Plan */}
-      {!isPuppy && isGraduated && (
-      <div className="s3" style={{background:T.assignCard,border:`1px solid rgba(76,175,125,.35)`,borderLeft:`4px solid #4caf7d`,borderRadius:"16px",padding:"16px",marginBottom:"13px",boxShadow:T.mode==="dark"?"0 4px 20px rgba(76,175,125,.1)":"0 4px 20px rgba(76,175,125,.15)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"10px"}}>
+        {/* How-to-play instructions for today's featured Engagement Game */}
+        {showGameInfo&&(
+            <>
+              <div onClick={()=>setShowGameInfo(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
+              <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(360px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"20px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"6px"}}>
+                  <div>
+                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"4px"}}>Today's Engagement Game</p>
+                    <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text}}>{featuredGame.name}</h3>
+                  </div>
+                  <button onClick={()=>setShowGameInfo(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="x" size={16}/></button>
+                </div>
+                <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"16px"}}>{featuredGame.time} · {featuredGame.level}</p>
+
+                <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
+                <p style={{fontSize:"13px",color:T.text,marginBottom:"16px"}}>{featuredGame.materials}</p>
+
+                <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
+                <ol style={{margin:0,paddingLeft:"18px",marginBottom:"16px"}}>
+                  {featuredGame.steps.map((s,si)=>(
+                      <li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.6,marginBottom:"6px"}}>{s}</li>
+                  ))}
+                </ol>
+
+                <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
+                  <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"5px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {featuredGame.tip}</span></p>
+                </div>
+              </div>
+            </>
+        )}
+
+        {/* Quick stats */}
+        <div className="s5" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px",marginBottom:"13px"}}>
+          {[{label:"Sessions Done",value:"14"},{label:"This Week",value:"3/5"}].map(({label,value})=>(
+              <div key={label} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:"18px",fontWeight:"900",color:T.gold}}>{value}</div>
+                <div style={{fontSize:"9.5px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".06em"}}>{label}</div>
+              </div>
+          ))}
+        </div>
+        {/* Pet Life Record card */}
+        <div
+            className="s6"
+            onClick={onOpenRecord}
+            style={{
+              background:T.green,
+              border:`1px solid rgba(176,141,87,.25)`,
+              borderRadius:"16px",padding:"14px 16px",
+              marginBottom:"13px",cursor:"pointer",
+              display:"flex",alignItems:"center",gap:"12px",
+              boxShadow:"0 4px 16px rgba(0,0,0,.18)",
+              transition:"transform .18s, box-shadow .18s",
+              position:"relative",overflow:"hidden",
+            }}
+            onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,.28)";}}
+            onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.18)";}}
+        >
+          <div style={{width:"44px",height:"44px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold,overflow:"hidden"}}>
+            {petData?.photoUrl
+                ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : <Icon name="paw" size={22}/>}
+          </div>
           <div style={{flex:1}}>
-            <p style={{fontSize:"10px",color:"#4caf7d",fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}><Icon name="gradCap" size={10} style={{marginRight:"3px"}}/>Maintenance Plan</p>
-            <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,lineHeight:1.2}}>Graduation & Beyond</p>
-            <p style={{fontSize:"11px",color:T.textMuted,marginTop:"4px",lineHeight:1.5}}>Keep skills sharp with daily integration. Your streak tracks how often you log in and stay active.</p>
-          </div>
-          <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 9px",textAlign:"center",flexShrink:0,marginLeft:"10px"}}>
-            <Icon name="trophy" size={16} color={T.gold}/>
-            <div style={{fontSize:"8px",fontWeight:"700",color:"#4caf7d",marginTop:"2px"}}>GRAD</div>
-          </div>
-        </div>
-        {STANDARD_CURRICULUM[STANDARD_CURRICULUM.length-1]?.tasks?.map((task,ti)=>{
-          const done=!!assignDone[task.name];
-          return (
-            <div key={ti} onClick={()=>handleAssignComplete(task.name)}
-              style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",borderRadius:"9px",marginBottom:"4px",background:done?"rgba(76,175,125,.08)":"rgba(76,175,125,.04)",border:`1px solid ${done?"rgba(76,175,125,.3)":"rgba(76,175,125,.12)"}`,cursor:"pointer",transition:"all .2s"}}>
-              <div style={{width:"20px",height:"20px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":"rgba(76,175,125,.4)"}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                {done&&<Icon name="check" size={10} color="#fff" strokeWidth={3}/>}
-              </div>
-              <div style={{flex:1,minWidth:0}}>
-                <p style={{fontSize:"12px",fontWeight:"600",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",lineHeight:1.3}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context="standard"/></p>
-                <p style={{fontSize:"10px",color:T.textFaint}}>{task.sessionsPerDay} sessions/day · {task.sessionLength}</p>
-              </div>
-            </div>
-          );
-        })}
-        {Object.keys(assignDone).length > 0 && (
-          <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"9px 13px",display:"flex",alignItems:"center",gap:"8px",marginTop:"8px"}}>
-            <Icon name="trophy" size={16} color={T.gold}/>
-            <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Active {streak} day{streak!==1?"s":""} — great maintenance!</p>
-          </div>
-        )}
-      </div>
-      )}
-
-      {/* CHANGE 5: Daily Routine Builder */}
-      <div className="s4" style={{background:T.routineCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"13px"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
-          <div>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Daily Routine Builder</p>
-            <p style={{fontFamily:"'Inter',serif",fontSize:"14px",color:T.text,fontWeight:"700"}}>Today's Plan for {petName}</p>
-          </div>
-        </div>
-        {routineItems.map(({icon,label,detail,sub},i)=>{
-          const done=!!routineDone[i];
-          const isGame=label==="Engagement Game";
-          return (
-            <div key={label} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<routineItems.length-1?`1px solid ${T.divider}`:"none",cursor:"pointer"}}
-              onClick={()=>setRoutineDone(r=>({...r,[i]:!r[i]}))}>
-              <span style={{width:"28px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={19}/></span>
-              <div style={{flex:1,minWidth:0}}>
-                <p style={{fontSize:"13px",fontWeight:"700",color:done?T.textMuted:T.text,textDecoration:done?"line-through":"none"}}>{label}</p>
-                <p style={{fontSize:"11px",color:T.textFaint,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{detail}</p>
-                {sub&&<p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",marginTop:"1px"}}>{sub}</p>}
-              </div>
-              {isGame&&(
-                <button onClick={(e)=>{e.stopPropagation();setShowGameInfo(true);}} title="How to play"
-                  style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"4px",cursor:"pointer",flexShrink:0,color:T.gold,fontSize:"10px",fontWeight:"700",fontFamily:"'Lato',sans-serif"}}>
-                  <Icon name="info" size={12}/>How to Play
-                </button>
-              )}
-              <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"all .2s"}}>
-                {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* How-to-play instructions for today's featured Engagement Game */}
-      {showGameInfo&&(
-        <>
-          <div onClick={()=>setShowGameInfo(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
-          <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(360px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"20px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"6px"}}>
-              <div>
-                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"4px"}}>Today's Engagement Game</p>
-                <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text}}>{featuredGame.name}</h3>
-              </div>
-              <button onClick={()=>setShowGameInfo(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="x" size={16}/></button>
-            </div>
-            <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"16px"}}>{featuredGame.time} · {featuredGame.level}</p>
-
-            <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
-            <p style={{fontSize:"13px",color:T.text,marginBottom:"16px"}}>{featuredGame.materials}</p>
-
-            <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
-            <ol style={{margin:0,paddingLeft:"18px",marginBottom:"16px"}}>
-              {featuredGame.steps.map((s,si)=>(
-                <li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.6,marginBottom:"6px"}}>{s}</li>
-              ))}
-            </ol>
-
-            <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
-              <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"5px"}}><Icon name="bulb" size={12} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {featuredGame.tip}</span></p>
+            <p style={{fontSize:"10px",color:"rgba(255,255,255,.5)",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"3px"}}>Full Profile</p>
+            <p style={{fontFamily:"'Inter',serif",fontSize:"15px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}'s Life Record</p>
+            <div style={{display:"flex",gap:"10px"}}>
+              <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="flame" size={10}/>7-day streak</span>
+              <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="syringe" size={10}/>Vaccines <Icon name="check" size={10} strokeWidth={3}/></span>
+              <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="run" size={10}/>1.2mi</span>
             </div>
           </div>
-        </>
-      )}
-
-      {/* Quick stats */}
-      <div className="s5" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"9px",marginBottom:"13px"}}>
-        {[{label:"Sessions Done",value:"14"},{label:"This Week",value:"3/5"}].map(({label,value})=>(
-          <div key={label} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",padding:"12px",textAlign:"center"}}>
-            <div style={{fontSize:"18px",fontWeight:"900",color:T.gold}}>{value}</div>
-            <div style={{fontSize:"9.5px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".06em"}}>{label}</div>
-          </div>
-        ))}
-      </div>
-      {/* Pet Life Record card */}
-      <div
-        className="s6"
-        onClick={onOpenRecord}
-        style={{
-          background:T.green,
-          border:`1px solid rgba(176,141,87,.25)`,
-          borderRadius:"16px",padding:"14px 16px",
-          marginBottom:"13px",cursor:"pointer",
-          display:"flex",alignItems:"center",gap:"12px",
-          boxShadow:"0 4px 16px rgba(0,0,0,.18)",
-          transition:"transform .18s, box-shadow .18s",
-          position:"relative",overflow:"hidden",
-        }}
-        onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-1px)";e.currentTarget.style.boxShadow="0 8px 24px rgba(0,0,0,.28)";}}
-        onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,0,0,.18)";}}
-      >
-        <div style={{width:"44px",height:"44px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold,overflow:"hidden"}}>
-          {petData?.photoUrl
-            ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-            : <Icon name="paw" size={22}/>}
+          <div style={{color:"rgba(255,255,255,.4)",fontSize:"18px",flexShrink:0}}>›</div>
         </div>
-        <div style={{flex:1}}>
-          <p style={{fontSize:"10px",color:"rgba(255,255,255,.5)",fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"3px"}}>Full Profile</p>
-          <p style={{fontFamily:"'Inter',serif",fontSize:"15px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}'s Life Record</p>
-          <div style={{display:"flex",gap:"10px"}}>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="flame" size={10}/>7-day streak</span>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="syringe" size={10}/>Vaccines <Icon name="check" size={10} strokeWidth={3}/></span>
-            <span style={{fontSize:"10px",color:"rgba(255,255,255,.6)",display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="run" size={10}/>1.2mi</span>
-          </div>
-        </div>
-        <div style={{color:"rgba(255,255,255,.4)",fontSize:"18px",flexShrink:0}}>›</div>
-      </div>
 
-      {plan==="pro"&&<div style={{background:T.progressCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"12px",display:"flex",alignItems:"center",gap:"10px",marginBottom:"13px"}}><span style={{fontSize:"22px"}}></span><div style={{flex:1}}><p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Pro Coaching Active</p><p style={{fontSize:"11px",color:T.textMuted}}>Your trainer responded!</p></div><button style={{background:T.gold,border:"none",borderRadius:"8px",padding:"6px 11px",fontSize:"11px",fontWeight:"700",color:"#fff",cursor:"pointer"}}>View</button></div>}
-    </ScrollBody>
+        {plan==="pro"&&<div style={{background:T.progressCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"12px",display:"flex",alignItems:"center",gap:"10px",marginBottom:"13px"}}><span style={{fontSize:"22px"}}></span><div style={{flex:1}}><p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Pro Coaching Active</p><p style={{fontSize:"11px",color:T.textMuted}}>Your trainer responded!</p></div><button style={{background:T.gold,border:"none",borderRadius:"8px",padding:"6px 11px",fontSize:"11px",fontWeight:"700",color:"#fff",cursor:"pointer"}}>View</button></div>}
+      </ScrollBody>
   );
 };
 
@@ -3162,20 +3182,20 @@ const WheelColumn = ({values, selected, onChange}) => {
   };
 
   return (
-    <div style={{position:"relative",height:itemH*visible,width:"58px"}}>
-      <div style={{position:"absolute",top:itemH*pad,left:0,right:0,height:itemH,background:"rgba(176,141,87,.14)",borderTop:`1.5px solid ${T.gold}`,borderBottom:`1.5px solid ${T.gold}`,borderRadius:"7px",pointerEvents:"none"}}/>
-      <div ref={ref} onScroll={handleScroll} className="wheel-scroll"
-        style={{height:itemH*visible,overflowY:"auto",scrollSnapType:"y mandatory",WebkitOverflowScrolling:"touch"}}>
-        <div style={{height:itemH*pad}}/>
-        {values.map((v,i)=>(
-          <div key={v} onClick={()=>settleTo(i)}
-            style={{height:itemH,display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",fontSize:v===selected?"19px":"14px",fontWeight:v===selected?"900":"500",color:v===selected?T.text:T.textFaint,cursor:"pointer",transition:"color .15s,font-size .15s",fontVariantNumeric:"tabular-nums"}}>
-            {String(v).padStart(2,"0")}
-          </div>
-        ))}
-        <div style={{height:itemH*pad}}/>
+      <div style={{position:"relative",height:itemH*visible,width:"58px"}}>
+        <div style={{position:"absolute",top:itemH*pad,left:0,right:0,height:itemH,background:"rgba(176,141,87,.14)",borderTop:`1.5px solid ${T.gold}`,borderBottom:`1.5px solid ${T.gold}`,borderRadius:"7px",pointerEvents:"none"}}/>
+        <div ref={ref} onScroll={handleScroll} className="wheel-scroll"
+             style={{height:itemH*visible,overflowY:"auto",scrollSnapType:"y mandatory",WebkitOverflowScrolling:"touch"}}>
+          <div style={{height:itemH*pad}}/>
+          {values.map((v,i)=>(
+              <div key={v} onClick={()=>settleTo(i)}
+                   style={{height:itemH,display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",fontSize:v===selected?"19px":"14px",fontWeight:v===selected?"900":"500",color:v===selected?T.text:T.textFaint,cursor:"pointer",transition:"color .15s,font-size .15s",fontVariantNumeric:"tabular-nums"}}>
+                {String(v).padStart(2,"0")}
+              </div>
+          ))}
+          <div style={{height:itemH*pad}}/>
+        </div>
       </div>
-    </div>
   );
 };
 
@@ -3184,17 +3204,17 @@ const TimeWheelPicker = ({hours,minutes,onChangeHours,onChangeMinutes}) => {
   const HOUR_VALUES=[0,1,2,3,4];
   const MIN_VALUES=Array.from({length:12},(_,i)=>i*5); // :00 – :55 in 5-minute steps
   return (
-    <div style={{display:"flex",alignItems:"flex-start",justifyContent:"center",gap:"10px",marginBottom:"6px"}}>
-      <div style={{textAlign:"center"}}>
-        <WheelColumn values={HOUR_VALUES} selected={hours} onChange={onChangeHours}/>
-        <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Hours</p>
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"center",gap:"10px",marginBottom:"6px"}}>
+        <div style={{textAlign:"center"}}>
+          <WheelColumn values={HOUR_VALUES} selected={hours} onChange={onChangeHours}/>
+          <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Hours</p>
+        </div>
+        <div style={{fontSize:"18px",fontWeight:"900",color:T.textFaint,marginTop:"12px"}}>:</div>
+        <div style={{textAlign:"center"}}>
+          <WheelColumn values={MIN_VALUES} selected={minutes} onChange={onChangeMinutes}/>
+          <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Minutes</p>
+        </div>
       </div>
-      <div style={{fontSize:"18px",fontWeight:"900",color:T.textFaint,marginTop:"12px"}}>:</div>
-      <div style={{textAlign:"center"}}>
-        <WheelColumn values={MIN_VALUES} selected={minutes} onChange={onChangeMinutes}/>
-        <p style={{fontSize:"8.5px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginTop:"4px"}}>Minutes</p>
-      </div>
-    </div>
   );
 };
 
@@ -3266,114 +3286,114 @@ const PottyScheduleScreen = ({pottyTimer,setPottyTimer,petData,setPetData}) => {
   };
 
   return (
-    <ScrollBody>
-      <div style={{marginBottom:"16px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Puppy Care</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Potty Schedule</h2>
-      </div>
-
-      {/* Timer ring card */}
-      <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"18px",marginBottom:"12px",textAlign:"center"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"14px"}}>Next Potty Timer</p>
-        <svg width="110" height="110" style={{display:"block",margin:"0 auto 14px"}}>
-          <circle cx="55" cy="55" r={radius} fill="none" stroke={T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.15)"} strokeWidth="8"/>
-          <circle cx="55" cy="55" r={radius} fill="none" stroke={isDone?"#e07a5f":T.gold} strokeWidth="8"
-            strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)}
-            strokeLinecap="round" transform="rotate(-90 55 55)" style={{transition:"stroke-dashoffset .9s"}}/>
-          <text x="55" y="50" textAnchor="middle" fontSize="18" fontWeight="900" fill={T.mode==="dark"?"#D8C6AE":"#1C2636"} fontFamily="'Lato',sans-serif">{isRunning||isPaused?fmtPottyTime(remaining):"--:--"}</text>
-          <text x="55" y="65" textAnchor="middle" fontSize="9" fill={isDone?"#e07a5f":T.textFaint} fontFamily="'Lato',sans-serif">{isDone?"GO NOW!":isRunning?"remaining":isPaused?"paused":"set a time"}</text>
-        </svg>
-
-        {/* Rolling time-wheel duration picker — roll up/down like the iPhone timer */}
-        {!isRunning&&!isPaused&&(
-          <TimeWheelPicker hours={wheelHours} minutes={wheelMinutes} onChangeHours={handleWheelHours} onChangeMinutes={handleWheelMinutes}/>
-        )}
-
-        {/* Alarm toggle */}
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",margin:"10px 0 14px"}}>
-          <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="alert" size={11}/>Alarm reminder</span>
-          <div onClick={handleAlarmToggle} style={{width:"36px",height:"20px",borderRadius:"10px",background:alarmEnabled?"rgba(176,141,87,.35)":"rgba(128,128,128,.2)",border:`1.5px solid ${alarmEnabled?T.gold:T.chipBorder}`,position:"relative",cursor:"pointer",transition:"all .3s"}}>
-            <div style={{position:"absolute",top:"2px",left:alarmEnabled?"16px":"2px",width:"14px",height:"14px",borderRadius:"50%",background:alarmEnabled?T.gold:"#888",transition:"left .3s"}}/>
-          </div>
+      <ScrollBody>
+        <div style={{marginBottom:"16px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Puppy Care</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Potty Schedule</h2>
         </div>
 
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-          <button onClick={isRunning?pauseTimer:isPaused?resumeTimer:startTimer}
-            style={{padding:"11px",background:isRunning?"rgba(224,122,95,.15)":T.gold,border:isRunning?"1.5px solid #e07a5f":"none",borderRadius:"10px",color:isRunning?"#e07a5f":"#fff",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-            <Icon name={isRunning?"pause":"play"} size={12}/>{isRunning?"Pause":isPaused?"Resume":"Start Timer"}
-          </button>
-          <button onClick={()=>setShowAddLog(true)}
-            style={{padding:"11px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-            + Log Potty
-          </button>
-        </div>
-        {(isRunning||isPaused)&&(
-          <button onClick={cancelTimer} style={{marginTop:"8px",background:"none",border:"none",color:T.textFaint,fontSize:"11px",cursor:"pointer"}}>Cancel timer</button>
-        )}
-      </div>
+        {/* Timer ring card */}
+        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"18px",marginBottom:"12px",textAlign:"center"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"14px"}}>Next Potty Timer</p>
+          <svg width="110" height="110" style={{display:"block",margin:"0 auto 14px"}}>
+            <circle cx="55" cy="55" r={radius} fill="none" stroke={T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.15)"} strokeWidth="8"/>
+            <circle cx="55" cy="55" r={radius} fill="none" stroke={isDone?"#e07a5f":T.gold} strokeWidth="8"
+                    strokeDasharray={circ} strokeDashoffset={circ*(1-pct/100)}
+                    strokeLinecap="round" transform="rotate(-90 55 55)" style={{transition:"stroke-dashoffset .9s"}}/>
+            <text x="55" y="50" textAnchor="middle" fontSize="18" fontWeight="900" fill={T.mode==="dark"?"#D8C6AE":"#1C2636"} fontFamily="'Lato',sans-serif">{isRunning||isPaused?fmtPottyTime(remaining):"--:--"}</text>
+            <text x="55" y="65" textAnchor="middle" fontSize="9" fill={isDone?"#e07a5f":T.textFaint} fontFamily="'Lato',sans-serif">{isDone?"GO NOW!":isRunning?"remaining":isPaused?"paused":"set a time"}</text>
+          </svg>
 
-      {/* Add log form */}
-      {showAddLog&&(
-        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Log Potty Activity</p>
-          <div style={{display:"flex",gap:"8px",marginBottom:"10px"}}>
-            {["Pee","Poop","Both"].map(t=>(
-              <button key={t} onClick={()=>setLogType(t)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logType===t?T.gold:T.chipBorder}`,background:logType===t?"rgba(176,141,87,.18)":T.chipBg,color:logType===t?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logType===t?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{t}</button>
-            ))}
-          </div>
-          <div style={{display:"flex",gap:"8px",marginBottom:"10px"}}>
-            {[{v:true,l:"Success",ic:"checkCircle"},{v:false,l:"Accident",ic:"x"}].map(({v,l,ic})=>(
-              <button key={l} onClick={()=>setLogSuccess(v)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logSuccess===v?T.gold:T.chipBorder}`,background:logSuccess===v?"rgba(176,141,87,.18)":T.chipBg,color:logSuccess===v?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logSuccess===v?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"5px"}}><Icon name={ic} size={12}/>{l}</button>
-            ))}
-          </div>
-          <input value={logNotes} onChange={e=>setLogNotes(e.target.value)} placeholder="Notes (optional)"
-            style={{width:"100%",padding:"9px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",marginBottom:"10px"}}/>
-          <div style={{display:"flex",gap:"8px"}}>
-            <GoldBtn onClick={addLog} style={{padding:"10px",fontSize:"12px"}}>Save Log</GoldBtn>
-            <button onClick={()=>setShowAddLog(false)} style={{flex:1,padding:"10px",background:"transparent",border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.textMuted,fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Cancel</button>
-          </div>
-        </div>
-      )}
+          {/* Rolling time-wheel duration picker — roll up/down like the iPhone timer */}
+          {!isRunning&&!isPaused&&(
+              <TimeWheelPicker hours={wheelHours} minutes={wheelMinutes} onChangeHours={handleWheelHours} onChangeMinutes={handleWheelMinutes}/>
+          )}
 
-      {/* Potty log */}
-      <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Today's Log</p>
-        {pottyLog.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"10px 0"}}>No entries yet — tap + Log Potty above.</p>}
-        {pottyLog.map((e,i)=>(
-          <div key={i} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<pottyLog.length-1?`1px solid ${T.divider}`:"none"}}>
-            <span style={{flexShrink:0,color:e.success?T.success:"#e07a5f"}}><Icon name={e.success?"checkCircle":"x"} size={20}/></span>
-            <div style={{flex:1}}>
-              <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{e.type} · {e.time}</p>
-              {e.notes&&<p style={{fontSize:"11px",color:T.textFaint}}>{e.notes}</p>}
+          {/* Alarm toggle */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",margin:"10px 0 14px"}}>
+            <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"4px"}}><Icon name="alert" size={11}/>Alarm reminder</span>
+            <div onClick={handleAlarmToggle} style={{width:"36px",height:"20px",borderRadius:"10px",background:alarmEnabled?"rgba(176,141,87,.35)":"rgba(128,128,128,.2)",border:`1.5px solid ${alarmEnabled?T.gold:T.chipBorder}`,position:"relative",cursor:"pointer",transition:"all .3s"}}>
+              <div style={{position:"absolute",top:"2px",left:alarmEnabled?"16px":"2px",width:"14px",height:"14px",borderRadius:"50%",background:alarmEnabled?T.gold:"#888",transition:"left .3s"}}/>
             </div>
-            <span style={{fontSize:"10px",fontWeight:"700",color:e.success?T.success:"#e07a5f",padding:"3px 8px",borderRadius:"20px",background:e.success?"rgba(76,175,125,.1)":"rgba(224,122,95,.1)"}}>{e.success?"Outside":"Accident"}</span>
           </div>
-        ))}
-      </div>
 
-      {/* Stats strip */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px",marginBottom:"12px"}}>
-        {[
-          {label:"Today",value:`${pottyLog.filter(e=>e.success).length}/${pottyLog.length}`},
-          {label:"Success Rate",value:`${pottyLog.length?Math.round((pottyLog.filter(e=>e.success).length/pottyLog.length)*100):0}%`},
-          {label:"Accidents",value:`${pottyLog.filter(e=>!e.success).length}`},
-        ].map(({label,value})=>(
-          <div key={label} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",padding:"10px",textAlign:"center"}}>
-            <p style={{fontSize:"16px",fontWeight:"900",color:T.gold,marginBottom:"2px"}}>{value}</p>
-            <p style={{fontSize:"9px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".06em"}}>{label}</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
+            <button onClick={isRunning?pauseTimer:isPaused?resumeTimer:startTimer}
+                    style={{padding:"11px",background:isRunning?"rgba(224,122,95,.15)":T.gold,border:isRunning?"1.5px solid #e07a5f":"none",borderRadius:"10px",color:isRunning?"#e07a5f":"#fff",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+              <Icon name={isRunning?"pause":"play"} size={12}/>{isRunning?"Pause":isPaused?"Resume":"Start Timer"}
+            </button>
+            <button onClick={()=>setShowAddLog(true)}
+                    style={{padding:"11px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"10px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              + Log Potty
+            </button>
           </div>
-        ))}
-      </div>
-    </ScrollBody>
+          {(isRunning||isPaused)&&(
+              <button onClick={cancelTimer} style={{marginTop:"8px",background:"none",border:"none",color:T.textFaint,fontSize:"11px",cursor:"pointer"}}>Cancel timer</button>
+          )}
+        </div>
+
+        {/* Add log form */}
+        {showAddLog&&(
+            <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Log Potty Activity</p>
+              <div style={{display:"flex",gap:"8px",marginBottom:"10px"}}>
+                {["Pee","Poop","Both"].map(t=>(
+                    <button key={t} onClick={()=>setLogType(t)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logType===t?T.gold:T.chipBorder}`,background:logType===t?"rgba(176,141,87,.18)":T.chipBg,color:logType===t?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logType===t?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{t}</button>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:"8px",marginBottom:"10px"}}>
+                {[{v:true,l:"Success",ic:"checkCircle"},{v:false,l:"Accident",ic:"x"}].map(({v,l,ic})=>(
+                    <button key={l} onClick={()=>setLogSuccess(v)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${logSuccess===v?T.gold:T.chipBorder}`,background:logSuccess===v?"rgba(176,141,87,.18)":T.chipBg,color:logSuccess===v?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:logSuccess===v?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"5px"}}><Icon name={ic} size={12}/>{l}</button>
+                ))}
+              </div>
+              <input value={logNotes} onChange={e=>setLogNotes(e.target.value)} placeholder="Notes (optional)"
+                     style={{width:"100%",padding:"9px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",marginBottom:"10px"}}/>
+              <div style={{display:"flex",gap:"8px"}}>
+                <GoldBtn onClick={addLog} style={{padding:"10px",fontSize:"12px"}}>Save Log</GoldBtn>
+                <button onClick={()=>setShowAddLog(false)} style={{flex:1,padding:"10px",background:"transparent",border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.textMuted,fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Cancel</button>
+              </div>
+            </div>
+        )}
+
+        {/* Potty log */}
+        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Today's Log</p>
+          {pottyLog.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"10px 0"}}>No entries yet — tap + Log Potty above.</p>}
+          {pottyLog.map((e,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:"10px",padding:"9px 0",borderBottom:i<pottyLog.length-1?`1px solid ${T.divider}`:"none"}}>
+                <span style={{flexShrink:0,color:e.success?T.success:"#e07a5f"}}><Icon name={e.success?"checkCircle":"x"} size={20}/></span>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{e.type} · {e.time}</p>
+                  {e.notes&&<p style={{fontSize:"11px",color:T.textFaint}}>{e.notes}</p>}
+                </div>
+                <span style={{fontSize:"10px",fontWeight:"700",color:e.success?T.success:"#e07a5f",padding:"3px 8px",borderRadius:"20px",background:e.success?"rgba(76,175,125,.1)":"rgba(224,122,95,.1)"}}>{e.success?"Outside":"Accident"}</span>
+              </div>
+          ))}
+        </div>
+
+        {/* Stats strip */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"8px",marginBottom:"12px"}}>
+          {[
+            {label:"Today",value:`${pottyLog.filter(e=>e.success).length}/${pottyLog.length}`},
+            {label:"Success Rate",value:`${pottyLog.length?Math.round((pottyLog.filter(e=>e.success).length/pottyLog.length)*100):0}%`},
+            {label:"Accidents",value:`${pottyLog.filter(e=>!e.success).length}`},
+          ].map(({label,value})=>(
+              <div key={label} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",padding:"10px",textAlign:"center"}}>
+                <p style={{fontSize:"16px",fontWeight:"900",color:T.gold,marginBottom:"2px"}}>{value}</p>
+                <p style={{fontSize:"9px",color:T.textMuted,textTransform:"uppercase",letterSpacing:".06em"}}>{label}</p>
+              </div>
+          ))}
+        </div>
+      </ScrollBody>
   );
 };
 
 // ─── GPS ROUTE MAP (SVG-based simulation) ─────────────────────────────────────
 const WalkRouteMap = ({points,T}) => {
   if(!points||points.length<2) return (
-    <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"100px",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <p style={{color:T.textFaint,fontSize:"12px"}}>No route data</p>
-    </div>
+      <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"100px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <p style={{color:T.textFaint,fontSize:"12px"}}>No route data</p>
+      </div>
   );
   const lats=points.map(p=>p.lat), lngs=points.map(p=>p.lng);
   const minLat=Math.min(...lats),maxLat=Math.max(...lats);
@@ -3385,21 +3405,21 @@ const WalkRouteMap = ({points,T}) => {
   const pathD=points.map((p,i)=>`${i===0?"M":"L"}${toX(p.lng).toFixed(1)},${toY(p.lat).toFixed(1)}`).join(" ");
   const start=points[0], end=points[points.length-1];
   return (
-    <div style={{background:T.mode==="dark"?"rgba(28,50,40,.5)":"rgba(240,248,244,.9)",borderRadius:"10px",overflow:"hidden",marginBottom:"8px",border:`1px solid ${T.liveGpsBorder}`}}>
-      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
-        <rect width={W} height={H} fill="transparent"/>
-        {/* Grid lines */}
-        {[0.25,0.5,0.75].map(f=><line key={f} x1={0} y1={H*f} x2={W} y2={H*f} stroke={T.mode==="dark"?"rgba(255,255,255,.05)":"rgba(0,0,0,.05)"} strokeWidth="1"/>)}
-        {/* Route path */}
-        <path d={pathD} fill="none" stroke={T.gold} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-        {/* Start dot */}
-        <circle cx={toX(start.lng)} cy={toY(start.lat)} r="5" fill={T.success}/>
-        <text x={toX(start.lng)+7} y={toY(start.lat)+4} fontSize="8" fill={T.success} fontFamily="'Lato',sans-serif">Start</text>
-        {/* End dot */}
-        <circle cx={toX(end.lng)} cy={toY(end.lat)} r="5" fill="#e07a5f"/>
-        <text x={toX(end.lng)+7} y={toY(end.lat)+4} fontSize="8" fill="#e07a5f" fontFamily="'Lato',sans-serif">End</text>
-      </svg>
-    </div>
+      <div style={{background:T.mode==="dark"?"rgba(28,50,40,.5)":"rgba(240,248,244,.9)",borderRadius:"10px",overflow:"hidden",marginBottom:"8px",border:`1px solid ${T.liveGpsBorder}`}}>
+        <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block"}}>
+          <rect width={W} height={H} fill="transparent"/>
+          {/* Grid lines */}
+          {[0.25,0.5,0.75].map(f=><line key={f} x1={0} y1={H*f} x2={W} y2={H*f} stroke={T.mode==="dark"?"rgba(255,255,255,.05)":"rgba(0,0,0,.05)"} strokeWidth="1"/>)}
+          {/* Route path */}
+          <path d={pathD} fill="none" stroke={T.gold} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Start dot */}
+          <circle cx={toX(start.lng)} cy={toY(start.lat)} r="5" fill={T.success}/>
+          <text x={toX(start.lng)+7} y={toY(start.lat)+4} fontSize="8" fill={T.success} fontFamily="'Lato',sans-serif">Start</text>
+          {/* End dot */}
+          <circle cx={toX(end.lng)} cy={toY(end.lat)} r="5" fill="#e07a5f"/>
+          <text x={toX(end.lng)+7} y={toY(end.lat)+4} fontSize="8" fill="#e07a5f" fontFamily="'Lato',sans-serif">End</text>
+        </svg>
+      </div>
   );
 };
 
@@ -3426,146 +3446,146 @@ const LiveScreen = ({walkLog=[],pottyTimer,setPottyTimer,initialTab="activity",p
   };
 
   return (
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Live</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Lifestyle and Wellness</h2>
-      </div>
+      <ScrollBody>
+        <div className="s1" style={{marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Live</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Lifestyle and Wellness</h2>
+        </div>
 
-      {/* Tab selector */}
-      <div style={{display:"flex",gap:"6px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"5px"}}>
-        {[{id:"activity",label:"Activity"},{id:"potty",label:"Potty Schedule"},{id:"grooming",label:"Grooming"}].map(t=>(
-          <button key={t.id} onClick={()=>setLiveTab(t.id)} style={{flex:1,padding:"7px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"10px",fontWeight:"700",transition:"all .2s",background:liveTab===t.id?T.gold:"transparent",color:liveTab===t.id?"#fff":T.textMuted}}>{t.label}</button>
-        ))}
-      </div>
+        {/* Tab selector */}
+        <div style={{display:"flex",gap:"6px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"5px"}}>
+          {[{id:"activity",label:"Activity"},{id:"potty",label:"Potty Schedule"},{id:"grooming",label:"Grooming"}].map(t=>(
+              <button key={t.id} onClick={()=>setLiveTab(t.id)} style={{flex:1,padding:"7px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"10px",fontWeight:"700",transition:"all .2s",background:liveTab===t.id?T.gold:"transparent",color:liveTab===t.id?"#fff":T.textMuted}}>{t.label}</button>
+          ))}
+        </div>
 
-      {liveTab==="potty"&&<PottyScheduleScreen pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} petData={petData} setPetData={setPetData}/>}
+        {liveTab==="potty"&&<PottyScheduleScreen pottyTimer={pottyTimer} setPottyTimer={setPottyTimer} petData={petData} setPetData={setPetData}/>}
 
-      {liveTab==="grooming"&&(
-        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px"}}>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Grooming Schedule</p>
-          {["Bath","Nail trim","Brushing","Ear cleaning"].map(g=>(
-            <div key={g}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:loggingGroomType===g?"none":`1px solid ${T.divider}`}}>
-                <div>
-                  <span style={{fontSize:"13.5px",color:T.text}}>{g}</span>
-                  {lastGroomedFor(g)&&<p style={{fontSize:"10px",color:T.textFaint,marginTop:"2px"}}>Last logged: {lastGroomedFor(g)}</p>}
-                </div>
-                <button onClick={()=>{setLoggingGroomType(loggingGroomType===g?null:g);setGroomNotes("");}}
-                  style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>
-                  {loggingGroomType===g?"Cancel":"Log"}
-                </button>
-              </div>
-              {loggingGroomType===g&&(
-                <div style={{padding:"0 0 12px",borderBottom:`1px solid ${T.divider}`}}>
-                  <input value={groomNotes} onChange={e=>setGroomNotes(e.target.value)} placeholder="Notes (optional)"
-                    style={{width:"100%",padding:"9px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}/>
-                  <GoldBtn onClick={()=>saveGroomingLog(g)} style={{padding:"9px",fontSize:"12px"}}>Save to {petData?.name||"Pet"}'s Profile</GoldBtn>
-                </div>
+        {liveTab==="grooming"&&(
+            <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px"}}>
+              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Grooming Schedule</p>
+              {["Bath","Nail trim","Brushing","Ear cleaning"].map(g=>(
+                  <div key={g}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:loggingGroomType===g?"none":`1px solid ${T.divider}`}}>
+                      <div>
+                        <span style={{fontSize:"13.5px",color:T.text}}>{g}</span>
+                        {lastGroomedFor(g)&&<p style={{fontSize:"10px",color:T.textFaint,marginTop:"2px"}}>Last logged: {lastGroomedFor(g)}</p>}
+                      </div>
+                      <button onClick={()=>{setLoggingGroomType(loggingGroomType===g?null:g);setGroomNotes("");}}
+                              style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>
+                        {loggingGroomType===g?"Cancel":"Log"}
+                      </button>
+                    </div>
+                    {loggingGroomType===g&&(
+                        <div style={{padding:"0 0 12px",borderBottom:`1px solid ${T.divider}`}}>
+                          <input value={groomNotes} onChange={e=>setGroomNotes(e.target.value)} placeholder="Notes (optional)"
+                                 style={{width:"100%",padding:"9px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}/>
+                          <GoldBtn onClick={()=>saveGroomingLog(g)} style={{padding:"9px",fontSize:"12px"}}>Save to {petData?.name||"Pet"}'s Profile</GoldBtn>
+                        </div>
+                    )}
+                  </div>
+              ))}
+
+              {/* Recent grooming history — pulled from the pet's profile */}
+              {groomingLog.length>0&&(
+                  <div style={{marginTop:"14px"}}>
+                    <p style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Recent History</p>
+                    {groomingLog.slice(0,5).map((e,i)=>(
+                        <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0"}}>
+                          <span style={{fontSize:"12px",color:T.text}}>{e.type}{e.notes?` · ${e.notes}`:""}</span>
+                          <span style={{fontSize:"10px",color:T.textFaint}}>{new Date(e.date).toLocaleDateString()}</span>
+                        </div>
+                    ))}
+                  </div>
               )}
             </div>
-          ))}
+        )}
 
-          {/* Recent grooming history — pulled from the pet's profile */}
-          {groomingLog.length>0&&(
-            <div style={{marginTop:"14px"}}>
-              <p style={{fontSize:"9px",color:T.textFaint,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Recent History</p>
-              {groomingLog.slice(0,5).map((e,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0"}}>
-                  <span style={{fontSize:"12px",color:T.text}}>{e.type}{e.notes?` · ${e.notes}`:""}</span>
-                  <span style={{fontSize:"10px",color:T.textFaint}}>{new Date(e.date).toLocaleDateString()}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {liveTab==="activity"&&(
-        <>
-          {/* GPS tracker header card */}
-          <div className="s2" style={{background:T.liveGpsBg,border:`1px solid ${T.liveGpsBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
-              <div>
-                <p style={{fontSize:"10px",color:T.success,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"3px"}}>GPS Exercise Tracker</p>
-                <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>Today: {walkLog.filter(w=>w.date===new Date().toLocaleDateString()).reduce((s,w)=>s+w.distanceMi,0).toFixed(2)} mi</p>
-              </div>
-              {/* Health sync badges — Apple Health (iOS) and Health Connect (Android) */}
-              <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"flex-end"}}>
-                <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
-                  <Icon name="heart" size={13} color="#e07a5f"/>
-                  <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
-                </div>
-                <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.35)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
-                  <Icon name="heart" size={13} color={T.success}/>
-                  <span style={{fontSize:"10px",fontWeight:"700",color:T.success}}>Health Connect</span>
-                </div>
-              </div>
-            </div>
-            <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
-              <p style={{color:T.textFaint,fontSize:"11px",display:"flex",alignItems:"center",gap:"4px"}}><Icon name="pin" size={11}/>Live map appears during walk · Use ＋ to start</p>
-            </div>
-            <div style={{display:"flex",gap:"8px"}}>
-              {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d,i)=>(
-                <div key={d} style={{flex:1,textAlign:"center"}}>
-                  <div style={{height:`${[20,40,15,55,30,70,0][i]}px`,background:i<6?"rgba(76,175,125,.4)":"rgba(128,128,128,.12)",borderRadius:"4px",marginBottom:"3px"}}/>
-                  <span style={{fontSize:"7.5px",color:T.textFaint}}>{d}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Health sync info — works with Apple Health on iOS and Health Connect on Android */}
-          <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
-            <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
-            <div>
-              <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Health Sync Active</p>
-              <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk data (duration, distance, calories) is automatically written to Apple Health on iPhone or Health Connect on Android after each walk. Open your phone's Health app to view your activity history.</p>
-            </div>
-          </div>
-
-          {/* Walk Log */}
-          {walkLog.length>0&&(
-            <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
-              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}><Icon name="dog" size={10} style={{marginRight:"3px"}}/>Walk History</p>
-              {walkLog.map((w,i)=>(
-                <div key={i}>
-                  <div onClick={()=>setExpandedWalk(expandedWalk===i?null:i)}
-                    style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${T.divider}`,cursor:"pointer"}}>
-                    <div>
-                      <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{w.date} · {w.time}</p>
-                      <div style={{display:"flex",gap:"10px"}}>
-                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="clock" size={10}/>{w.duration}</span>
-                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="pin" size={10}/>{w.distanceMi} mi</span>
-                        <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="zap" size={10}/>{w.pace}/mi</span>
-                      </div>
+        {liveTab==="activity"&&(
+            <>
+              {/* GPS tracker header card */}
+              <div className="s2" style={{background:T.liveGpsBg,border:`1px solid ${T.liveGpsBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"8px"}}>
+                  <div>
+                    <p style={{fontSize:"10px",color:T.success,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"3px"}}>GPS Exercise Tracker</p>
+                    <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>Today: {walkLog.filter(w=>w.date===new Date().toLocaleDateString()).reduce((s,w)=>s+w.distanceMi,0).toFixed(2)} mi</p>
+                  </div>
+                  {/* Health sync badges — Apple Health (iOS) and Health Connect (Android) */}
+                  <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"flex-end"}}>
+                    <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                      <Icon name="heart" size={13} color="#e07a5f"/>
+                      <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
                     </div>
-                    <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
-                      {w.appleHealthSynced&&<Icon name="heart" size={10} color="#ff3b30"/>}
-                      <span style={{color:T.textFaint,fontSize:"14px",transition:"transform .2s",transform:expandedWalk===i?"rotate(180deg)":"none"}}>▾</span>
+                    <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.35)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                      <Icon name="heart" size={13} color={T.success}/>
+                      <span style={{fontSize:"10px",fontWeight:"700",color:T.success}}>Health Connect</span>
                     </div>
                   </div>
-                  {expandedWalk===i&&(
-                    <div style={{padding:"10px 0 4px"}}>
-                      <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>GPS Route</p>
-                      <WalkRouteMap points={w.points} T={T}/>
-                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px",marginTop:"6px"}}>
-                        {[{l:"Duration",v:w.duration},{l:"Distance",v:`${w.distanceMi} mi`},{l:"Avg Pace",v:`${w.pace}/mi`}].map(({l,v})=>(
-                          <div key={l} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"8px",textAlign:"center"}}>
-                            <p style={{fontSize:"12px",fontWeight:"900",color:T.gold,marginBottom:"1px"}}>{v}</p>
-                            <p style={{fontSize:"9px",color:T.textFaint,textTransform:"uppercase",letterSpacing:".06em"}}>{l}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </ScrollBody>
+                <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
+                  <p style={{color:T.textFaint,fontSize:"11px",display:"flex",alignItems:"center",gap:"4px"}}><Icon name="pin" size={11}/>Live map appears during walk · Use ＋ to start</p>
+                </div>
+                <div style={{display:"flex",gap:"8px"}}>
+                  {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d,i)=>(
+                      <div key={d} style={{flex:1,textAlign:"center"}}>
+                        <div style={{height:`${[20,40,15,55,30,70,0][i]}px`,background:i<6?"rgba(76,175,125,.4)":"rgba(128,128,128,.12)",borderRadius:"4px",marginBottom:"3px"}}/>
+                        <span style={{fontSize:"7.5px",color:T.textFaint}}>{d}</span>
+                      </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Health sync info — works with Apple Health on iOS and Health Connect on Android */}
+              <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
+                <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
+                <div>
+                  <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Health Sync Active</p>
+                  <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk data (duration, distance, calories) is automatically written to Apple Health on iPhone or Health Connect on Android after each walk. Open your phone's Health app to view your activity history.</p>
+                </div>
+              </div>
+
+              {/* Walk Log */}
+              {walkLog.length>0&&(
+                  <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
+                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}><Icon name="dog" size={10} style={{marginRight:"3px"}}/>Walk History</p>
+                    {walkLog.map((w,i)=>(
+                        <div key={i}>
+                          <div onClick={()=>setExpandedWalk(expandedWalk===i?null:i)}
+                               style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${T.divider}`,cursor:"pointer"}}>
+                            <div>
+                              <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{w.date} · {w.time}</p>
+                              <div style={{display:"flex",gap:"10px"}}>
+                                <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="clock" size={10}/>{w.duration}</span>
+                                <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="pin" size={10}/>{w.distanceMi} mi</span>
+                                <span style={{fontSize:"11px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"3px"}}><Icon name="zap" size={10}/>{w.pace}/mi</span>
+                              </div>
+                            </div>
+                            <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                              {w.appleHealthSynced&&<Icon name="heart" size={10} color="#ff3b30"/>}
+                              <span style={{color:T.textFaint,fontSize:"14px",transition:"transform .2s",transform:expandedWalk===i?"rotate(180deg)":"none"}}>▾</span>
+                            </div>
+                          </div>
+                          {expandedWalk===i&&(
+                              <div style={{padding:"10px 0 4px"}}>
+                                <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>GPS Route</p>
+                                <WalkRouteMap points={w.points} T={T}/>
+                                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px",marginTop:"6px"}}>
+                                  {[{l:"Duration",v:w.duration},{l:"Distance",v:`${w.distanceMi} mi`},{l:"Avg Pace",v:`${w.pace}/mi`}].map(({l,v})=>(
+                                      <div key={l} style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"8px",textAlign:"center"}}>
+                                        <p style={{fontSize:"12px",fontWeight:"900",color:T.gold,marginBottom:"1px"}}>{v}</p>
+                                        <p style={{fontSize:"9px",color:T.textFaint,textTransform:"uppercase",letterSpacing:".06em"}}>{l}</p>
+                                      </div>
+                                  ))}
+                                </div>
+                              </div>
+                          )}
+                        </div>
+                    ))}
+                  </div>
+              )}
+            </>
+        )}
+      </ScrollBody>
   );
 };
 
@@ -3575,45 +3595,45 @@ const LiveScreen = ({walkLog=[],pottyTimer,setPottyTimer,initialTab="activity",p
 const BondScreen = ({onOpenGame}) => {
   const T=useTheme();
   return (
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"18px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Bond</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700",marginBottom:"5px"}}>Strengthen Your Connection</h2>
-        <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Engagement games, enrichment, and relationship building</p>
-      </div>
-      <div className="s2" style={{marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Engagement Games & Tricks</p>
-        {ENGAGEMENT_GAMES.map(t=>(
-          <button key={t.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(t.id)}
-            style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",padding:"12px 13px",cursor:"pointer",transition:"opacity .2s",borderRadius:"10px",marginBottom:"6px",border:`1px solid ${T.divider}`,background:"none",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
-              <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={t.icon||"paw"} size={16}/></span>
-              <div style={{minWidth:0}}>
-                <p style={{fontSize:"14px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{t.name}</p>
-                <p style={{fontSize:"11px",color:T.textMuted}}>{t.time} · {t.level}</p>
-              </div>
-            </div>
-            <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
-          </button>
-        ))}
-      </div>
-      <div className="s3">
-        <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Socialization & Confidence</p>
-        {SOCIALIZATION_GAMES.map(s=>(
-          <button key={s.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(s.id)}
-            style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",gap:"10px",background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"8px",cursor:"pointer",transition:"opacity .2s",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
-              <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={s.icon||"paw"} size={16}/></span>
-              <div style={{minWidth:0}}>
-                <p style={{fontSize:"13.5px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{s.name}</p>
-                <p style={{fontSize:"11.5px",color:T.textMuted}}>{s.time} · {s.level}</p>
-              </div>
-            </div>
-            <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
-          </button>
-        ))}
-      </div>
-    </ScrollBody>
+      <ScrollBody>
+        <div className="s1" style={{marginBottom:"18px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Bond</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700",marginBottom:"5px"}}>Strengthen Your Connection</h2>
+          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Engagement games, enrichment, and relationship building</p>
+        </div>
+        <div className="s2" style={{marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Engagement Games & Tricks</p>
+          {ENGAGEMENT_GAMES.map(t=>(
+              <button key={t.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(t.id)}
+                      style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",padding:"12px 13px",cursor:"pointer",transition:"opacity .2s",borderRadius:"10px",marginBottom:"6px",border:`1px solid ${T.divider}`,background:"none",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
+                  <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={t.icon||"paw"} size={16}/></span>
+                  <div style={{minWidth:0}}>
+                    <p style={{fontSize:"14px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{t.name}</p>
+                    <p style={{fontSize:"11px",color:T.textMuted}}>{t.time} · {t.level}</p>
+                  </div>
+                </div>
+                <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
+              </button>
+          ))}
+        </div>
+        <div className="s3">
+          <p style={{fontSize:"10px",color:T.textMuted,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Socialization & Confidence</p>
+          {SOCIALIZATION_GAMES.map(s=>(
+              <button key={s.id} className="lesson-row" onClick={()=>onOpenGame&&onOpenGame(s.id)}
+                      style={{display:"flex",width:"100%",justifyContent:"space-between",alignItems:"center",gap:"10px",background:T.socialBg,border:`1px solid ${T.socialBorder}`,borderRadius:"12px",padding:"13px 14px",marginBottom:"8px",cursor:"pointer",transition:"opacity .2s",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+                <div style={{display:"flex",alignItems:"center",gap:"11px",minWidth:0}}>
+                  <span style={{width:"34px",height:"34px",borderRadius:"9px",background:"rgba(176,141,87,.14)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={s.icon||"paw"} size={16}/></span>
+                  <div style={{minWidth:0}}>
+                    <p style={{fontSize:"13.5px",fontWeight:"700",color:T.text,marginBottom:"3px"}}>{s.name}</p>
+                    <p style={{fontSize:"11.5px",color:T.textMuted}}>{s.time} · {s.level}</p>
+                  </div>
+                </div>
+                <span style={{color:T.textFaint,display:"flex",flexShrink:0}}><Icon name="arrowRight" size={16}/></span>
+              </button>
+          ))}
+        </div>
+      </ScrollBody>
   );
 };
 
@@ -3732,48 +3752,48 @@ const GameInstructionsScreen = ({id, onClose, onBack}) => {
   const T=useTheme();
   const g=GAME_MAP[id];
   if(!g) return (
-    <ScrollBody>
-      <p style={{fontSize:"13px",color:T.textMuted}}>Game not found.</p>
-      <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
-    </ScrollBody>
+      <ScrollBody>
+        <p style={{fontSize:"13px",color:T.textMuted}}>Game not found.</p>
+        <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
+      </ScrollBody>
   );
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>How to Play</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{g.name}</h2>
-          <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{g.time} · {g.level}</p>
-        </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
-      </div>
-
-      {/* Hero graphic — gives the instructions a picture to anchor to */}
-      <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"26px",marginBottom:"16px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",inset:0,opacity:.08,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name={g.icon||"paw"} size={140} color="#fff"/></div>
-        <div style={{width:"84px",height:"84px",borderRadius:"50%",background:"rgba(255,255,255,.12)",border:"2px solid rgba(255,255,255,.35)",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
-          <Icon name={g.icon||"paw"} size={40} color="#fff"/>
-        </div>
-      </div>
-
-      <div className="s2" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
-        <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
-        <p style={{fontSize:"13px",color:T.text,marginBottom:"16px",lineHeight:1.55}}>{g.materials}</p>
-
-        <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
-        <ol style={{margin:0,paddingLeft:"18px",marginBottom:g.tip?"16px":"0"}}>
-          {g.steps.map((s,si)=>(<li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.65,marginBottom:"7px"}}>{s}</li>))}
-        </ol>
-
-        {g.tip && (
-          <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
-            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,display:"flex",alignItems:"flex-start",gap:"6px"}}><Icon name="bulb" size={13} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {g.tip}</span></p>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>How to Play</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{g.name}</h2>
+            <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{g.time} · {g.level}</p>
           </div>
-        )}
-      </div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
+        </div>
 
-      <BackBtn onClick={onBack||onClose}/>
-    </ScrollBody>
+        {/* Hero graphic — gives the instructions a picture to anchor to */}
+        <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"26px",marginBottom:"16px",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden"}}>
+          <div style={{position:"absolute",inset:0,opacity:.08,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon name={g.icon||"paw"} size={140} color="#fff"/></div>
+          <div style={{width:"84px",height:"84px",borderRadius:"50%",background:"rgba(255,255,255,.12)",border:"2px solid rgba(255,255,255,.35)",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+            <Icon name={g.icon||"paw"} size={40} color="#fff"/>
+          </div>
+        </div>
+
+        <div className="s2" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
+          <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"6px"}}>You'll Need</p>
+          <p style={{fontSize:"13px",color:T.text,marginBottom:"16px",lineHeight:1.55}}>{g.materials}</p>
+
+          <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>How to Play</p>
+          <ol style={{margin:0,paddingLeft:"18px",marginBottom:g.tip?"16px":"0"}}>
+            {g.steps.map((s,si)=>(<li key={si} style={{fontSize:"13px",color:T.text,lineHeight:1.65,marginBottom:"7px"}}>{s}</li>))}
+          </ol>
+
+          {g.tip && (
+              <div style={{background:"rgba(176,141,87,.08)",border:`1px solid rgba(176,141,87,.25)`,borderRadius:"10px",padding:"11px 13px"}}>
+                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,display:"flex",alignItems:"flex-start",gap:"6px"}}><Icon name="bulb" size={13} style={{marginTop:"1px",flexShrink:0,color:T.gold}}/><span><strong style={{color:T.text}}>Tip:</strong> {g.tip}</span></p>
+              </div>
+          )}
+        </div>
+
+        <BackBtn onClick={onBack||onClose}/>
+      </ScrollBody>
   );
 };
 
@@ -4014,22 +4034,22 @@ async function saveEnrollment(petIdVal, program) {
 const WeekBadge = ({weekNum, earned, size=56}) => {
   const T=useTheme();
   return (
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:size+14,flexShrink:0}}>
-      <div style={{width:size,height:size,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
-        background:earned?`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`:"transparent",
-        border:`2.5px solid ${earned?T.gold:T.chipBorder}`,
-        boxShadow:earned?"0 3px 10px rgba(176,141,87,.35)":"none",transition:"all .3s"}}>
-        <div style={{width:size-10,height:size-10,borderRadius:"50%",background:earned?T.navy:"transparent",
-          display:"flex",alignItems:"center",justifyContent:"center"}}>
-          {earned
-            ? <Icon name="paw" size={Math.round(size*0.42)} color={T.tan} strokeWidth={2}/>
-            : <Icon name="lock" size={Math.round(size*0.32)} color={T.textFaint}/>}
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",width:size+14,flexShrink:0}}>
+        <div style={{width:size,height:size,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+          background:earned?`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`:"transparent",
+          border:`2.5px solid ${earned?T.gold:T.chipBorder}`,
+          boxShadow:earned?"0 3px 10px rgba(176,141,87,.35)":"none",transition:"all .3s"}}>
+          <div style={{width:size-10,height:size-10,borderRadius:"50%",background:earned?T.navy:"transparent",
+            display:"flex",alignItems:"center",justifyContent:"center"}}>
+            {earned
+                ? <Icon name="paw" size={Math.round(size*0.42)} color={T.tan} strokeWidth={2}/>
+                : <Icon name="lock" size={Math.round(size*0.32)} color={T.textFaint}/>}
+          </div>
+        </div>
+        <div style={{marginTop:"6px",padding:"2px 8px",borderRadius:"6px",background:earned?T.brown:"transparent",minWidth:"26px",textAlign:"center"}}>
+          <span style={{fontSize:"9.5px",fontWeight:"900",letterSpacing:".04em",color:earned?T.tan:T.textFaint,fontFamily:"'Lato',sans-serif"}}>WK {weekNum}</span>
         </div>
       </div>
-      <div style={{marginTop:"6px",padding:"2px 8px",borderRadius:"6px",background:earned?T.brown:"transparent",minWidth:"26px",textAlign:"center"}}>
-        <span style={{fontSize:"9.5px",fontWeight:"900",letterSpacing:".04em",color:earned?T.tan:T.textFaint,fontFamily:"'Lato',sans-serif"}}>WK {weekNum}</span>
-      </div>
-    </div>
   );
 };
 
@@ -4037,17 +4057,17 @@ const BadgeRow = ({curriculum, earnedMap, title}) => {
   const T=useTheme();
   const earnedCount = curriculum.filter(w=>!!earnedMap?.[w.id]).length;
   return (
-    <div className="s1b" style={{marginBottom:"14px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"9px",padding:"0 1px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>{title}</p>
-        <p style={{fontSize:"11px",color:T.textMuted,fontWeight:"700"}}>{earnedCount}/{curriculum.length} earned</p>
+      <div className="s1b" style={{marginBottom:"14px"}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:"9px",padding:"0 1px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>{title}</p>
+          <p style={{fontSize:"11px",color:T.textMuted,fontWeight:"700"}}>{earnedCount}/{curriculum.length} earned</p>
+        </div>
+        <div style={{display:"flex",gap:"4px",overflowX:"auto",paddingBottom:"4px"}}>
+          {curriculum.map((w,i)=>(
+              <WeekBadge key={w.id} weekNum={i+1} earned={!!earnedMap?.[w.id]}/>
+          ))}
+        </div>
       </div>
-      <div style={{display:"flex",gap:"4px",overflowX:"auto",paddingBottom:"4px"}}>
-        {curriculum.map((w,i)=>(
-          <WeekBadge key={w.id} weekNum={i+1} earned={!!earnedMap?.[w.id]}/>
-        ))}
-      </div>
-    </div>
   );
 };
 
@@ -4058,25 +4078,25 @@ const BadgeEarnedOverlay = ({badge, onClose}) => {
   const T=useTheme();
   if(!badge) return null;
   return (
-    <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(13,21,32,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1300,animation:"fadeUp .25s both",padding:"20px"}}>
-      <div onClick={e=>e.stopPropagation()} style={{background:T.cardSolid,borderRadius:"20px",padding:"32px 26px",maxWidth:"320px",width:"100%",textAlign:"center",border:`1px solid ${T.gold}`,boxShadow:"0 20px 60px rgba(0,0,0,.5)",animation:"rise .35s both"}}>
-        <div style={{margin:"0 auto 16px",width:"88px",height:"88px",borderRadius:"50%",background:`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(176,141,87,.45)"}}>
-          <div style={{width:"74px",height:"74px",borderRadius:"50%",background:T.navy,display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <Icon name="paw" size={36} color={T.tan}/>
+      <div onClick={onClose} style={{position:"fixed",inset:0,background:"rgba(13,21,32,.72)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1300,animation:"fadeUp .25s both",padding:"20px"}}>
+        <div onClick={e=>e.stopPropagation()} style={{background:T.cardSolid,borderRadius:"20px",padding:"32px 26px",maxWidth:"320px",width:"100%",textAlign:"center",border:`1px solid ${T.gold}`,boxShadow:"0 20px 60px rgba(0,0,0,.5)",animation:"rise .35s both"}}>
+          <div style={{margin:"0 auto 16px",width:"88px",height:"88px",borderRadius:"50%",background:`linear-gradient(155deg, ${T.gold} 0%, ${T.brown} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 6px 20px rgba(176,141,87,.45)"}}>
+            <div style={{width:"74px",height:"74px",borderRadius:"50%",background:T.navy,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <Icon name="paw" size={36} color={T.tan}/>
+            </div>
           </div>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",marginBottom:"6px"}}>Badge Earned</p>
+          <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>{badge.label}</h3>
+          <p style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.5,marginBottom:"22px"}}>
+            {badge.isFinal
+                ? "You've completed the entire program! Your certificate of completion is on its way to your email."
+                : `Nice work — you're one step closer to graduating the ${badge.program==="puppy"?"Puppy":"6-Week"} Program.`}
+          </p>
+          <button onClick={onClose} className="btn-gold" style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",fontSize:"12px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+            Keep Training
+          </button>
         </div>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",marginBottom:"6px"}}>Badge Earned</p>
-        <h3 style={{fontFamily:"'Inter',serif",fontSize:"19px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>{badge.label}</h3>
-        <p style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.5,marginBottom:"22px"}}>
-          {badge.isFinal
-            ? "You've completed the entire program! Your certificate of completion is on its way to your email."
-            : `Nice work — you're one step closer to graduating the ${badge.program==="puppy"?"Puppy":"6-Week"} Program.`}
-        </p>
-        <button onClick={onClose} className="btn-gold" style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",fontSize:"12px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-          Keep Training
-        </button>
       </div>
-    </div>
   );
 };
 
@@ -4105,7 +4125,7 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
 
   // Add-the-other-program upsell (only relevant when only one is purchased)
   const missingProgram = purchasedPrograms.includes("standard") ? (purchasedPrograms.includes("puppy") ? null : "puppy")
-    : purchasedPrograms.includes("puppy") ? "standard" : null;
+      : purchasedPrograms.includes("puppy") ? "standard" : null;
   const [showAddProgram,setShowAddProgram]=useState(false);
   const [addProgramSuccess,setAddProgramSuccess]=useState(false);
   const [justEarnedBadge,setJustEarnedBadge]=useState(null); // {label, isFinal, program} — drives BadgeEarnedOverlay
@@ -4147,8 +4167,8 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
     if(wi===0) return {locked:true, reason:"welcome"};
     const prev = curriculum[wi-1];
     const prevRequirementMet = isStandard
-      ? prev.lessons.every(l => !!stdCompleted[`${prev.id}::${l}`])
-      : !!puppyWeekDone?.[prev.id];
+        ? prev.lessons.every(l => !!stdCompleted[`${prev.id}::${l}`])
+        : !!puppyWeekDone?.[prev.id];
     if(!prevRequirementMet) return {locked:true, reason:"incomplete", prevLabel:prev.label};
     if(curriculum[wi].unlockAfterDays){
       const completedAt = weekCompletedAt[prev.id];
@@ -4189,8 +4209,8 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
   // Dashboard (getCurrentStdWeek / getCurrentPuppyWeek), so whatever week shows
   // as "This Week" on the Dashboard is the one that auto-opens here too. ──
   const currentWeekId = isStandard
-    ? getCurrentStdWeek(stdCompleted||{}).week?.id
-    : getCurrentPuppyWeek(puppyWeekDone||{}).week?.id;
+      ? getCurrentStdWeek(stdCompleted||{}).week?.id
+      : getCurrentPuppyWeek(puppyWeekDone||{}).week?.id;
 
   // Auto-open the person's actual current week the first time this screen (or this
   // program tab) is shown, so Learn always lands on the same week the Dashboard is
@@ -4213,413 +4233,413 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
   },[openWeek, currentWeekId]);
 
   return (
-    <>
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Learn</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Training Curriculum</h2>
-        <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px"}}>Complete each week to unlock the next</p>
-      </div>
+      <>
+        <ScrollBody>
+          <div className="s1" style={{marginBottom:"14px"}}>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Learn</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Training Curriculum</h2>
+            <p style={{fontSize:"12px",color:T.textMuted,marginTop:"4px"}}>Complete each week to unlock the next</p>
+          </div>
 
-      {/* Program access — a tab switcher if BOTH are purchased, otherwise a locked
+          {/* Program access — a tab switcher if BOTH are purchased, otherwise a locked
           label plus an upsell to buy the other program. Either way, this always
           reflects what's actually been paid for. */}
-      {hasBoth ? (
-        <div className="s2" style={{display:"flex",gap:"7px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"6px"}}>
-          {[{id:"standard",label:"Standard (6 Week)"},{id:"puppy",label:"Puppy (12 Week)"}].map(tab=>(
-            <button key={tab.id} onClick={()=>setViewProgram(tab.id)}
-              style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",
-                fontSize:"11px",fontWeight:"700",transition:"all .2s",
-                background:enrolledProgram===tab.id?T.gold:"transparent",
-                color:enrolledProgram===tab.id?"#fff":T.textMuted}}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="s2" style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"11px 14px"}}>
-            <Icon name="lock" size={13} color={T.gold}/>
-            <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{isStandard?"Standard (6 Week) Program":"Puppy (12 Week) Program"}</span>
-            <span style={{fontSize:"10.5px",color:T.textFaint,marginLeft:"auto"}}>Purchased at signup</span>
-          </div>
-          {missingProgram && (
-            <button onClick={()=>setShowAddProgram(true)} style={{width:"100%",display:"flex",alignItems:"center",gap:"9px",marginBottom:"14px",background:"rgba(176,141,87,.08)",border:`1px dashed ${T.gold}`,borderRadius:"12px",padding:"11px 14px",cursor:"pointer",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
-              <Icon name="plus" size={14} color={T.gold}/>
-              <span style={{flex:1}}>
+          {hasBoth ? (
+              <div className="s2" style={{display:"flex",gap:"7px",marginBottom:"14px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"6px"}}>
+                {[{id:"standard",label:"Standard (6 Week)"},{id:"puppy",label:"Puppy (12 Week)"}].map(tab=>(
+                    <button key={tab.id} onClick={()=>setViewProgram(tab.id)}
+                            style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",
+                              fontSize:"11px",fontWeight:"700",transition:"all .2s",
+                              background:enrolledProgram===tab.id?T.gold:"transparent",
+                              color:enrolledProgram===tab.id?"#fff":T.textMuted}}>
+                      {tab.label}
+                    </button>
+                ))}
+              </div>
+          ) : (
+              <>
+                <div className="s2" style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"11px 14px"}}>
+                  <Icon name="lock" size={13} color={T.gold}/>
+                  <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{isStandard?"Standard (6 Week) Program":"Puppy (12 Week) Program"}</span>
+                  <span style={{fontSize:"10.5px",color:T.textFaint,marginLeft:"auto"}}>Purchased at signup</span>
+                </div>
+                {missingProgram && (
+                    <button onClick={()=>setShowAddProgram(true)} style={{width:"100%",display:"flex",alignItems:"center",gap:"9px",marginBottom:"14px",background:"rgba(176,141,87,.08)",border:`1px dashed ${T.gold}`,borderRadius:"12px",padding:"11px 14px",cursor:"pointer",textAlign:"left",fontFamily:"'Lato',sans-serif"}}>
+                      <Icon name="plus" size={14} color={T.gold}/>
+                      <span style={{flex:1}}>
                 <span style={{display:"block",fontSize:"12px",fontWeight:"700",color:T.gold}}>Add the {missingProgram==="puppy"?"Puppy (12 Week)":"Standard (6 Week)"} Program</span>
                 <span style={{display:"block",fontSize:"10.5px",color:T.textMuted,marginTop:"1px"}}>{PROGRAM_ADD_ON_PRICE} one-time — unlocks its own curriculum, tasks, and videos</span>
               </span>
-              <span style={{color:T.gold,fontSize:"15px"}}>›</span>
-            </button>
+                      <span style={{color:T.gold,fontSize:"15px"}}>›</span>
+                    </button>
+                )}
+              </>
           )}
-        </>
-      )}
 
-      {/* Puppy notice */}
-      {!isStandard && (
-        <div style={{background:"rgba(76,175,125,.08)",border:"1px solid rgba(76,175,125,.25)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",gap:"9px",alignItems:"flex-start"}}>
-          <Icon name="dog" size={20} style={{flexShrink:0}} color={T.gold}/>
-          <div>
-            <p style={{fontSize:"12px",fontWeight:"700",color:"#4caf7d",marginBottom:"2px"}}>Puppy Foundation Program</p>
-            <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Under 20 weeks. Check off every lesson, then tap <strong style={{color:T.text}}>Mark Week Complete</strong> — the next week unlocks 7 days later, giving time to practice.</p>
-          </div>
-        </div>
-      )}
+          {/* Puppy notice */}
+          {!isStandard && (
+              <div style={{background:"rgba(76,175,125,.08)",border:"1px solid rgba(76,175,125,.25)",borderRadius:"12px",padding:"11px 14px",marginBottom:"14px",display:"flex",gap:"9px",alignItems:"flex-start"}}>
+                <Icon name="dog" size={20} style={{flexShrink:0}} color={T.gold}/>
+                <div>
+                  <p style={{fontSize:"12px",fontWeight:"700",color:"#4caf7d",marginBottom:"2px"}}>Puppy Foundation Program</p>
+                  <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Under 20 weeks. Check off every lesson, then tap <strong style={{color:T.text}}>Mark Week Complete</strong> — the next week unlocks 7 days later, giving time to practice.</p>
+                </div>
+              </div>
+          )}
 
-      {/* Weekly badges for the currently-viewed program. Graduation weeks count as
+          {/* Weekly badges for the currently-viewed program. Graduation weeks count as
           earned once their lessons/final action are done, even though they don't
           set weekCompletedAt/puppyWeekDone through the normal per-week button. */}
-      <BadgeRow
-        curriculum={curriculum}
-        earnedMap={Object.fromEntries(curriculum.map(w => [
-          w.id,
-          isStandard
-            ? (w.graduation ? w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]) && !!weekCompletedAt[w.id] : !!weekCompletedAt[w.id])
-            : !!puppyWeekDone?.[w.id]
-        ]))}
-        title={isStandard ? "Standard Program Badges" : "Puppy Program Badges"}
-      />
+          <BadgeRow
+              curriculum={curriculum}
+              earnedMap={Object.fromEntries(curriculum.map(w => [
+                w.id,
+                isStandard
+                    ? (w.graduation ? w.lessons.every(l=>!!stdCompleted[`${w.id}::${l}`]) && !!weekCompletedAt[w.id] : !!weekCompletedAt[w.id])
+                    : !!puppyWeekDone?.[w.id]
+              ]))}
+              title={isStandard ? "Standard Program Badges" : "Puppy Program Badges"}
+          />
 
-      {/* Required welcome video — must be watched before the first section unlocks */}
-      <div className="s2" style={{marginBottom:"14px",animation:"up .4s .02s both"}}>
-        <div style={{background:videoWatched?"rgba(76,175,125,.08)":T.cardInner,border:`1px solid ${videoWatched?"rgba(76,175,125,.3)":T.gold}`,borderRadius:"14px",overflow:"hidden"}}>
-          <div style={{padding:"12px 15px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${T.divider}`}}>
-            <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-              <span style={{color:videoWatched?T.success:T.textFaint}}><Icon name={videoWatched?"checkCircle":"lock"} size={15}/></span>
-              <div>
-                <p style={{fontSize:"13px",fontWeight:"700",color:videoWatched?"#4caf7d":T.text}}>{video.title}</p>
-                <p style={{fontSize:"10px",color:T.textFaint,marginTop:"1px"}}>{videoWatched?"Watched — you're all set":"Required before you can begin"}</p>
-              </div>
-            </div>
-          </div>
-          <div style={{padding:"12px 15px"}}>
-            {!videoWatched && (
-              <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"10px",lineHeight:1.5}}>{video.caption}</p>
-            )}
-            <div className="protected-content-wrap" style={{borderRadius:"10px",overflow:"hidden",background:"#000"}}>
-              <video
-                className="protected-video"
-                src={video.src}
-                controls
-                controlsList="nodownload noremoteplayback"
-                disablePictureInPicture
-                onContextMenu={(e)=>e.preventDefault()}
-                onEnded={markVideoWatched}
-                style={{width:"100%",display:"block",maxHeight:"320px"}}
-              />
-            </div>
-            {!videoWatched && (
-              <button onClick={markVideoWatched} className="btn-gold"
-                style={{width:"100%",marginTop:"10px",padding:"11px",background:T.gold,border:"none",borderRadius:"10px",
-                  fontSize:"12px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",
-                  cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-                I've Watched the Welcome Video
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {curriculum.map((week,wi)=>{
-        const isOpen=openWeek===week.id;
-        const unlocked=isUnlocked(wi);
-        const lockInfo=unlocked?null:getWeekLockInfo(wi);
-        const weekMarkedDone = !isStandard ? !!puppyWeekDone?.[week.id] : false;
-        const doneCount=week.lessons.filter(l=>!!completed[`${week.id}::${l}`]).length;
-        const allLessonsDone=doneCount===week.lessons.length;
-        // For standard: "all done" by lessons. For puppy: by mark-complete button
-        const weekFullyDone = isStandard ? allLessonsDone : weekMarkedDone;
-        const prevWeek=wi>0?curriculum[wi-1]:null;
-        const prevDone=prevWeek?(isStandard?prevWeek.lessons.filter(l=>!!stdCompleted[`${prevWeek.id}::${l}`]).length:0):0;
-
-        const isCurrentWeek = week.id===currentWeekId;
-        return (
-          <div key={week.id} ref={isCurrentWeek?currentWeekRef:null} style={{marginBottom:"7px",animation:`up .4s ${wi*.06}s both`}}>
-            {/* Week header button */}
-            <button className="week-row"
-              onClick={()=>{
-                if(unlocked){ setOpenWeek(isOpen?null:week.id); return; }
-                // Tapping a locked week explains WHY instead of doing nothing.
-                if(lockInfo?.reason==="waiting"){
-                  showLearnToast(`${week.label} unlocks in ${lockInfo.daysLeft} day${lockInfo.daysLeft===1?"":"s"} (${lockInfo.unlockDateStr}) — this practice window helps ${petData?.name||"your dog"} lock in what they've already learned before moving on.`);
-                } else if(lockInfo?.reason==="welcome"){
-                  showLearnToast("Watch the welcome video above to unlock Week 1.");
-                } else {
-                  showLearnToast(`Finish ${lockInfo?.prevLabel||prevWeek?.label||"the previous week"} first to unlock ${week.label}.`);
-                }
-              }}
-              style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",
-                background:weekFullyDone?"rgba(76,175,125,.12)":!unlocked?"rgba(255,255,255,.02)":isOpen?"rgba(176,141,87,.12)":T.chipBg,
-                border:`1px solid ${isCurrentWeek&&unlocked?T.gold:weekFullyDone?"rgba(76,175,125,.4)":!unlocked?"rgba(176,141,87,.1)":isOpen?T.gold:T.chipBorder}`,
-                borderRadius:isOpen?"14px 14px 0 0":"14px",
-                cursor:"pointer",transition:"all .2s",opacity:unlocked?1:0.5}}>
-              <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-                {!unlocked
-                  ? <Icon name="lock" size={14}/>
-                  : weekFullyDone
-                    ? <span style={{color:T.success}}><Icon name="checkCircle" size={14}/></span>
-                    : <div style={{width:"18px",height:"18px",borderRadius:"50%",border:`2px solid ${isOpen?T.gold:T.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"9px",color:T.gold,fontWeight:"700"}}>{doneCount}</div>
-                }
-                <div style={{textAlign:"left"}}>
-                  <span style={{fontSize:"14px",fontWeight:"700",color:weekFullyDone?"#4caf7d":!unlocked?T.textFaint:isOpen?T.gold:T.text,display:"block"}}>{week.label}</span>
+          {/* Required welcome video — must be watched before the first section unlocks */}
+          <div className="s2" style={{marginBottom:"14px",animation:"up .4s .02s both"}}>
+            <div style={{background:videoWatched?"rgba(76,175,125,.08)":T.cardInner,border:`1px solid ${videoWatched?"rgba(76,175,125,.3)":T.gold}`,borderRadius:"14px",overflow:"hidden"}}>
+              <div style={{padding:"12px 15px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${T.divider}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                  <span style={{color:videoWatched?T.success:T.textFaint}}><Icon name={videoWatched?"checkCircle":"lock"} size={15}/></span>
+                  <div>
+                    <p style={{fontSize:"13px",fontWeight:"700",color:videoWatched?"#4caf7d":T.text}}>{video.title}</p>
+                    <p style={{fontSize:"10px",color:T.textFaint,marginTop:"1px"}}>{videoWatched?"Watched — you're all set":"Required before you can begin"}</p>
+                  </div>
                 </div>
-                {/* Matches the week shown as "This Week" / "Phase" on the Dashboard */}
-                {isCurrentWeek && !weekFullyDone && (
-                  <span style={{fontSize:"8.5px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",background:T.gold,borderRadius:"20px",padding:"2px 7px",flexShrink:0}}>Current</span>
-                )}
               </div>
-              <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
-                {!unlocked && lockInfo?.reason==="welcome" && (
-                  <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Watch welcome video above</span>
+              <div style={{padding:"12px 15px"}}>
+                {!videoWatched && (
+                    <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"10px",lineHeight:1.5}}>{video.caption}</p>
                 )}
-                {!unlocked && lockInfo?.reason==="waiting" && (
-                  <span style={{fontSize:"9px",color:T.gold,fontWeight:"700",maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Unlocks in {lockInfo.daysLeft} day{lockInfo.daysLeft===1?"":"s"}</span>
-                )}
-                {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && prevWeek && !isStandard && (
-                  <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>Complete {prevWeek.label} first</span>
-                )}
-                {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && isStandard && prevWeek && (
-                  <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>{prevDone}/{prevWeek.lessons.length} done</span>
-                )}
-                {unlocked && !weekFullyDone && <span style={{fontSize:"11px",color:T.textFaint}}>{doneCount}/{week.lessons.length}</span>}
-                {weekFullyDone && <span style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>Done</span>}
-                {unlocked && <span style={{color:T.textFaint,fontSize:"15px",transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>▾</span>}
-              </div>
-            </button>
-
-
-            {/* Expanded content */}
-            {isOpen && unlocked && (
-              <div style={{background:T.mode==="dark"?"rgba(10,15,22,.7)":T.cardInner,border:`1px solid ${weekFullyDone?"rgba(76,175,125,.4)":T.gold}`,borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
-
-                {/* Equipment Needed — shown at the start of a program/phase so people can
-                    get set up before diving into the tasks below. */}
-                {week.equipment && week.equipment.length > 0 && (
-                  <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(176,141,87,.09)":"rgba(176,141,87,.07)"}}>
-                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="backpack" size={12}/>Equipment Needed</p>
-                    <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"5px"}}>
-                      {week.equipment.map((item,ei)=>(
-                        <li key={ei} style={{fontSize:"12px",color:T.textMuted,lineHeight:1.4,display:"flex",alignItems:"flex-start",gap:"7px"}}>
-                          <span style={{color:T.gold,fontWeight:"900",marginTop:"1px",flexShrink:0}}>•</span>
-                          <span onClick={()=>onOpenHandout&&onOpenHandout("equipmentList")}
-                            style={onOpenHandout?{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}:undefined}>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Weekly Sheet: Goal */}
-                {week.goal && (
-                  <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(176,141,87,.05)":"rgba(176,141,87,.04)"}}>
-                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"5px"}}>Goal for This {week.id==="pre"?"Phase":"Week"}</p>
-                    <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}><Linkify text={week.goal} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
-                    {week.note && (
-                      <div style={{marginTop:"8px",padding:"8px 11px",background:T.mode==="dark"?"rgba(163,86,42,.15)":"rgba(163,86,42,.08)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"8px"}}>
-                        <p style={{fontSize:"11px",color:T.brown,fontWeight:"700",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="pin" size={11} style={{marginTop:"2px",flexShrink:0}}/><span><Linkify text={week.note} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span></p>
-                      </div>
-                    )}
-                    {week.sections && week.sections.length > 0 && (
-                      <div style={{marginTop:"10px",display:"flex",flexDirection:"column",gap:"10px"}}>
-                        {week.sections.map((sec,si)=>(
-                          <div key={si}>
-                            <p style={{fontSize:"11px",fontWeight:"700",color:T.text,marginBottom:"3px",lineHeight:1.3}}><Linkify text={sec.title} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
-                            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}><Linkify text={sec.body} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Weekly Sheet: Training Schedule Table */}
-                {week.tasks && week.tasks.length > 0 && (
-                  <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`}}>
-                    <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Daily Training Schedule</p>
-                    {/* Header row */}
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 70px 90px",gap:"4px",marginBottom:"4px",padding:"5px 8px"}}>
-                      {["Task","Per Day","Duration"].map(h=>(
-                        <p key={h} style={{fontSize:"9px",fontWeight:"700",color:T.textFaint,textTransform:"uppercase",letterSpacing:".1em",textAlign:h==="Task"?"left":"center"}}>{h}</p>
-                      ))}
-                    </div>
-                    {week.tasks.map((task,ti)=>(
-                      <div key={ti} style={{display:"grid",gridTemplateColumns:"1fr 70px 90px",gap:"4px",padding:"6px 8px",borderRadius:"7px",background:ti%2===0?T.mode==="dark"?"rgba(255,255,255,.03)":"rgba(28,38,54,.03)":"transparent",alignItems:"center"}}>
-                        <p style={{fontSize:"11.5px",color:T.text,lineHeight:1.35,fontWeight:"500"}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
-                        <p style={{fontSize:"11px",color:T.gold,fontWeight:"700",textAlign:"center"}}>{task.sessionsPerDay}</p>
-                        <p style={{fontSize:"10.5px",color:T.textMuted,textAlign:"center",lineHeight:1.3}}>{task.sessionLength}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Weekly Sheet: Common Mistakes */}
-                {week.mistakes && week.mistakes.length > 0 && (
-                  <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(163,86,42,.07)":"rgba(163,86,42,.04)"}}>
-                    <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes to Avoid</p>
-                    {week.mistakes.map((m,mi)=>(
-                      <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<week.mistakes.length-1?"5px":"0"}}>
-                        <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
-                        <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}><Linkify text={m} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Divider label for checklist section */}
-                <div style={{padding:"9px 15px 4px",background:T.mode==="dark"?"rgba(176,141,87,.04)":"transparent"}}>
-                  <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase"}}>Lesson Checklist</p>
+                <div className="protected-content-wrap" style={{borderRadius:"10px",overflow:"hidden",background:"#000"}}>
+                  <video
+                      className="protected-video"
+                      src={video.src}
+                      controls
+                      controlsList="nodownload noremoteplayback"
+                      disablePictureInPicture
+                      onContextMenu={(e)=>e.preventDefault()}
+                      onEnded={markVideoWatched}
+                      style={{width:"100%",display:"block",maxHeight:"320px"}}
+                  />
                 </div>
-
-                {/* Lessons list */}
-                {week.lessons.map((lesson,li)=>{
-                  const key=`${week.id}::${lesson}`;
-                  const done=!!completed[key];
-                  const disabled=weekMarkedDone;
-                  return (
-                    <div key={lesson} className="lesson-row"
-                      style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 15px",borderBottom:li<week.lessons.length-1?`1px solid ${T.divider}`:"none",cursor:disabled?"default":"pointer",opacity:disabled?0.65:1}}
-                      onClick={()=>!disabled&&(isStandard?toggleStd(week.id,lesson):togglePuppy(week.id,lesson))}>
-                      <ProtectedMedia type="text">
-                        <span style={{fontSize:"13px",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",flex:1,lineHeight:1.4}}><Linkify text={lesson} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span>
-                      </ProtectedMedia>
-                      <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:"10px",transition:"all .2s"}}>
-                        {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
-                      </div>
-                    </div>
-                  );
-                })}
-
-                {/* PUPPY: Mark Week Complete button */}
-                {!isStandard && !weekMarkedDone && (
-                  <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.05)"}}>
-                    <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>
-                      {allLessonsDone
-                        ? "All lessons checked! Tap below to complete this week and start the 7-day practice window."
-                        : "Work through all lessons, then mark this week complete."}
-                    </p>
-                    <button
-                      onClick={()=>markPuppyWeekDone(week.id, wi<curriculum.length-1?curriculum[wi+1].label:null)}
-                      className="btn-gold"
-                      style={{width:"100%",padding:"12px",
-                        background:allLessonsDone?"#4caf7d":"rgba(76,175,125,.25)",
-                        color:allLessonsDone?"#fff":"rgba(76,175,125,.8)",
-                        border:allLessonsDone?"none":"1px solid rgba(76,175,125,.4)",
-                        borderRadius:"10px",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",
-                        fontFamily:"'Lato',sans-serif",cursor:"pointer",
-                        boxShadow:allLessonsDone?"0 4px 16px rgba(76,175,125,.35)":"none",transition:"all .3s"}}>
-                      Mark Week Complete <Icon name="check" size={13} strokeWidth={3}/>
+                {!videoWatched && (
+                    <button onClick={markVideoWatched} className="btn-gold"
+                            style={{width:"100%",marginTop:"10px",padding:"11px",background:T.gold,border:"none",borderRadius:"10px",
+                              fontSize:"12px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",
+                              cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                      I've Watched the Welcome Video
                     </button>
-                  </div>
-                )}
-
-                {/* Already marked done state */}
-                {!isStandard && weekMarkedDone && (
-                  <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,display:"flex",alignItems:"center",gap:"9px",background:"rgba(76,175,125,.07)"}}>
-                    <Icon name="calendar" size={18} color={T.gold}/>
-                    <div>
-                      <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
-                      <p style={{fontSize:"11px",color:T.textMuted}}>
-                        {wi<curriculum.length-1 ? `${curriculum[wi+1].label} unlocks 7 days after completion.` : "You've completed the full program!"}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Standard: unlock next prompt when all lessons done */}
-                {isStandard && allLessonsDone && wi < curriculum.length-1 && (
-                  <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.07)"}}>
-                    {!weekCompletedAt[week.id] ? (
-                      <>
-                        <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>All lessons checked! Tap below to complete this week and start the 7-day unlock timer.</p>
-                        <button onClick={()=>{
-                            const now = Date.now();
-                            setWeekCompletedAt(d=>({...d,[week.id]:now}));
-                            saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
-                            const unlockDateStr = new Date(now+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
-                            showLearnToast(`Week complete! Take these next 7 days to practice and reinforce these skills — ${curriculum[wi+1].label} unlocks ${unlockDateStr}.`, "green");
-                            setJustEarnedBadge({label: week.label, isFinal: false, program:"standard"});
-                          }}
-                          style={{width:"100%",padding:"11px",background:"#4caf7d",border:"none",borderRadius:"10px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".08em",textTransform:"uppercase"}}>
-                          Mark Week Complete
-                        </button>
-                      </>
-                    ) : (
-                      <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
-                        <Icon name="calendar" size={18} color={T.gold}/>
-                        <div>
-                          <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
-                          <p style={{fontSize:"11px",color:T.textMuted}}>{curriculum[wi+1].label} unlocks 7 days after completion.</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {week.graduation && (
-                  <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`}}>
-                    <GoldBtn style={{padding:"10px",fontSize:"12px"}} onClick={()=>{
-                        // Standard's final week has no other "mark complete" action (the
-                        // per-week button above only shows for wi < length-1), so this is
-                        // where its badge + completion timestamp get set. Puppy's final
-                        // week already gets both from markPuppyWeekDone before this button
-                        // is reachable, so we don't double-fire here for puppy.
-                        if(isStandard && !weekCompletedAt[week.id]){
-                          const now = Date.now();
-                          setWeekCompletedAt(d=>({...d,[week.id]:now}));
-                          saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
-                          setJustEarnedBadge({label: week.label, isFinal:true, program:"standard"});
-                          sendCertificateWebhook("standard", petData); // final week — fire the GHL certificate workflow
-                        }
-                      }}>
-                      <Icon name="gradCap" size={13} style={{marginRight:"4px"}}/>Generate Graduation Certificate
-                    </GoldBtn>
-                  </div>
                 )}
               </div>
-            )}
+            </div>
           </div>
-        );
-      })}
-    </ScrollBody>
 
-    {/* Locked-week / week-complete toast */}
-    {learnToast && (
-      <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:learnToast.tone==="green"?T.success:T.navy,border:`1px solid ${learnToast.tone==="green"?T.success:T.gold}`,color:learnToast.tone==="green"?"#fff":T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",maxWidth:"280px",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"7px"}}>
-        <Icon name={learnToast.tone==="green"?"party":"lock"} size={14} style={{flexShrink:0,marginTop:"1px"}}/>
-        <span>{learnToast.text}</span>
-      </div>
-    )}
+          {curriculum.map((week,wi)=>{
+            const isOpen=openWeek===week.id;
+            const unlocked=isUnlocked(wi);
+            const lockInfo=unlocked?null:getWeekLockInfo(wi);
+            const weekMarkedDone = !isStandard ? !!puppyWeekDone?.[week.id] : false;
+            const doneCount=week.lessons.filter(l=>!!completed[`${week.id}::${l}`]).length;
+            const allLessonsDone=doneCount===week.lessons.length;
+            // For standard: "all done" by lessons. For puppy: by mark-complete button
+            const weekFullyDone = isStandard ? allLessonsDone : weekMarkedDone;
+            const prevWeek=wi>0?curriculum[wi-1]:null;
+            const prevDone=prevWeek?(isStandard?prevWeek.lessons.filter(l=>!!stdCompleted[`${prevWeek.id}::${l}`]).length:0):0;
 
-    {/* Add-the-other-program purchase modal */}
-    {showAddProgram && missingProgram && (
-      <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-        <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-          <div style={{textAlign:"center",marginBottom:"16px"}}>
-            <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="gradCap" size={36}/></div>
-            <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Add the {missingProgram==="puppy"?"Puppy (12 Week)":"Standard (6 Week)"} Program</h3>
-            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>One-time purchase — unlocks the full {missingProgram==="puppy"?"12-week puppy":"6-week standard"} curriculum, tasks, and videos, tracked separately from your current program.</p>
-            <p style={{fontSize:"22px",fontWeight:"900",color:T.gold,marginTop:"12px"}}>{PROGRAM_ADD_ON_PRICE}</p>
-          </div>
-          <button onClick={()=>handleAddProgram(missingProgram)} style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",color:"#fff",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
-            Confirm Purchase
-          </button>
-          <button onClick={()=>setShowAddProgram(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-            Cancel
-          </button>
-        </div>
-      </div>
-    )}
+            const isCurrentWeek = week.id===currentWeekId;
+            return (
+                <div key={week.id} ref={isCurrentWeek?currentWeekRef:null} style={{marginBottom:"7px",animation:`up .4s ${wi*.06}s both`}}>
+                  {/* Week header button */}
+                  <button className="week-row"
+                          onClick={()=>{
+                            if(unlocked){ setOpenWeek(isOpen?null:week.id); return; }
+                            // Tapping a locked week explains WHY instead of doing nothing.
+                            if(lockInfo?.reason==="waiting"){
+                              showLearnToast(`${week.label} unlocks in ${lockInfo.daysLeft} day${lockInfo.daysLeft===1?"":"s"} (${lockInfo.unlockDateStr}) — this practice window helps ${petData?.name||"your dog"} lock in what they've already learned before moving on.`);
+                            } else if(lockInfo?.reason==="welcome"){
+                              showLearnToast("Watch the welcome video above to unlock Week 1.");
+                            } else {
+                              showLearnToast(`Finish ${lockInfo?.prevLabel||prevWeek?.label||"the previous week"} first to unlock ${week.label}.`);
+                            }
+                          }}
+                          style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",
+                            background:weekFullyDone?"rgba(76,175,125,.12)":!unlocked?"rgba(255,255,255,.02)":isOpen?"rgba(176,141,87,.12)":T.chipBg,
+                            border:`1px solid ${isCurrentWeek&&unlocked?T.gold:weekFullyDone?"rgba(76,175,125,.4)":!unlocked?"rgba(176,141,87,.1)":isOpen?T.gold:T.chipBorder}`,
+                            borderRadius:isOpen?"14px 14px 0 0":"14px",
+                            cursor:"pointer",transition:"all .2s",opacity:unlocked?1:0.5}}>
+                    <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+                      {!unlocked
+                          ? <Icon name="lock" size={14}/>
+                          : weekFullyDone
+                              ? <span style={{color:T.success}}><Icon name="checkCircle" size={14}/></span>
+                              : <div style={{width:"18px",height:"18px",borderRadius:"50%",border:`2px solid ${isOpen?T.gold:T.chipBorder}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"9px",color:T.gold,fontWeight:"700"}}>{doneCount}</div>
+                      }
+                      <div style={{textAlign:"left"}}>
+                        <span style={{fontSize:"14px",fontWeight:"700",color:weekFullyDone?"#4caf7d":!unlocked?T.textFaint:isOpen?T.gold:T.text,display:"block"}}>{week.label}</span>
+                      </div>
+                      {/* Matches the week shown as "This Week" / "Phase" on the Dashboard */}
+                      {isCurrentWeek && !weekFullyDone && (
+                          <span style={{fontSize:"8.5px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",color:"#fff",background:T.gold,borderRadius:"20px",padding:"2px 7px",flexShrink:0}}>Current</span>
+                      )}
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:"7px"}}>
+                      {!unlocked && lockInfo?.reason==="welcome" && (
+                          <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Watch welcome video above</span>
+                      )}
+                      {!unlocked && lockInfo?.reason==="waiting" && (
+                          <span style={{fontSize:"9px",color:T.gold,fontWeight:"700",maxWidth:"90px",textAlign:"right",lineHeight:1.3}}>Unlocks in {lockInfo.daysLeft} day{lockInfo.daysLeft===1?"":"s"}</span>
+                      )}
+                      {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && prevWeek && !isStandard && (
+                          <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>Complete {prevWeek.label} first</span>
+                      )}
+                      {!unlocked && lockInfo?.reason==="incomplete" && wi>0 && isStandard && prevWeek && (
+                          <span style={{fontSize:"9px",color:T.textFaint,maxWidth:"80px",textAlign:"right",lineHeight:1.3}}>{prevDone}/{prevWeek.lessons.length} done</span>
+                      )}
+                      {unlocked && !weekFullyDone && <span style={{fontSize:"11px",color:T.textFaint}}>{doneCount}/{week.lessons.length}</span>}
+                      {weekFullyDone && <span style={{fontSize:"10px",color:"#4caf7d",fontWeight:"700"}}><Icon name="check" size={10} strokeWidth={3} style={{marginRight:"2px"}}/>Done</span>}
+                      {unlocked && <span style={{color:T.textFaint,fontSize:"15px",transition:"transform .2s",transform:isOpen?"rotate(180deg)":"none"}}>▾</span>}
+                    </div>
+                  </button>
 
-    {/* Program added success toast */}
-    {addProgramSuccess && (
-      <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"14px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-        <Icon name="check" size={14} strokeWidth={3} style={{marginRight:"4px"}}/>Program added! Enjoy your new curriculum.
-      </div>
-    )}
 
-    <BadgeEarnedOverlay badge={justEarnedBadge} onClose={()=>setJustEarnedBadge(null)}/>
-    </>
+                  {/* Expanded content */}
+                  {isOpen && unlocked && (
+                      <div style={{background:T.mode==="dark"?"rgba(10,15,22,.7)":T.cardInner,border:`1px solid ${weekFullyDone?"rgba(76,175,125,.4)":T.gold}`,borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
+
+                        {/* Equipment Needed — shown at the start of a program/phase so people can
+                    get set up before diving into the tasks below. */}
+                        {week.equipment && week.equipment.length > 0 && (
+                            <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(176,141,87,.09)":"rgba(176,141,87,.07)"}}>
+                              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="backpack" size={12}/>Equipment Needed</p>
+                              <ul style={{margin:0,padding:0,listStyle:"none",display:"flex",flexDirection:"column",gap:"5px"}}>
+                                {week.equipment.map((item,ei)=>(
+                                    <li key={ei} style={{fontSize:"12px",color:T.textMuted,lineHeight:1.4,display:"flex",alignItems:"flex-start",gap:"7px"}}>
+                                      <span style={{color:T.gold,fontWeight:"900",marginTop:"1px",flexShrink:0}}>•</span>
+                                      <span onClick={()=>onOpenHandout&&onOpenHandout("equipmentList")}
+                                            style={onOpenHandout?{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}:undefined}>{item}</span>
+                                    </li>
+                                ))}
+                              </ul>
+                            </div>
+                        )}
+
+                        {/* Weekly Sheet: Goal */}
+                        {week.goal && (
+                            <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(176,141,87,.05)":"rgba(176,141,87,.04)"}}>
+                              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"5px"}}>Goal for This {week.id==="pre"?"Phase":"Week"}</p>
+                              <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}><Linkify text={week.goal} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                              {week.note && (
+                                  <div style={{marginTop:"8px",padding:"8px 11px",background:T.mode==="dark"?"rgba(163,86,42,.15)":"rgba(163,86,42,.08)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"8px"}}>
+                                    <p style={{fontSize:"11px",color:T.brown,fontWeight:"700",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"4px"}}><Icon name="pin" size={11} style={{marginTop:"2px",flexShrink:0}}/><span><Linkify text={week.note} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span></p>
+                                  </div>
+                              )}
+                              {week.sections && week.sections.length > 0 && (
+                                  <div style={{marginTop:"10px",display:"flex",flexDirection:"column",gap:"10px"}}>
+                                    {week.sections.map((sec,si)=>(
+                                        <div key={si}>
+                                          <p style={{fontSize:"11px",fontWeight:"700",color:T.text,marginBottom:"3px",lineHeight:1.3}}><Linkify text={sec.title} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                                          <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55}}><Linkify text={sec.body} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                                        </div>
+                                    ))}
+                                  </div>
+                              )}
+                            </div>
+                        )}
+
+                        {/* Weekly Sheet: Training Schedule Table */}
+                        {week.tasks && week.tasks.length > 0 && (
+                            <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`}}>
+                              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}>Daily Training Schedule</p>
+                              {/* Header row */}
+                              <div style={{display:"grid",gridTemplateColumns:"1fr 70px 90px",gap:"4px",marginBottom:"4px",padding:"5px 8px"}}>
+                                {["Task","Per Day","Duration"].map(h=>(
+                                    <p key={h} style={{fontSize:"9px",fontWeight:"700",color:T.textFaint,textTransform:"uppercase",letterSpacing:".1em",textAlign:h==="Task"?"left":"center"}}>{h}</p>
+                                ))}
+                              </div>
+                              {week.tasks.map((task,ti)=>(
+                                  <div key={ti} style={{display:"grid",gridTemplateColumns:"1fr 70px 90px",gap:"4px",padding:"6px 8px",borderRadius:"7px",background:ti%2===0?T.mode==="dark"?"rgba(255,255,255,.03)":"rgba(28,38,54,.03)":"transparent",alignItems:"center"}}>
+                                    <p style={{fontSize:"11.5px",color:T.text,lineHeight:1.35,fontWeight:"500"}}><Linkify text={task.name} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                                    <p style={{fontSize:"11px",color:T.gold,fontWeight:"700",textAlign:"center"}}>{task.sessionsPerDay}</p>
+                                    <p style={{fontSize:"10.5px",color:T.textMuted,textAlign:"center",lineHeight:1.3}}>{task.sessionLength}</p>
+                                  </div>
+                              ))}
+                            </div>
+                        )}
+
+                        {/* Weekly Sheet: Common Mistakes */}
+                        {week.mistakes && week.mistakes.length > 0 && (
+                            <div style={{padding:"12px 15px",borderBottom:`1px solid ${T.divider}`,background:T.mode==="dark"?"rgba(163,86,42,.07)":"rgba(163,86,42,.04)"}}>
+                              <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"7px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes to Avoid</p>
+                              {week.mistakes.map((m,mi)=>(
+                                  <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<week.mistakes.length-1?"5px":"0"}}>
+                                    <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
+                                    <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}><Linkify text={m} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></p>
+                                  </div>
+                              ))}
+                            </div>
+                        )}
+
+                        {/* Divider label for checklist section */}
+                        <div style={{padding:"9px 15px 4px",background:T.mode==="dark"?"rgba(176,141,87,.04)":"transparent"}}>
+                          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase"}}>Lesson Checklist</p>
+                        </div>
+
+                        {/* Lessons list */}
+                        {week.lessons.map((lesson,li)=>{
+                          const key=`${week.id}::${lesson}`;
+                          const done=!!completed[key];
+                          const disabled=weekMarkedDone;
+                          return (
+                              <div key={lesson} className="lesson-row"
+                                   style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 15px",borderBottom:li<week.lessons.length-1?`1px solid ${T.divider}`:"none",cursor:disabled?"default":"pointer",opacity:disabled?0.65:1}}
+                                   onClick={()=>!disabled&&(isStandard?toggleStd(week.id,lesson):togglePuppy(week.id,lesson))}>
+                                <ProtectedMedia type="text">
+                                  <span style={{fontSize:"13px",color:done?T.textFaint:T.text,textDecoration:done?"line-through":"none",flex:1,lineHeight:1.4}}><Linkify text={lesson} onOpenHandout={onOpenHandout} onOpenVideo={onOpenVideo} context={isStandard?"standard":"puppy"}/></span>
+                                </ProtectedMedia>
+                                <div style={{width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${done?"#4caf7d":T.chipBorder}`,background:done?"#4caf7d":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginLeft:"10px",transition:"all .2s"}}>
+                                  {done&&<Icon name="check" size={11} color="#fff" strokeWidth={3}/>}
+                                </div>
+                              </div>
+                          );
+                        })}
+
+                        {/* PUPPY: Mark Week Complete button */}
+                        {!isStandard && !weekMarkedDone && (
+                            <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.05)"}}>
+                              <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>
+                                {allLessonsDone
+                                    ? "All lessons checked! Tap below to complete this week and start the 7-day practice window."
+                                    : "Work through all lessons, then mark this week complete."}
+                              </p>
+                              <button
+                                  onClick={()=>markPuppyWeekDone(week.id, wi<curriculum.length-1?curriculum[wi+1].label:null)}
+                                  className="btn-gold"
+                                  style={{width:"100%",padding:"12px",
+                                    background:allLessonsDone?"#4caf7d":"rgba(76,175,125,.25)",
+                                    color:allLessonsDone?"#fff":"rgba(76,175,125,.8)",
+                                    border:allLessonsDone?"none":"1px solid rgba(76,175,125,.4)",
+                                    borderRadius:"10px",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",
+                                    fontFamily:"'Lato',sans-serif",cursor:"pointer",
+                                    boxShadow:allLessonsDone?"0 4px 16px rgba(76,175,125,.35)":"none",transition:"all .3s"}}>
+                                Mark Week Complete <Icon name="check" size={13} strokeWidth={3}/>
+                              </button>
+                            </div>
+                        )}
+
+                        {/* Already marked done state */}
+                        {!isStandard && weekMarkedDone && (
+                            <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,display:"flex",alignItems:"center",gap:"9px",background:"rgba(76,175,125,.07)"}}>
+                              <Icon name="calendar" size={18} color={T.gold}/>
+                              <div>
+                                <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
+                                <p style={{fontSize:"11px",color:T.textMuted}}>
+                                  {wi<curriculum.length-1 ? `${curriculum[wi+1].label} unlocks 7 days after completion.` : "You've completed the full program!"}
+                                </p>
+                              </div>
+                            </div>
+                        )}
+
+                        {/* Standard: unlock next prompt when all lessons done */}
+                        {isStandard && allLessonsDone && wi < curriculum.length-1 && (
+                            <div style={{padding:"12px 15px",borderTop:`1px solid ${T.divider}`,background:"rgba(76,175,125,.07)"}}>
+                              {!weekCompletedAt[week.id] ? (
+                                  <>
+                                    <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"8px",lineHeight:1.4}}>All lessons checked! Tap below to complete this week and start the 7-day unlock timer.</p>
+                                    <button onClick={()=>{
+                                      const now = Date.now();
+                                      setWeekCompletedAt(d=>({...d,[week.id]:now}));
+                                      saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
+                                      const unlockDateStr = new Date(now+SEVEN_DAYS_MS).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+                                      showLearnToast(`Week complete! Take these next 7 days to practice and reinforce these skills — ${curriculum[wi+1].label} unlocks ${unlockDateStr}.`, "green");
+                                      setJustEarnedBadge({label: week.label, isFinal: false, program:"standard"});
+                                    }}
+                                            style={{width:"100%",padding:"11px",background:"#4caf7d",border:"none",borderRadius:"10px",fontSize:"13px",fontWeight:"900",color:"#fff",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".08em",textTransform:"uppercase"}}>
+                                      Mark Week Complete
+                                    </button>
+                                  </>
+                              ) : (
+                                  <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
+                                    <Icon name="calendar" size={18} color={T.gold}/>
+                                    <div>
+                                      <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700",marginBottom:"2px"}}>Week complete!</p>
+                                      <p style={{fontSize:"11px",color:T.textMuted}}>{curriculum[wi+1].label} unlocks 7 days after completion.</p>
+                                    </div>
+                                  </div>
+                              )}
+                            </div>
+                        )}
+
+                        {week.graduation && (
+                            <div style={{padding:"13px 15px",borderTop:`1px solid ${T.divider}`}}>
+                              <GoldBtn style={{padding:"10px",fontSize:"12px"}} onClick={()=>{
+                                // Standard's final week has no other "mark complete" action (the
+                                // per-week button above only shows for wi < length-1), so this is
+                                // where its badge + completion timestamp get set. Puppy's final
+                                // week already gets both from markPuppyWeekDone before this button
+                                // is reachable, so we don't double-fire here for puppy.
+                                if(isStandard && !weekCompletedAt[week.id]){
+                                  const now = Date.now();
+                                  setWeekCompletedAt(d=>({...d,[week.id]:now}));
+                                  saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
+                                  setJustEarnedBadge({label: week.label, isFinal:true, program:"standard"});
+                                  sendCertificateWebhook("standard", petData); // final week — fire the GHL certificate workflow
+                                }
+                              }}>
+                                <Icon name="gradCap" size={13} style={{marginRight:"4px"}}/>Generate Graduation Certificate
+                              </GoldBtn>
+                            </div>
+                        )}
+                      </div>
+                  )}
+                </div>
+            );
+          })}
+        </ScrollBody>
+
+        {/* Locked-week / week-complete toast */}
+        {learnToast && (
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:learnToast.tone==="green"?T.success:T.navy,border:`1px solid ${learnToast.tone==="green"?T.success:T.gold}`,color:learnToast.tone==="green"?"#fff":T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",maxWidth:"280px",lineHeight:1.5,display:"flex",alignItems:"flex-start",gap:"7px"}}>
+              <Icon name={learnToast.tone==="green"?"party":"lock"} size={14} style={{flexShrink:0,marginTop:"1px"}}/>
+              <span>{learnToast.text}</span>
+            </div>
+        )}
+
+        {/* Add-the-other-program purchase modal */}
+        {showAddProgram && missingProgram && (
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
+                <div style={{textAlign:"center",marginBottom:"16px"}}>
+                  <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="gradCap" size={36}/></div>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Add the {missingProgram==="puppy"?"Puppy (12 Week)":"Standard (6 Week)"} Program</h3>
+                  <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>One-time purchase — unlocks the full {missingProgram==="puppy"?"12-week puppy":"6-week standard"} curriculum, tasks, and videos, tracked separately from your current program.</p>
+                  <p style={{fontSize:"22px",fontWeight:"900",color:T.gold,marginTop:"12px"}}>{PROGRAM_ADD_ON_PRICE}</p>
+                </div>
+                <button onClick={()=>handleAddProgram(missingProgram)} style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",color:"#fff",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
+                  Confirm Purchase
+                </button>
+                <button onClick={()=>setShowAddProgram(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+        )}
+
+        {/* Program added success toast */}
+        {addProgramSuccess && (
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"14px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
+              <Icon name="check" size={14} strokeWidth={3} style={{marginRight:"4px"}}/>Program added! Enjoy your new curriculum.
+            </div>
+        )}
+
+        <BadgeEarnedOverlay badge={justEarnedBadge} onClose={()=>setJustEarnedBadge(null)}/>
+      </>
   );
 };
 
@@ -4683,145 +4703,145 @@ const CalendarScreen = () => {
 
   // Upcoming: every stored event, sorted chronologically from today forward (falls back to all, oldest-future-first)
   const upcoming=[...events]
-    .map(e=>({...e, ts:new Date(e.year,e.month,e.day).getTime()}))
-    .sort((a,b)=>a.ts-b.ts)
-    .filter(e=>e.ts >= new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime())
-    .slice(0,8);
+      .map(e=>({...e, ts:new Date(e.year,e.month,e.day).getTime()}))
+      .sort((a,b)=>a.ts-b.ts)
+      .filter(e=>e.ts >= new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime())
+      .slice(0,8);
 
   const typeColor=(type)=> type==="vet"?T.brown : type==="other"?T.gold : T.green;
 
   return (
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"18px",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Calendar</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>{MONTH_NAMES[viewMonth]} {viewYear}</h2>
+      <ScrollBody>
+        <div className="s1" style={{marginBottom:"18px",display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Calendar</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>{MONTH_NAMES[viewMonth]} {viewYear}</h2>
+          </div>
+          {!isCurrentRealMonth&&<button onClick={goToday} style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"6px 12px",color:T.gold,fontSize:"11px",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0}}>Today</button>}
         </div>
-        {!isCurrentRealMonth&&<button onClick={goToday} style={{background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"6px 12px",color:T.gold,fontSize:"11px",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif",flexShrink:0}}>Today</button>}
-      </div>
 
-      {/* Month / year navigation */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"6px",marginBottom:"12px"}}>
-        <div style={{display:"flex",gap:"4px"}}>
-          <button onClick={goPrevYear} title="Previous year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
-            <Icon name="arrowLeft" size={12}/><Icon name="arrowLeft" size={12} style={{marginLeft:"-7px"}}/>
-          </button>
-          <button onClick={goPrevMonth} title="Previous month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
-            <Icon name="arrowLeft" size={13}/>
-          </button>
+        {/* Month / year navigation */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"6px",marginBottom:"12px"}}>
+          <div style={{display:"flex",gap:"4px"}}>
+            <button onClick={goPrevYear} title="Previous year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
+              <Icon name="arrowLeft" size={12}/><Icon name="arrowLeft" size={12} style={{marginLeft:"-7px"}}/>
+            </button>
+            <button onClick={goPrevMonth} title="Previous month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
+              <Icon name="arrowLeft" size={13}/>
+            </button>
+          </div>
+          <div style={{display:"flex",gap:"4px"}}>
+            <button onClick={goNextMonth} title="Next month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
+              <Icon name="arrowRight" size={13}/>
+            </button>
+            <button onClick={goNextYear} title="Next year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
+              <Icon name="arrowRight" size={12}/><Icon name="arrowRight" size={12} style={{marginLeft:"-7px"}}/>
+            </button>
+          </div>
         </div>
-        <div style={{display:"flex",gap:"4px"}}>
-          <button onClick={goNextMonth} title="Next month" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 11px",cursor:"pointer",color:T.text,display:"flex",alignItems:"center"}}>
-            <Icon name="arrowRight" size={13}/>
-          </button>
-          <button onClick={goNextYear} title="Next year" style={{background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"8px",padding:"7px 9px",cursor:"pointer",color:T.textMuted,display:"flex",alignItems:"center"}}>
-            <Icon name="arrowRight" size={12}/><Icon name="arrowRight" size={12} style={{marginLeft:"-7px"}}/>
-          </button>
-        </div>
-      </div>
 
-      <div className="s2" style={{background:T.calBg,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"14px"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px",marginBottom:"8px"}}>{["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{textAlign:"center",fontSize:"9.5px",color:T.textFaint,fontWeight:"700",padding:"3px 0"}}>{d}</div>)}</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px"}}>
-          {Array.from({length:Math.ceil((startWeekday+daysInMonth)/7)*7},(_,i)=>{
-            const day=i-startWeekday+1;
-            const valid=day>0&&day<=daysInMonth;
-            const isToday=isCurrentRealMonth&&day===todayDate;
-            const dayEvents=valid?eventsForDay(day):[];
-            return(
-              <div key={i}
-                onClick={()=>valid&&openDay(day)}
-                style={{textAlign:"center",padding:"6px 2px",borderRadius:"7px",cursor:valid?"pointer":"default",background:isToday?T.dayToday:"transparent",color:!valid?"transparent":isToday?T.dayTodayText:T.text,fontSize:"12.5px",fontWeight:isToday?"900":"400",position:"relative",transition:"background .15s"}}
-                onMouseEnter={e=>{ if(valid&&!isToday) e.currentTarget.style.background=T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.1)"; }}
-                onMouseLeave={e=>{ if(valid&&!isToday) e.currentTarget.style.background="transparent"; }}>
-                {valid?day:""}
-                {dayEvents.length>0&&!isToday&&<div style={{width:"3.5px",height:"3.5px",borderRadius:"50%",background:T.gold,margin:"1.5px auto 0"}}/>}
-              </div>
-            );
-          })}
-        </div>
-        <p style={{fontSize:"10px",color:T.textFaint,textAlign:"center",marginTop:"10px"}}>Tap a day to view or add events</p>
-      </div>
-
-      {/* Day panel — shows the day's scheduled events first, with an option to add another */}
-      {showDayPanel&&(
-        <>
-          <div onClick={closeDayPanel} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
-          <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(340px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"18px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
-              <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>{MONTH_NAMES[viewMonth]} {selectedDay}, {viewYear}</p>
-              <button onClick={closeDayPanel} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint}}><Icon name="x" size={16}/></button>
-            </div>
-
-            {!addMode&&(
-              <>
-                {/* Scheduled events for this day */}
-                <div style={{marginBottom:"14px"}}>
-                  <p style={{fontSize:"9px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Scheduled Events</p>
-                  {selectedDay&&eventsForDay(selectedDay).length===0&&(
-                    <p style={{fontSize:"12px",color:T.textFaint,padding:"6px 0"}}>Nothing scheduled on this day yet.</p>
-                  )}
-                  {selectedDay&&eventsForDay(selectedDay).map(e=>(
-                    <div key={e.id} style={{display:"flex",alignItems:"center",gap:"8px",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
-                      <div style={{width:"3px",height:"28px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
-                      <div style={{flex:1,minWidth:0}}>
-                        <p style={{fontSize:"13px",fontWeight:"700",color:T.text}}>{e.title}</p>
-                        <p style={{fontSize:"11px",color:T.textMuted}}>{e.time} · {EVENT_TYPES.find(t=>t.id===e.type)?.label||e.type}</p>
-                      </div>
-                      <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
-                    </div>
-                  ))}
-                </div>
-                <GoldBtn onClick={()=>setAddMode(true)} style={{padding:"11px",fontSize:"12px",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-                  <Icon name="plus" size={13}/>Add Event
-                </GoldBtn>
-              </>
-            )}
-
-            {addMode&&(
-              <>
-                <div style={{marginBottom:"10px"}}>
-                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Title</label>
-                  <input value={newTitle} onChange={e=>setNewTitle(e.target.value)} placeholder="e.g. Vet Appointment" autoFocus
-                    style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                </div>
-                <div style={{marginBottom:"10px"}}>
-                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Time</label>
-                  <input value={newTime} onChange={e=>setNewTime(e.target.value)} placeholder="e.g. 2:30 PM"
-                    style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                </div>
-                <div style={{marginBottom:"14px"}}>
-                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Type</label>
-                  <div style={{display:"flex",gap:"6px"}}>
-                    {EVENT_TYPES.map(t=>(
-                      <button key={t.id} onClick={()=>setNewType(t.id)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${newType===t.id?T.gold:T.chipBorder}`,background:newType===t.id?"rgba(176,141,87,.18)":T.chipBg,color:newType===t.id?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:newType===t.id?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{t.label}</button>
-                    ))}
+        <div className="s2" style={{background:T.calBg,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"14px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px",marginBottom:"8px"}}>{["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{textAlign:"center",fontSize:"9.5px",color:T.textFaint,fontWeight:"700",padding:"3px 0"}}>{d}</div>)}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"3px"}}>
+            {Array.from({length:Math.ceil((startWeekday+daysInMonth)/7)*7},(_,i)=>{
+              const day=i-startWeekday+1;
+              const valid=day>0&&day<=daysInMonth;
+              const isToday=isCurrentRealMonth&&day===todayDate;
+              const dayEvents=valid?eventsForDay(day):[];
+              return(
+                  <div key={i}
+                       onClick={()=>valid&&openDay(day)}
+                       style={{textAlign:"center",padding:"6px 2px",borderRadius:"7px",cursor:valid?"pointer":"default",background:isToday?T.dayToday:"transparent",color:!valid?"transparent":isToday?T.dayTodayText:T.text,fontSize:"12.5px",fontWeight:isToday?"900":"400",position:"relative",transition:"background .15s"}}
+                       onMouseEnter={e=>{ if(valid&&!isToday) e.currentTarget.style.background=T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.1)"; }}
+                       onMouseLeave={e=>{ if(valid&&!isToday) e.currentTarget.style.background="transparent"; }}>
+                    {valid?day:""}
+                    {dayEvents.length>0&&!isToday&&<div style={{width:"3.5px",height:"3.5px",borderRadius:"50%",background:T.gold,margin:"1.5px auto 0"}}/>}
                   </div>
-                </div>
-                <div style={{display:"flex",gap:"8px"}}>
-                  <GoldBtn onClick={saveEvent} style={{padding:"11px",fontSize:"12px"}}>Save Event</GoldBtn>
-                  <button onClick={()=>setAddMode(false)} style={{flex:1,padding:"11px",background:"transparent",border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.textMuted,fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Back</button>
-                </div>
-              </>
-            )}
+              );
+            })}
           </div>
-        </>
-      )}
+          <p style={{fontSize:"10px",color:T.textFaint,textAlign:"center",marginTop:"10px"}}>Tap a day to view or add events</p>
+        </div>
 
-      <p style={{fontSize:"10px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Upcoming</p>
-      {upcoming.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"14px 0"}}>No upcoming events — tap a day above to add one.</p>}
-      {upcoming.map(e=>{
-        const isToday=e.year===now.getFullYear()&&e.month===now.getMonth()&&e.day===now.getDate();
-        return (
-          <div key={e.id} style={{display:"flex",gap:"11px",alignItems:"center",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
-            <div style={{width:"46px",flexShrink:0}}><p style={{fontSize:"9.5px",color:T.textFaint}}>{isToday?"Today":`${MONTH_NAMES[e.month].slice(0,3)} ${e.day}`}</p></div>
-            <div style={{width:"3px",height:"32px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
-            <div style={{flex:1,minWidth:0}}><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{e.title}</p><p style={{fontSize:"11px",color:T.textMuted}}>{e.time}</p></div>
-            <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
-          </div>
-        );
-      })}
-    </ScrollBody>
+        {/* Day panel — shows the day's scheduled events first, with an option to add another */}
+        {showDayPanel&&(
+            <>
+              <div onClick={closeDayPanel} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:99}}/>
+              <div style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:100,width:"min(340px,90vw)",maxHeight:"80vh",overflowY:"auto",background:T.mode==="dark"?"#162032":T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"16px",padding:"18px",boxShadow:"0 20px 50px rgba(0,0,0,.4)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}}>
+                  <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>{MONTH_NAMES[viewMonth]} {selectedDay}, {viewYear}</p>
+                  <button onClick={closeDayPanel} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint}}><Icon name="x" size={16}/></button>
+                </div>
+
+                {!addMode&&(
+                    <>
+                      {/* Scheduled events for this day */}
+                      <div style={{marginBottom:"14px"}}>
+                        <p style={{fontSize:"9px",color:T.gold,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"8px"}}>Scheduled Events</p>
+                        {selectedDay&&eventsForDay(selectedDay).length===0&&(
+                            <p style={{fontSize:"12px",color:T.textFaint,padding:"6px 0"}}>Nothing scheduled on this day yet.</p>
+                        )}
+                        {selectedDay&&eventsForDay(selectedDay).map(e=>(
+                            <div key={e.id} style={{display:"flex",alignItems:"center",gap:"8px",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
+                              <div style={{width:"3px",height:"28px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
+                              <div style={{flex:1,minWidth:0}}>
+                                <p style={{fontSize:"13px",fontWeight:"700",color:T.text}}>{e.title}</p>
+                                <p style={{fontSize:"11px",color:T.textMuted}}>{e.time} · {EVENT_TYPES.find(t=>t.id===e.type)?.label||e.type}</p>
+                              </div>
+                              <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
+                            </div>
+                        ))}
+                      </div>
+                      <GoldBtn onClick={()=>setAddMode(true)} style={{padding:"11px",fontSize:"12px",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+                        <Icon name="plus" size={13}/>Add Event
+                      </GoldBtn>
+                    </>
+                )}
+
+                {addMode&&(
+                    <>
+                      <div style={{marginBottom:"10px"}}>
+                        <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Title</label>
+                        <input value={newTitle} onChange={e=>setNewTitle(e.target.value)} placeholder="e.g. Vet Appointment" autoFocus
+                               style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                      </div>
+                      <div style={{marginBottom:"10px"}}>
+                        <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Time</label>
+                        <input value={newTime} onChange={e=>setNewTime(e.target.value)} placeholder="e.g. 2:30 PM"
+                               style={{width:"100%",padding:"10px 12px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                      </div>
+                      <div style={{marginBottom:"14px"}}>
+                        <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"5px"}}>Type</label>
+                        <div style={{display:"flex",gap:"6px"}}>
+                          {EVENT_TYPES.map(t=>(
+                              <button key={t.id} onClick={()=>setNewType(t.id)} style={{flex:1,padding:"8px",borderRadius:"9px",border:`1px solid ${newType===t.id?T.gold:T.chipBorder}`,background:newType===t.id?"rgba(176,141,87,.18)":T.chipBg,color:newType===t.id?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:newType===t.id?"700":"400",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>{t.label}</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{display:"flex",gap:"8px"}}>
+                        <GoldBtn onClick={saveEvent} style={{padding:"11px",fontSize:"12px"}}>Save Event</GoldBtn>
+                        <button onClick={()=>setAddMode(false)} style={{flex:1,padding:"11px",background:"transparent",border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.textMuted,fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>Back</button>
+                      </div>
+                    </>
+                )}
+              </div>
+            </>
+        )}
+
+        <p style={{fontSize:"10px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"10px"}}>Upcoming</p>
+        {upcoming.length===0&&<p style={{fontSize:"12px",color:T.textFaint,textAlign:"center",padding:"14px 0"}}>No upcoming events — tap a day above to add one.</p>}
+        {upcoming.map(e=>{
+          const isToday=e.year===now.getFullYear()&&e.month===now.getMonth()&&e.day===now.getDate();
+          return (
+              <div key={e.id} style={{display:"flex",gap:"11px",alignItems:"center",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
+                <div style={{width:"46px",flexShrink:0}}><p style={{fontSize:"9.5px",color:T.textFaint}}>{isToday?"Today":`${MONTH_NAMES[e.month].slice(0,3)} ${e.day}`}</p></div>
+                <div style={{width:"3px",height:"32px",borderRadius:"2px",background:typeColor(e.type),flexShrink:0}}/>
+                <div style={{flex:1,minWidth:0}}><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{e.title}</p><p style={{fontSize:"11px",color:T.textMuted}}>{e.time}</p></div>
+                <button onClick={()=>deleteEvent(e.id)} title="Delete" style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,flexShrink:0}}><Icon name="trash" size={13}/></button>
+              </div>
+          );
+        })}
+      </ScrollBody>
   );
 };
 
@@ -4832,65 +4852,65 @@ const CalendarScreen = () => {
 // real product page directly (Amazon affiliate links or the Ruff Land site) — there is no
 // generic storefront link anymore.
 const STORE_PRODUCTS=[
-    {name:"Prong Collar – Herm Sprenger 2.25mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/4xRw4tf",emoji:"link"},
-    {name:"Prong Collar – Herm Sprenger Quick Release 2.25mm",cat:"Collars & Leashes",url:"https://amzn.to/4qs9UeJ",emoji:"link"},
-    {name:"Prong Collar – Herm Sprenger 3mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/3UHFLMq",emoji:"link"},
-    {name:"Prong Collar – Herm Sprenger Extra Links 3mm",cat:"Collars & Leashes",url:"https://amzn.to/3TYabKj",emoji:"link"},
-    {name:"Leash – Hands-Free (Pink)",cat:"Collars & Leashes",url:"https://amzn.to/4gn9iCA",emoji:"link"},
-    {name:"Leash – Hands-Free (Blue)",cat:"Collars & Leashes",url:"https://amzn.to/4gr3wzH",emoji:"link"},
-    {name:"Long Line – 20ft",cat:"Collars & Leashes",url:"https://amzn.to/4gkSxrE",emoji:"link"},
-    {name:"Slip Lead",cat:"Collars & Leashes",url:"https://amzn.to/4wIfCe3",emoji:"link"},
-    {name:"E-Collar – Micro Educator ME300",cat:"E-Collars",url:"https://amzn.to/4c1UEzf",emoji:"antenna"},
-    {name:"E-Collar – Mini Educator ET300",cat:"E-Collars",url:"https://amzn.to/4cPCJvM",emoji:"antenna"},
-    {name:"Treat Pouch – Fanny Pack",cat:"Treat Pouches",url:"https://amzn.to/4zp5dq9",emoji:"bag"},
-    {name:"Treat Pouch – Magnetic",cat:"Treat Pouches",url:"https://amzn.to/4bYpitl",emoji:"bag"},
-    {name:"Treat Pouch – Coastal Blue",cat:"Treat Pouches",url:"https://amzn.to/3UovkNK",emoji:"bag"},
-    {name:"Treat Pouch – Silicone (2-Pack)",cat:"Treat Pouches",url:"https://amzn.to/4bU8lQM",emoji:"bag"},
-    {name:"Kennel – Ruff Land Small",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/small-kennel",emoji:"box"},
-    {name:"Kennel – Ruff Land Medium",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/medium-kennel",emoji:"box"},
-    {name:"Kennel – Ruff Land Large",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/large-kennel",emoji:"box"},
-    {name:"Kennel – Petmate Small 24\"",cat:"Kennels & Crates",url:"https://www.amazon.com/dp/B00DJR9X2M?lv=shuf&linkCode=spc&asc_contentid=amzn1.ideas.3IPKBTHKRC8B9&tag=barkbossacade-20&domainId=influencer&channelId=500&plpRedirect=mhFallback&th=1",emoji:"box"},
-    {name:"Kennel – Petmate Medium 40\"",cat:"Kennels & Crates",url:"https://amzn.to/4gFFsdE",emoji:"box"},
-    {name:"Kennel – Petmate 40\" Large",cat:"Kennels & Crates",url:"https://amzn.to/4hKSQhD",emoji:"box"},
-    {name:"Kennel – Petmate Large 36\"",cat:"Kennels & Crates",url:"https://amzn.to/4wJ3oll",emoji:"box"},
-    {name:"Kennel – Petmate XL 48\"",cat:"Kennels & Crates",url:"https://amzn.to/4zMaWGP",emoji:"box"},
-    {name:"Kennel – MidWest iCrate Starter Kit 24\"",cat:"Kennels & Crates",url:"https://amzn.to/4xMzyNv",emoji:"box"},
-    {name:"Kennel – MidWest iCrate Starter Kit 42\"",cat:"Kennels & Crates",url:"https://amzn.to/46bLbBX",emoji:"box"},
-    {name:"Kennel – MidWest 30\" Medium iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4cPbK3u",emoji:"box"},
-    {name:"Kennel – MidWest 36\" Medium/Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/3Skd9bu",emoji:"box"},
-    {name:"Kennel – MidWest 42\" Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4bYHp2d",emoji:"box"},
-    {name:"Dog Bed – Elevated Coolaroo On-The-Go Foldable (Medium)",cat:"Beds",url:"https://amzn.to/4qtpyGz",emoji:"bed"},
-    {name:"Dog Bed – Elevated Cooling Breathable (Large)",cat:"Beds",url:"https://amzn.to/3SNlrsx",emoji:"bed"},
-    {name:"Dog Bed – Elevated Coolaroo (Large)",cat:"Beds",url:"https://amzn.to/4zzATJx",emoji:"bed"},
-    {name:"Bite Pillow Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4gi0rTX",emoji:"bone"},
-    {name:"Glow-in-the-Dark Soccer Ball with Straps",cat:"Toys & Enrichment",url:"https://amzn.to/4gtTT3s",emoji:"bone"},
-    {name:"Treat-Dispensing Puzzle Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4hJWtoa",emoji:"bone"},
-    {name:"Treat-Dispensing Pineapple Toy",cat:"Toys & Enrichment",url:"https://amzn.to/45DggOJ",emoji:"bone"},
-    {name:"Large Water Buffalo Horn Chew",cat:"Toys & Enrichment",url:"https://amzn.to/4hIZBkb",emoji:"bone"},
-    {name:"Elk Antler Chew",cat:"Toys & Enrichment",url:"https://amzn.to/3SNlAfz",emoji:"bone"},
-    {name:"Elk Antler Chew – Split Antler",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
-    {name:"Kong Natural Rubber Dental Chew Stuff-A-Ball",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
-    {name:"Kong Knot Bears (Small/Medium, 2-Pack)",cat:"Toys & Enrichment",url:"https://amzn.to/4wyLphf",emoji:"bone"},
-    {name:"Kong Rubber Flying Disc Fetch Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3SH2JTq",emoji:"bone"},
-    {name:"Kong Tug Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3UHH2mG",emoji:"bone"},
-    {name:"Durable Rubber Bone",cat:"Toys & Enrichment",url:"https://amzn.to/4gGyrJx",emoji:"bone"},
-    {name:"Enzyme Odor Spray Cleaner – Nature's Miracle",cat:"Grooming & Care",url:"https://amzn.to/3SdiyRD",emoji:"droplet"},
-    {name:"Inflatable Dog Cone Collar",cat:"Grooming & Care",url:"https://amzn.to/4gl2CVr",emoji:"droplet"},
-    {name:"Deshedding Brush",cat:"Grooming & Care",url:"https://amzn.to/4hEK7gY",emoji:"droplet"},
-    {name:"Organic Lick-Safe Paw Balm",cat:"Grooming & Care",url:"https://amzn.to/4qxcOPu",emoji:"droplet"},
-    {name:"Liquid Bandaid for Dogs",cat:"Grooming & Care",url:"https://amzn.to/4wXhqQx",emoji:"droplet"},
-    {name:"Salmon Oil Supplement",cat:"Grooming & Care",url:"https://amzn.to/4xcyjYn",emoji:"droplet"},
-    {name:"Ear Cleaner – Doctor Beasley's Advanced Ear Bomb",cat:"Grooming & Care",url:"https://amzn.to/4gI0XKM",emoji:"droplet"},
-    {name:"Portable Water Bottle – PupFlask Stainless Steel",cat:"Travel & Car",url:"https://amzn.to/46g5wG8",emoji:"car"},
-    {name:"Dog Seat Belt for Car",cat:"Travel & Car",url:"https://amzn.to/4ztP02G",emoji:"car"},
-    {name:"Car First Aid Kit",cat:"Travel & Car",url:"https://amzn.to/4qtVNpc",emoji:"car"},
-    {name:"Car Harness Seat Belt (Purple)",cat:"Travel & Car",url:"https://amzn.to/4ztMiKD",emoji:"car"},
-    {name:"Car Harness Seat Belt (Black)",cat:"Travel & Car",url:"https://amzn.to/4cSQmdJ",emoji:"car"},
-    {name:"Car Seat Belt Headrest Restraint Safety Leads (2-Pack)",cat:"Travel & Car",url:"https://amzn.to/4gDjg3T",emoji:"car"},
-    {name:"Car Seat Harness (Black)",cat:"Travel & Car",url:"https://amzn.to/4ijtlEk",emoji:"car"},
-    {name:"Agility Cones – Multi-Colored (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4hJw4qw",emoji:"target"},
-    {name:"Agility Cones – Orange (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4wCLQqU",emoji:"target"},
-    {name:"Collapsible Dog Bowl",cat:"Feeding",url:"https://amzn.to/4grmq9J",emoji:"bowl"},
+  {name:"Prong Collar – Herm Sprenger 2.25mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/4xRw4tf",emoji:"link"},
+  {name:"Prong Collar – Herm Sprenger Quick Release 2.25mm",cat:"Collars & Leashes",url:"https://amzn.to/4qs9UeJ",emoji:"link"},
+  {name:"Prong Collar – Herm Sprenger 3mm Training Collar",cat:"Collars & Leashes",url:"https://amzn.to/3UHFLMq",emoji:"link"},
+  {name:"Prong Collar – Herm Sprenger Extra Links 3mm",cat:"Collars & Leashes",url:"https://amzn.to/3TYabKj",emoji:"link"},
+  {name:"Leash – Hands-Free (Pink)",cat:"Collars & Leashes",url:"https://amzn.to/4gn9iCA",emoji:"link"},
+  {name:"Leash – Hands-Free (Blue)",cat:"Collars & Leashes",url:"https://amzn.to/4gr3wzH",emoji:"link"},
+  {name:"Long Line – 20ft",cat:"Collars & Leashes",url:"https://amzn.to/4gkSxrE",emoji:"link"},
+  {name:"Slip Lead",cat:"Collars & Leashes",url:"https://amzn.to/4wIfCe3",emoji:"link"},
+  {name:"E-Collar – Micro Educator ME300",cat:"E-Collars",url:"https://amzn.to/4c1UEzf",emoji:"antenna"},
+  {name:"E-Collar – Mini Educator ET300",cat:"E-Collars",url:"https://amzn.to/4cPCJvM",emoji:"antenna"},
+  {name:"Treat Pouch – Fanny Pack",cat:"Treat Pouches",url:"https://amzn.to/4zp5dq9",emoji:"bag"},
+  {name:"Treat Pouch – Magnetic",cat:"Treat Pouches",url:"https://amzn.to/4bYpitl",emoji:"bag"},
+  {name:"Treat Pouch – Coastal Blue",cat:"Treat Pouches",url:"https://amzn.to/3UovkNK",emoji:"bag"},
+  {name:"Treat Pouch – Silicone (2-Pack)",cat:"Treat Pouches",url:"https://amzn.to/4bU8lQM",emoji:"bag"},
+  {name:"Kennel – Ruff Land Small",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/small-kennel",emoji:"box"},
+  {name:"Kennel – Ruff Land Medium",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/medium-kennel",emoji:"box"},
+  {name:"Kennel – Ruff Land Large",cat:"Kennels & Crates",url:"https://www.rufflandkennels.com/products/large-kennel",emoji:"box"},
+  {name:"Kennel – Petmate Small 24\"",cat:"Kennels & Crates",url:"https://www.amazon.com/dp/B00DJR9X2M?lv=shuf&linkCode=spc&asc_contentid=amzn1.ideas.3IPKBTHKRC8B9&tag=barkbossacade-20&domainId=influencer&channelId=500&plpRedirect=mhFallback&th=1",emoji:"box"},
+  {name:"Kennel – Petmate Medium 40\"",cat:"Kennels & Crates",url:"https://amzn.to/4gFFsdE",emoji:"box"},
+  {name:"Kennel – Petmate 40\" Large",cat:"Kennels & Crates",url:"https://amzn.to/4hKSQhD",emoji:"box"},
+  {name:"Kennel – Petmate Large 36\"",cat:"Kennels & Crates",url:"https://amzn.to/4wJ3oll",emoji:"box"},
+  {name:"Kennel – Petmate XL 48\"",cat:"Kennels & Crates",url:"https://amzn.to/4zMaWGP",emoji:"box"},
+  {name:"Kennel – MidWest iCrate Starter Kit 24\"",cat:"Kennels & Crates",url:"https://amzn.to/4xMzyNv",emoji:"box"},
+  {name:"Kennel – MidWest iCrate Starter Kit 42\"",cat:"Kennels & Crates",url:"https://amzn.to/46bLbBX",emoji:"box"},
+  {name:"Kennel – MidWest 30\" Medium iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4cPbK3u",emoji:"box"},
+  {name:"Kennel – MidWest 36\" Medium/Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/3Skd9bu",emoji:"box"},
+  {name:"Kennel – MidWest 42\" Large iCrate",cat:"Kennels & Crates",url:"https://amzn.to/4bYHp2d",emoji:"box"},
+  {name:"Dog Bed – Elevated Coolaroo On-The-Go Foldable (Medium)",cat:"Beds",url:"https://amzn.to/4qtpyGz",emoji:"bed"},
+  {name:"Dog Bed – Elevated Cooling Breathable (Large)",cat:"Beds",url:"https://amzn.to/3SNlrsx",emoji:"bed"},
+  {name:"Dog Bed – Elevated Coolaroo (Large)",cat:"Beds",url:"https://amzn.to/4zzATJx",emoji:"bed"},
+  {name:"Bite Pillow Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4gi0rTX",emoji:"bone"},
+  {name:"Glow-in-the-Dark Soccer Ball with Straps",cat:"Toys & Enrichment",url:"https://amzn.to/4gtTT3s",emoji:"bone"},
+  {name:"Treat-Dispensing Puzzle Toy",cat:"Toys & Enrichment",url:"https://amzn.to/4hJWtoa",emoji:"bone"},
+  {name:"Treat-Dispensing Pineapple Toy",cat:"Toys & Enrichment",url:"https://amzn.to/45DggOJ",emoji:"bone"},
+  {name:"Large Water Buffalo Horn Chew",cat:"Toys & Enrichment",url:"https://amzn.to/4hIZBkb",emoji:"bone"},
+  {name:"Elk Antler Chew",cat:"Toys & Enrichment",url:"https://amzn.to/3SNlAfz",emoji:"bone"},
+  {name:"Elk Antler Chew – Split Antler",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
+  {name:"Kong Natural Rubber Dental Chew Stuff-A-Ball",cat:"Toys & Enrichment",url:"https://amzn.to/4xPmk2A",emoji:"bone"},
+  {name:"Kong Knot Bears (Small/Medium, 2-Pack)",cat:"Toys & Enrichment",url:"https://amzn.to/4wyLphf",emoji:"bone"},
+  {name:"Kong Rubber Flying Disc Fetch Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3SH2JTq",emoji:"bone"},
+  {name:"Kong Tug Toy",cat:"Toys & Enrichment",url:"https://amzn.to/3UHH2mG",emoji:"bone"},
+  {name:"Durable Rubber Bone",cat:"Toys & Enrichment",url:"https://amzn.to/4gGyrJx",emoji:"bone"},
+  {name:"Enzyme Odor Spray Cleaner – Nature's Miracle",cat:"Grooming & Care",url:"https://amzn.to/3SdiyRD",emoji:"droplet"},
+  {name:"Inflatable Dog Cone Collar",cat:"Grooming & Care",url:"https://amzn.to/4gl2CVr",emoji:"droplet"},
+  {name:"Deshedding Brush",cat:"Grooming & Care",url:"https://amzn.to/4hEK7gY",emoji:"droplet"},
+  {name:"Organic Lick-Safe Paw Balm",cat:"Grooming & Care",url:"https://amzn.to/4qxcOPu",emoji:"droplet"},
+  {name:"Liquid Bandaid for Dogs",cat:"Grooming & Care",url:"https://amzn.to/4wXhqQx",emoji:"droplet"},
+  {name:"Salmon Oil Supplement",cat:"Grooming & Care",url:"https://amzn.to/4xcyjYn",emoji:"droplet"},
+  {name:"Ear Cleaner – Doctor Beasley's Advanced Ear Bomb",cat:"Grooming & Care",url:"https://amzn.to/4gI0XKM",emoji:"droplet"},
+  {name:"Portable Water Bottle – PupFlask Stainless Steel",cat:"Travel & Car",url:"https://amzn.to/46g5wG8",emoji:"car"},
+  {name:"Dog Seat Belt for Car",cat:"Travel & Car",url:"https://amzn.to/4ztP02G",emoji:"car"},
+  {name:"Car First Aid Kit",cat:"Travel & Car",url:"https://amzn.to/4qtVNpc",emoji:"car"},
+  {name:"Car Harness Seat Belt (Purple)",cat:"Travel & Car",url:"https://amzn.to/4ztMiKD",emoji:"car"},
+  {name:"Car Harness Seat Belt (Black)",cat:"Travel & Car",url:"https://amzn.to/4cSQmdJ",emoji:"car"},
+  {name:"Car Seat Belt Headrest Restraint Safety Leads (2-Pack)",cat:"Travel & Car",url:"https://amzn.to/4gDjg3T",emoji:"car"},
+  {name:"Car Seat Harness (Black)",cat:"Travel & Car",url:"https://amzn.to/4ijtlEk",emoji:"car"},
+  {name:"Agility Cones – Multi-Colored (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4hJw4qw",emoji:"target"},
+  {name:"Agility Cones – Orange (30-Pack)",cat:"Training Aids",url:"https://amzn.to/4wCLQqU",emoji:"target"},
+  {name:"Collapsible Dog Bowl",cat:"Feeding",url:"https://amzn.to/4grmq9J",emoji:"bowl"},
 ];
 const STORE_CATS=["All","Collars & Leashes","E-Collars","Treat Pouches","Kennels & Crates","Beds","Toys & Enrichment","Grooming & Care","Travel & Car","Training Aids","Feeding"];
 
@@ -4899,32 +4919,32 @@ const StoreScreen = () => {
   const [activeCat,setActiveCat]=useState("All");
   const filtered=activeCat==="All"?STORE_PRODUCTS:STORE_PRODUCTS.filter(p=>p.cat===activeCat);
   return (
-    <ScrollBody>
-      <div className="s1" style={{marginBottom:"16px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Shop</p>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700",marginBottom:"4px"}}>Trainer-Recommended Gear</h2>
-        <p style={{fontSize:"12px",color:T.textMuted}}>Our hand-picked equipment list — every link goes straight to the exact product</p>
-      </div>
-      {/* Category filter */}
-      <div className="s2" style={{display:"flex",gap:"6px",overflowX:"auto",marginBottom:"16px",paddingBottom:"4px"}}>
-        {STORE_CATS.map(c=><button key={c} onClick={()=>setActiveCat(c)} style={{flexShrink:0,padding:"6px 13px",borderRadius:"20px",border:`1px solid ${activeCat===c?T.gold:T.chipBorder}`,background:activeCat===c?"rgba(176,141,87,.18)":T.chipBg,color:activeCat===c?T.goldLight:T.textMuted,fontSize:"11.5px",fontWeight:activeCat===c?"700":"400",cursor:"pointer",transition:"all .18s",whiteSpace:"nowrap"}}>{c}</button>)}
-      </div>
-      <div className="s3" style={{display:"flex",flexDirection:"column",gap:"9px"}}>
-        {filtered.map((p,pi)=>(
-          <div key={p.name+pi} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"13px 15px",display:"flex",alignItems:"center",gap:"12px"}}>
-            <div style={{width:"46px",height:"46px",borderRadius:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.brown}}><Icon name={p.emoji} size={22}/></div>
-            <div style={{flex:1}}>
-              <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px",lineHeight:1.3}}>{p.name}</p>
-              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700"}}>{p.cat}</p>
-            </div>
-            <div style={{textAlign:"right",flexShrink:0}}>
-              <button onClick={()=>window.open(p.url,"_blank","noopener,noreferrer")}
-                style={{background:T.brown,border:"none",borderRadius:"8px",padding:"7px 12px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>View →</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </ScrollBody>
+      <ScrollBody>
+        <div className="s1" style={{marginBottom:"16px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Shop</p>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700",marginBottom:"4px"}}>Trainer-Recommended Gear</h2>
+          <p style={{fontSize:"12px",color:T.textMuted}}>Our hand-picked equipment list — every link goes straight to the exact product</p>
+        </div>
+        {/* Category filter */}
+        <div className="s2" style={{display:"flex",gap:"6px",overflowX:"auto",marginBottom:"16px",paddingBottom:"4px"}}>
+          {STORE_CATS.map(c=><button key={c} onClick={()=>setActiveCat(c)} style={{flexShrink:0,padding:"6px 13px",borderRadius:"20px",border:`1px solid ${activeCat===c?T.gold:T.chipBorder}`,background:activeCat===c?"rgba(176,141,87,.18)":T.chipBg,color:activeCat===c?T.goldLight:T.textMuted,fontSize:"11.5px",fontWeight:activeCat===c?"700":"400",cursor:"pointer",transition:"all .18s",whiteSpace:"nowrap"}}>{c}</button>)}
+        </div>
+        <div className="s3" style={{display:"flex",flexDirection:"column",gap:"9px"}}>
+          {filtered.map((p,pi)=>(
+              <div key={p.name+pi} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"13px 15px",display:"flex",alignItems:"center",gap:"12px"}}>
+                <div style={{width:"46px",height:"46px",borderRadius:"12px",background:T.storeBg,border:`1px solid ${T.storeBorder}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,color:T.brown}}><Icon name={p.emoji} size={22}/></div>
+                <div style={{flex:1}}>
+                  <p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px",lineHeight:1.3}}>{p.name}</p>
+                  <p style={{fontSize:"10px",color:T.gold,fontWeight:"700"}}>{p.cat}</p>
+                </div>
+                <div style={{textAlign:"right",flexShrink:0}}>
+                  <button onClick={()=>window.open(p.url,"_blank","noopener,noreferrer")}
+                          style={{background:T.brown,border:"none",borderRadius:"8px",padding:"7px 12px",fontSize:"10.5px",color:"white",cursor:"pointer",fontWeight:"700",whiteSpace:"nowrap"}}>View →</button>
+                </div>
+              </div>
+          ))}
+        </div>
+      </ScrollBody>
   );
 };
 
@@ -5314,27 +5334,27 @@ const HANDOUTS = {
     content:[
       {type:"p", text:"Mistakes are incredibly common \u2014 they will quietly shape a dog's behavior for life. Issues such as reactivity, fearfulness, and over-excitement not only come from a lack of proper socializing but also from the wrong kind of exposure."},
       {type:"ol", items:[
-        "Flooding \u2014 too much stimulus too quickly. Placing a young puppy in a busy/chaotic park environment without first working at home and in the yard.",
-        "Forcing \u2014 taking choice away from the puppy by allowing strangers to handle the puppy, dogs to rush into the puppy's space, or picking the puppy up while something scary happens to them.",
-        "Quantity over Quality \u2014 checking boxes instead of fostering curiosity and confidence. Meeting 50 people is not better than calmly investigating one neutral person. Overstimulation risks the puppy shutting down and associating negative feelings towards what should be neutral experiences.",
-        "Ignoring body language \u2014 missing early stress signals causes the puppy to escalate to fearful or defensive behaviors. Signs like lip licking, freezing, and turning away should be an automatic trigger to slow down and create distance.",
-        "Delaying socializing \u2014 waiting for vaccines or for the puppy to reach an older age means missing the critical socializing window.",
-        "Letting every dog and person interact \u2014 frustration or overexcitement are side effects of constant interactions, teaching the puppy to expect interactions instead of reinforcing engagement with the handler and neutrality towards other people and dogs.",
-        "Accidentally reinforcing fear \u2014 over-soothing while the puppy is unsure creates overstimulation and fear. Picking up the puppy at every perceived insecurity creates frustration and feelings of helplessness.",
-        "Not enough variety \u2014 sticking with the same people, environments, sounds, etc. creates context specific feelings, meaning they are only comfortable with the same two people or neutrality only around one dog in the neighborhood, for example.",
-        "Skipping Handling Desensitizing \u2014 being unprepared for grooming or vet appointments means fearful/reactive handling later.",
-        "Focusing on other dogs, not the environment \u2014 constantly planning playdates means the puppy becomes socially fixated (only wants to interact with other dogs instead of the handler), or reactive (lunging to create space or overexcited).",
-        "Permissive overexcitement \u2014 letting the puppy bark, jump, or lunge towards everything they find interesting/exciting leads to a loss of control during greetings and no engagement with the handler.",
-        "Not teaching independence \u2014 'Helicopter parent' behavior in every situation never allows the puppy to think or feel okay existing on their own. Separation issues arise when the handler is always stepping in or engaging with the puppy.",
-        "Inconsistent experiences \u2014 sometimes allowing behavior and sometimes redirecting (jumping, pulling, etc.). This confuses the learning process, keeping the puppy guessing on what expectations are.",
-        "Punishing fearful reactions \u2014 suppressing the puppy's communication begins to ruin the relationship between puppy and handler. Scolding for fearful barking, backing away, shutting down, etc. adds fear and confusion.",
-        "Not being the puppy's advocate \u2014 letting people crowd the puppy, pet without permission, and allowing uncontrolled dogs too close are all examples of not advocating for the puppy. It is the handler's responsibility to create safe boundaries.",
-        "Poor timing \u2014 rewarding at the wrong moment or significantly delayed from the experience reinforces the wrong emotional state. If the puppy is already pulling away or panicked, feeding in that moment rewards incorrect feelings towards the experience.",
-        "Sessions lasting too long \u2014 pushing a puppy past their threshold for new experiences creates negative associations. Do not push past fatigue or overstimulation.",
-        "No recovery time \u2014 just as pushing past the puppy's fatigue, giving too many experiences back to back builds up to overstimulation or frustration.",
-        "Expecting confidence rather than building confidence \u2014 assuming the puppy can handle every experience causes frustration on both the handler and puppy.",
-        "Going to dog parks \u2014 dog parks have too many variables to be considered a safe space to socialize. Other dogs teach poor manners, over-arousal, and incorrect social skills. Having a puppy off-leash in an unpredictable environment means handler timing is way off and there is zero control over the puppy and what happens to them.",
-      ]},
+          "Flooding \u2014 too much stimulus too quickly. Placing a young puppy in a busy/chaotic park environment without first working at home and in the yard.",
+          "Forcing \u2014 taking choice away from the puppy by allowing strangers to handle the puppy, dogs to rush into the puppy's space, or picking the puppy up while something scary happens to them.",
+          "Quantity over Quality \u2014 checking boxes instead of fostering curiosity and confidence. Meeting 50 people is not better than calmly investigating one neutral person. Overstimulation risks the puppy shutting down and associating negative feelings towards what should be neutral experiences.",
+          "Ignoring body language \u2014 missing early stress signals causes the puppy to escalate to fearful or defensive behaviors. Signs like lip licking, freezing, and turning away should be an automatic trigger to slow down and create distance.",
+          "Delaying socializing \u2014 waiting for vaccines or for the puppy to reach an older age means missing the critical socializing window.",
+          "Letting every dog and person interact \u2014 frustration or overexcitement are side effects of constant interactions, teaching the puppy to expect interactions instead of reinforcing engagement with the handler and neutrality towards other people and dogs.",
+          "Accidentally reinforcing fear \u2014 over-soothing while the puppy is unsure creates overstimulation and fear. Picking up the puppy at every perceived insecurity creates frustration and feelings of helplessness.",
+          "Not enough variety \u2014 sticking with the same people, environments, sounds, etc. creates context specific feelings, meaning they are only comfortable with the same two people or neutrality only around one dog in the neighborhood, for example.",
+          "Skipping Handling Desensitizing \u2014 being unprepared for grooming or vet appointments means fearful/reactive handling later.",
+          "Focusing on other dogs, not the environment \u2014 constantly planning playdates means the puppy becomes socially fixated (only wants to interact with other dogs instead of the handler), or reactive (lunging to create space or overexcited).",
+          "Permissive overexcitement \u2014 letting the puppy bark, jump, or lunge towards everything they find interesting/exciting leads to a loss of control during greetings and no engagement with the handler.",
+          "Not teaching independence \u2014 'Helicopter parent' behavior in every situation never allows the puppy to think or feel okay existing on their own. Separation issues arise when the handler is always stepping in or engaging with the puppy.",
+          "Inconsistent experiences \u2014 sometimes allowing behavior and sometimes redirecting (jumping, pulling, etc.). This confuses the learning process, keeping the puppy guessing on what expectations are.",
+          "Punishing fearful reactions \u2014 suppressing the puppy's communication begins to ruin the relationship between puppy and handler. Scolding for fearful barking, backing away, shutting down, etc. adds fear and confusion.",
+          "Not being the puppy's advocate \u2014 letting people crowd the puppy, pet without permission, and allowing uncontrolled dogs too close are all examples of not advocating for the puppy. It is the handler's responsibility to create safe boundaries.",
+          "Poor timing \u2014 rewarding at the wrong moment or significantly delayed from the experience reinforces the wrong emotional state. If the puppy is already pulling away or panicked, feeding in that moment rewards incorrect feelings towards the experience.",
+          "Sessions lasting too long \u2014 pushing a puppy past their threshold for new experiences creates negative associations. Do not push past fatigue or overstimulation.",
+          "No recovery time \u2014 just as pushing past the puppy's fatigue, giving too many experiences back to back builds up to overstimulation or frustration.",
+          "Expecting confidence rather than building confidence \u2014 assuming the puppy can handle every experience causes frustration on both the handler and puppy.",
+          "Going to dog parks \u2014 dog parks have too many variables to be considered a safe space to socialize. Other dogs teach poor manners, over-arousal, and incorrect social skills. Having a puppy off-leash in an unpredictable environment means handler timing is way off and there is zero control over the puppy and what happens to them.",
+        ]},
     ],
     mistakes:[],
   },
@@ -5427,11 +5447,11 @@ const HANDOUTS = {
       {type:"h", text:"How Long Should a Dog Work for Food?"},
       {type:"p", text:"Working for food is a great way to build communication and strengthen your relationship. Use food often when teaching new skills, then gradually add other rewards like praise, play, and real-life experiences. Continue using food throughout your dog's life to reinforce great choices and maintain reliable behaviors. Since each dog's growth is different and their progress varies, working for food depends on the dog."},
       {type:"table", headers:["","Structured Meals","Free Feeding"], rows:[
-        ["Portion Control","Meals are measured, preventing overeating","Unlimited access often leading to obesity"],
-        ["Routine & Predictability","Dogs learn a schedule, reducing anxiety","Dog may graze or beg constantly"],
-        ["Monitoring Health","Changes in appetite or eating habits are noticeable","Illness or changes in eating may go unnoticed"],
-        ["Behavior Management","Encourages patience and impulse control","Can contribute to resource guarding or selective eating"],
-      ]},
+          ["Portion Control","Meals are measured, preventing overeating","Unlimited access often leading to obesity"],
+          ["Routine & Predictability","Dogs learn a schedule, reducing anxiety","Dog may graze or beg constantly"],
+          ["Monitoring Health","Changes in appetite or eating habits are noticeable","Illness or changes in eating may go unnoticed"],
+          ["Behavior Management","Encourages patience and impulse control","Can contribute to resource guarding or selective eating"],
+        ]},
     ],
     mistakes:[],
   },
@@ -5608,7 +5628,7 @@ const _linkEntries = [
   ...VIDEO_KEYWORDS.map(([k,id])=>({k,id,type:"video"})),
 ];
 const LINK_REGEX = new RegExp(
-  [..._linkEntries].sort((a,b)=>b.k.length-a.k.length).map(e=>_escapeRx(e.k)).join("|"), "gi"
+    [..._linkEntries].sort((a,b)=>b.k.length-a.k.length).map(e=>_escapeRx(e.k)).join("|"), "gi"
 );
 const VIDEO_MAP = Object.fromEntries(VIDEO_KEYWORDS.map(([k,id])=>[k.toLowerCase(),id]));
 
@@ -5646,31 +5666,31 @@ const Linkify = ({text, onOpenHandout, onOpenVideo, context, currentId}) => {
       const idx=match.index;
       const isOpen=openMatchIdx===idx;
       parts.push(
-        <span key={idx}>
+          <span key={idx}>
           <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(isOpen?null:idx);}}
-            style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
+                style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
             {match[0]}
           </span>
-          {isOpen && (
-            <span style={{display:"inline-flex",gap:"5px",marginLeft:"6px",verticalAlign:"middle"}}>
+            {isOpen && (
+                <span style={{display:"inline-flex",gap:"5px",marginLeft:"6px",verticalAlign:"middle"}}>
               <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(null);onOpenHandout(handoutId);}}
-                style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:T.gold,cursor:"pointer",whiteSpace:"nowrap"}}>
+                    style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:T.gold,cursor:"pointer",whiteSpace:"nowrap"}}>
                 <Icon name="clipboard" size={9}/>Handout
               </span>
               <span onClick={(e)=>{e.stopPropagation();setOpenMatchIdx(null);onOpenVideo(videoId);}}
-                style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(76,175,125,.15)",border:"1px solid #4caf7d",borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:"#4caf7d",cursor:"pointer",whiteSpace:"nowrap"}}>
+                    style={{display:"inline-flex",alignItems:"center",gap:"3px",background:"rgba(76,175,125,.15)",border:"1px solid #4caf7d",borderRadius:"20px",padding:"1px 8px 1px 6px",fontSize:"10px",fontWeight:"700",color:"#4caf7d",cursor:"pointer",whiteSpace:"nowrap"}}>
                 <Icon name="play" size={9}/>Video
               </span>
             </span>
-          )}
+            )}
         </span>
       );
     } else {
       const targetId = handoutId || videoId;
       const handler = handoutId ? onOpenHandout : onOpenVideo;
       parts.push(
-        <span key={match.index} onClick={(e)=>{e.stopPropagation();handler(targetId);}}
-          style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
+          <span key={match.index} onClick={(e)=>{e.stopPropagation();handler(targetId);}}
+                style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>
           {match[0]}
         </span>
       );
@@ -5685,134 +5705,134 @@ const HandoutScreen = ({id, onClose, onBack, onOpenHandout}) => {
   const T=useTheme();
   const h=HANDOUTS[id];
   if(!h) return (
-    <ScrollBody>
-      <p style={{fontSize:"13px",color:T.textMuted}}>Handout not found.</p>
-      <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
-    </ScrollBody>
+      <ScrollBody>
+        <p style={{fontSize:"13px",color:T.textMuted}}>Handout not found.</p>
+        <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
+      </ScrollBody>
   );
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Training Handout</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{h.title}</h2>
-          {h.subtitle && <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{h.subtitle}</p>}
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Training Handout</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{h.title}</h2>
+            {h.subtitle && <p style={{fontSize:"13px",color:T.textMuted,marginTop:"3px"}}>{h.subtitle}</p>}
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
-      </div>
 
-      <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
-        {h.content.map((block,bi)=>{
-          if(block.type==="p") return (
-            <p key={bi} style={{fontSize:"13px",color:T.textMuted,lineHeight:1.65,marginBottom:bi<h.content.length-1?"12px":"0",fontWeight:block.bold?"700":"400"}}>
-              <Linkify text={block.text} onOpenHandout={block.linkable!==false?onOpenHandout:undefined} currentId={id}/>
-            </p>
-          );
-          if(block.type==="h") return (
-            <p key={bi} style={{fontSize:"13px",fontWeight:"800",color:T.text,marginTop:bi>0?"14px":"0",marginBottom:"8px",lineHeight:1.3}}>
-              <Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/>
-            </p>
-          );
-          if(block.type==="ul") return (
-            <ul key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
-              {block.items.map((it,ii)=>(
-                <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px"}}>
-                  <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
-                </li>
-              ))}
-            </ul>
-          );
-          if(block.type==="ol") return (
-            <ol key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
-              {block.items.map((it,ii)=>(
-                <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px",fontWeight:"700"}}>
-                  <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
-                </li>
-              ))}
-            </ol>
-          );
-          if(block.type==="note") return (
-            <div key={bi} style={{marginTop:"6px",marginBottom:"12px",padding:"10px 13px",background:T.mode==="dark"?"rgba(47,79,62,.18)":"rgba(47,79,62,.08)",border:`1px solid ${T.mode==="dark"?"rgba(47,79,62,.4)":"rgba(47,79,62,.25)"}`,borderRadius:"9px"}}>
-              {block.heading && <p style={{fontSize:"11px",fontWeight:"800",color:T.green,marginBottom:"6px",textTransform:"uppercase",letterSpacing:".06em"}}>{block.heading}</p>}
-              {block.text && <p style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.55}}><Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/></p>}
-              {block.items && (
-                <ul style={{margin:0,paddingLeft:"16px"}}>
-                  {block.items.map((it,ii)=>(<li key={ii} style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.5,marginBottom:"3px",fontWeight:"600"}}><Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/></li>))}
+        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"16px",marginBottom:"14px"}}>
+          {h.content.map((block,bi)=>{
+            if(block.type==="p") return (
+                <p key={bi} style={{fontSize:"13px",color:T.textMuted,lineHeight:1.65,marginBottom:bi<h.content.length-1?"12px":"0",fontWeight:block.bold?"700":"400"}}>
+                  <Linkify text={block.text} onOpenHandout={block.linkable!==false?onOpenHandout:undefined} currentId={id}/>
+                </p>
+            );
+            if(block.type==="h") return (
+                <p key={bi} style={{fontSize:"13px",fontWeight:"800",color:T.text,marginTop:bi>0?"14px":"0",marginBottom:"8px",lineHeight:1.3}}>
+                  <Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/>
+                </p>
+            );
+            if(block.type==="ul") return (
+                <ul key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
+                  {block.items.map((it,ii)=>(
+                      <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px"}}>
+                        <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
+                      </li>
+                  ))}
                 </ul>
-              )}
-            </div>
-          );
-          if(block.type==="table") return (
-            <div key={bi} style={{marginBottom:"12px",overflow:"hidden",borderRadius:"9px",border:`1px solid ${T.cardInnerBorder}`}}>
-              {block.title && <p style={{fontSize:"11px",fontWeight:"800",color:T.text,padding:"8px 10px 4px"}}>{block.title}</p>}
-              <div style={{display:"grid",gridTemplateColumns:`repeat(${block.headers.length},1fr)`,background:T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.1)"}}>
-                {block.headers.map((hd,hi)=>(<p key={hi} style={{fontSize:"10px",fontWeight:"800",color:T.gold,padding:"7px 9px",textTransform:"uppercase",letterSpacing:".04em"}}>{hd}</p>))}
-              </div>
-              {block.rows.map((row,ri)=>(
-                <div key={ri} style={{display:"grid",gridTemplateColumns:`repeat(${block.headers.length},1fr)`,background:ri%2===0?"transparent":T.mode==="dark"?"rgba(255,255,255,.02)":"rgba(28,38,54,.02)",borderTop:`1px solid ${T.divider}`}}>
-                  {row.map((cell,ci)=>(<p key={ci} style={{fontSize:ci===0?"11.5px":"11px",fontWeight:ci===0?"700":"400",color:ci===0?T.text:T.textMuted,padding:"8px 9px",lineHeight:1.4}}>{cell}</p>))}
+            );
+            if(block.type==="ol") return (
+                <ol key={bi} style={{margin:"0 0 12px",paddingLeft:"18px"}}>
+                  {block.items.map((it,ii)=>(
+                      <li key={ii} style={{fontSize:"12.5px",color:T.textMuted,lineHeight:1.55,marginBottom:"5px",fontWeight:"700"}}>
+                        <Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/>
+                      </li>
+                  ))}
+                </ol>
+            );
+            if(block.type==="note") return (
+                <div key={bi} style={{marginTop:"6px",marginBottom:"12px",padding:"10px 13px",background:T.mode==="dark"?"rgba(47,79,62,.18)":"rgba(47,79,62,.08)",border:`1px solid ${T.mode==="dark"?"rgba(47,79,62,.4)":"rgba(47,79,62,.25)"}`,borderRadius:"9px"}}>
+                  {block.heading && <p style={{fontSize:"11px",fontWeight:"800",color:T.green,marginBottom:"6px",textTransform:"uppercase",letterSpacing:".06em"}}>{block.heading}</p>}
+                  {block.text && <p style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.55}}><Linkify text={block.text} onOpenHandout={onOpenHandout} currentId={id}/></p>}
+                  {block.items && (
+                      <ul style={{margin:0,paddingLeft:"16px"}}>
+                        {block.items.map((it,ii)=>(<li key={ii} style={{fontSize:"12.5px",color:T.mode==="dark"?"rgba(216,198,174,.9)":T.textMuted,lineHeight:1.5,marginBottom:"3px",fontWeight:"600"}}><Linkify text={it} onOpenHandout={onOpenHandout} currentId={id}/></li>))}
+                      </ul>
+                  )}
                 </div>
-              ))}
-            </div>
-          );
-          if(block.type==="links") return (
-            <div key={bi} style={{marginBottom:"12px",display:"flex",flexDirection:"column",gap:"5px"}}>
-              {block.items.map((lnk,li)=>(
-                <span key={li} onClick={()=>window.open(lnk.url,"_blank","noopener,noreferrer")}
-                  style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"8px",padding:"9px 11px",borderRadius:"9px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,cursor:"pointer"}}>
+            );
+            if(block.type==="table") return (
+                <div key={bi} style={{marginBottom:"12px",overflow:"hidden",borderRadius:"9px",border:`1px solid ${T.cardInnerBorder}`}}>
+                  {block.title && <p style={{fontSize:"11px",fontWeight:"800",color:T.text,padding:"8px 10px 4px"}}>{block.title}</p>}
+                  <div style={{display:"grid",gridTemplateColumns:`repeat(${block.headers.length},1fr)`,background:T.mode==="dark"?"rgba(176,141,87,.12)":"rgba(176,141,87,.1)"}}>
+                    {block.headers.map((hd,hi)=>(<p key={hi} style={{fontSize:"10px",fontWeight:"800",color:T.gold,padding:"7px 9px",textTransform:"uppercase",letterSpacing:".04em"}}>{hd}</p>))}
+                  </div>
+                  {block.rows.map((row,ri)=>(
+                      <div key={ri} style={{display:"grid",gridTemplateColumns:`repeat(${block.headers.length},1fr)`,background:ri%2===0?"transparent":T.mode==="dark"?"rgba(255,255,255,.02)":"rgba(28,38,54,.02)",borderTop:`1px solid ${T.divider}`}}>
+                        {row.map((cell,ci)=>(<p key={ci} style={{fontSize:ci===0?"11.5px":"11px",fontWeight:ci===0?"700":"400",color:ci===0?T.text:T.textMuted,padding:"8px 9px",lineHeight:1.4}}>{cell}</p>))}
+                      </div>
+                  ))}
+                </div>
+            );
+            if(block.type==="links") return (
+                <div key={bi} style={{marginBottom:"12px",display:"flex",flexDirection:"column",gap:"5px"}}>
+                  {block.items.map((lnk,li)=>(
+                      <span key={li} onClick={()=>window.open(lnk.url,"_blank","noopener,noreferrer")}
+                            style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"8px",padding:"9px 11px",borderRadius:"9px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,cursor:"pointer"}}>
                   <span style={{fontSize:"12.5px",color:T.text,fontWeight:"600",lineHeight:1.4}}>{lnk.label}</span>
                   <span style={{fontSize:"11px",color:T.gold,fontWeight:"700",flexShrink:0}}>View →</span>
                 </span>
+                  ))}
+                </div>
+            );
+            return null;
+          })}
+        </div>
+
+        {h.mistakes && h.mistakes.length>0 && (
+            <div style={{padding:"14px 16px",background:T.mode==="dark"?"rgba(163,86,42,.1)":"rgba(163,86,42,.06)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"14px",marginBottom:"14px"}}>
+              <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes</p>
+              {h.mistakes.map((m,mi)=>(
+                  <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<h.mistakes.length-1?"5px":"0"}}>
+                    <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
+                    <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}><Linkify text={m} onOpenHandout={onOpenHandout} currentId={id}/></p>
+                  </div>
               ))}
             </div>
-          );
-          return null;
-        })}
-      </div>
+        )}
 
-      {h.mistakes && h.mistakes.length>0 && (
-        <div style={{padding:"14px 16px",background:T.mode==="dark"?"rgba(163,86,42,.1)":"rgba(163,86,42,.06)",border:`1px solid ${T.mode==="dark"?"rgba(163,86,42,.35)":"rgba(163,86,42,.22)"}`,borderRadius:"14px",marginBottom:"14px"}}>
-          <p style={{fontSize:"10px",color:T.brown,fontWeight:"700",letterSpacing:".12em",textTransform:"uppercase",marginBottom:"8px"}}><Icon name="alert" size={11} style={{marginRight:"3px"}}/>Common Mistakes</p>
-          {h.mistakes.map((m,mi)=>(
-            <div key={mi} style={{display:"flex",alignItems:"flex-start",gap:"7px",marginBottom:mi<h.mistakes.length-1?"5px":"0"}}>
-              <span style={{fontSize:"9px",color:T.brown,marginTop:"3px",flexShrink:0}}>—</span>
-              <p style={{fontSize:"11.5px",color:T.mode==="dark"?"rgba(216,198,174,.8)":T.textMuted,lineHeight:1.45}}><Linkify text={m} onOpenHandout={onOpenHandout} currentId={id}/></p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <BackBtn onClick={onBack||onClose}/>
-    </ScrollBody>
+        <BackBtn onClick={onBack||onClose}/>
+      </ScrollBody>
   );
 };
 
 const HandoutLibraryScreen = ({onOpenHandout, onClose}) => {
   const T=useTheme();
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Handouts</h2>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Handouts</h2>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-      </div>
-      <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every handout referenced throughout your training plan, all in one place.</p>
-      <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
-        {HANDOUT_ORDER.map(id=>{
-          const h=HANDOUTS[id];
-          return (
-            <button key={id} onClick={()=>onOpenHandout(id)}
-              style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"all .2s"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
-              {h.title}<span style={{color:T.textFaint}}>›</span>
-            </button>
-          );
-        })}
-      </div>
-    </ScrollBody>
+        <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every handout referenced throughout your training plan, all in one place.</p>
+        <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
+          {HANDOUT_ORDER.map(id=>{
+            const h=HANDOUTS[id];
+            return (
+                <button key={id} onClick={()=>onOpenHandout(id)}
+                        style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",transition:"all .2s"}}
+                        onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}}
+                        onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
+                  {h.title}<span style={{color:T.textFaint}}>›</span>
+                </button>
+            );
+          })}
+        </div>
+      </ScrollBody>
   );
 };
 
@@ -5820,60 +5840,60 @@ const VideoScreen = ({id, onClose, onBack}) => {
   const T=useTheme();
   const v=VIDEO_LIBRARY[id];
   if(!v) return (
-    <ScrollBody>
-      <p style={{fontSize:"13px",color:T.textMuted}}>Video not found.</p>
-      <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
-    </ScrollBody>
+      <ScrollBody>
+        <p style={{fontSize:"13px",color:T.textMuted}}>Video not found.</p>
+        <div style={{marginTop:"10px"}}><BackBtn onClick={onBack||onClose}/></div>
+      </ScrollBody>
   );
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Training Video</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{v.title}</h2>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Training Video</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700",lineHeight:1.2}}>{v.title}</h2>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px",flexShrink:0}}><Icon name="x" size={18}/></button>
-      </div>
 
-      <div className="protected-content-wrap" style={{borderRadius:"14px",overflow:"hidden",background:"#000",marginBottom:"14px"}}>
-        <video
-          className="protected-video"
-          src={v.src}
-          controls
-          controlsList="nodownload noremoteplayback"
-          disablePictureInPicture
-          onContextMenu={(e)=>e.preventDefault()}
-          style={{width:"100%",display:"block",maxHeight:"420px"}}
-        />
-      </div>
+        <div className="protected-content-wrap" style={{borderRadius:"14px",overflow:"hidden",background:"#000",marginBottom:"14px"}}>
+          <video
+              className="protected-video"
+              src={v.src}
+              controls
+              controlsList="nodownload noremoteplayback"
+              disablePictureInPicture
+              onContextMenu={(e)=>e.preventDefault()}
+              style={{width:"100%",display:"block",maxHeight:"420px"}}
+          />
+        </div>
 
-      <BackBtn onClick={onBack||onClose}/>
-    </ScrollBody>
+        <BackBtn onClick={onBack||onClose}/>
+      </ScrollBody>
   );
 };
 
 const VideoLibraryScreen = ({onOpenVideo, onClose, isVideoUnlocked, videoUnlocksWithLabel}) => {
   const T=useTheme();
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Videos</h2>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Reference Library</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"21px",color:T.text,fontWeight:"700"}}>Training Videos</h2>
+          </div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
         </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-      </div>
-      <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every demo video referenced throughout your training plan, all in one place. Videos unlock along with the curriculum week they belong to.</p>
-      <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
-        {VIDEO_ORDER.map(id=>{
-          const v=VIDEO_LIBRARY[id];
-          const unlocked = isVideoUnlocked ? isVideoUnlocked(id) : true;
-          const unlockLabel = videoUnlocksWithLabel ? videoUnlocksWithLabel(id) : null;
-          return (
-            <button key={id} onClick={()=>onOpenVideo(id)}
-              style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:unlocked?T.text:T.textFaint,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px",transition:"all .2s",opacity:unlocked?1:.6}}
-              onMouseEnter={e=>{if(unlocked) e.currentTarget.style.borderColor=T.gold;}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
+        <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"14px",lineHeight:1.5}}>Every demo video referenced throughout your training plan, all in one place. Videos unlock along with the curriculum week they belong to.</p>
+        <div style={{display:"flex",flexDirection:"column",gap:"7px"}}>
+          {VIDEO_ORDER.map(id=>{
+            const v=VIDEO_LIBRARY[id];
+            const unlocked = isVideoUnlocked ? isVideoUnlocked(id) : true;
+            const unlockLabel = videoUnlocksWithLabel ? videoUnlocksWithLabel(id) : null;
+            return (
+                <button key={id} onClick={()=>onOpenVideo(id)}
+                        style={{padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:unlocked?T.text:T.textFaint,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px",transition:"all .2s",opacity:unlocked?1:.6}}
+                        onMouseEnter={e=>{if(unlocked) e.currentTarget.style.borderColor=T.gold;}}
+                        onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
               <span style={{display:"flex",alignItems:"center",gap:"9px"}}>
                 <Icon name={unlocked?"play":"lock"} size={13}/>
                 <span>
@@ -5881,12 +5901,12 @@ const VideoLibraryScreen = ({onOpenVideo, onClose, isVideoUnlocked, videoUnlocks
                   {!unlocked && unlockLabel && <span style={{display:"block",fontSize:"10.5px",fontWeight:"600",color:T.textFaint,marginTop:"2px"}}>Unlocks with {unlockLabel}</span>}
                 </span>
               </span>
-              <span style={{color:T.textFaint}}>{unlocked?"›":""}</span>
-            </button>
-          );
-        })}
-      </div>
-    </ScrollBody>
+                  <span style={{color:T.textFaint}}>{unlocked?"›":""}</span>
+                </button>
+            );
+          })}
+        </div>
+      </ScrollBody>
   );
 };
 
@@ -5911,110 +5931,110 @@ const BehaviorScreen = ({onClose,onOpenHandout}) => {
   const plan=PLANS[answers.issue];
 
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Behavior Help</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Diagnosis Tool</h2>
-        </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-      </div>
-
-      {diagStep==="start"&&(
-        <div className="slide">
-          <div style={{background:"rgba(176,141,87,.1)",border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"20px",textAlign:"center",marginBottom:"20px"}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{color:"#B08D57"}}>
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="#B08D57" stroke="none" fontFamily="sans-serif">?</text>
-              </svg>
-            </div>
-            <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,marginBottom:"6px"}}>Is your pet struggling with a behavior?</p>
-            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Answer a few quick questions and we'll recommend a personalized training path.</p>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"18px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Behavior Help</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Diagnosis Tool</h2>
           </div>
-          <GoldBtn onClick={()=>{set("petType","dog");setDiagStep("issue");}}>I Need Help With Behavior →</GoldBtn>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
         </div>
-      )}
 
-      {diagStep==="issue"&&(
-        <div className="slide">
-          <SectionTitle>What issue are you experiencing?</SectionTitle>
-          <div style={{display:"flex",flexDirection:"column",gap:"7px",marginBottom:"14px"}}>
-            {ISSUES.map(issue=>(
-              <button key={issue} onClick={()=>{set("issue",issue);if(issue==="Potty accidents")setDiagStep("when");else setDiagStep("result");}} style={{padding:"12px 14px",borderRadius:"11px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",transition:"all .2s",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;e.currentTarget.style.color=T.goldLight;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;e.currentTarget.style.color=T.text;}}>
-                {issue}<span style={{color:T.textFaint}}>›</span>
-              </button>
-            ))}
-          </div>
-          <BackBtn onClick={()=>setDiagStep("start")}/>
-        </div>
-      )}
-
-      {diagStep==="when"&&(
-        <div className="slide">
-          <SectionTitle>When does this happen?</SectionTitle>
-          <div style={{display:"flex",flexDirection:"column",gap:"7px",marginBottom:"14px"}}>
-            {WHEN.map(w=>(
-              <button key={w} onClick={()=>{set("when",w);setDiagStep("result");}} style={{padding:"12px 14px",borderRadius:"11px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",transition:"all .2s",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
-                {w}<span style={{color:T.textFaint}}>›</span>
-              </button>
-            ))}
-          </div>
-          <BackBtn onClick={()=>setDiagStep("issue")}/>
-        </div>
-      )}
-
-      {diagStep==="result"&&plan&&(
-        <div className="slide">
-          <div style={{background:"rgba(176,141,87,.12)",border:`2px solid ${T.gold}`,borderRadius:"18px",padding:"18px",marginBottom:"16px"}}>
-            <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",marginBottom:"8px"}}>Recommended Plan</p>
-            <p style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"14px",lineHeight:1.3}}>{plan.title}</p>
-            {plan.weeks.map((w,i)=>(
-              <div key={w} style={{display:"flex",gap:"10px",alignItems:"flex-start",marginBottom:"10px"}}>
-                <div style={{width:"22px",height:"22px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px"}}>
-                  <span style={{color:"white",fontSize:"10px",fontWeight:"900"}}>{i+1}</span>
+        {diagStep==="start"&&(
+            <div className="slide">
+              <div style={{background:"rgba(176,141,87,.1)",border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"20px",textAlign:"center",marginBottom:"20px"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{color:"#B08D57"}}>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="#B08D57" stroke="none" fontFamily="sans-serif">?</text>
+                  </svg>
                 </div>
-                <p style={{fontSize:"13px",color:T.text,lineHeight:1.4}}>{w}</p>
+                <p style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text,marginBottom:"6px"}}>Is your pet struggling with a behavior?</p>
+                <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Answer a few quick questions and we'll recommend a personalized training path.</p>
               </div>
-            ))}
-          </div>
-          {answers.when&&<div style={{background:T.diagCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px",marginBottom:"14px"}}><p style={{fontSize:"11.5px",color:T.textMuted}}>Trigger noted: <span style={{color:T.text,fontWeight:"700"}}>{answers.when}</span> — we'll customize your timeline accordingly.</p></div>}
-          <GoldBtn onClick={()=>setDiagStep("program")}>Start This Program →</GoldBtn>
-          <div style={{marginTop:"10px"}}><BackBtn onClick={()=>setDiagStep(answers.issue==="Potty accidents"?"when":"issue")}/></div>
-        </div>
-      )}
+              <GoldBtn onClick={()=>{set("petType","dog");setDiagStep("issue");}}>I Need Help With Behavior →</GoldBtn>
+            </div>
+        )}
 
-      {diagStep==="program"&&plan&&(
-        <div className="slide">
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
-            <div>
-              <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",marginBottom:"4px"}}>Your Program</p>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,lineHeight:1.3}}>{plan.title}</h3>
-            </div>
-            <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 10px",textAlign:"center",flexShrink:0}}>
-              <p style={{fontSize:"9px",fontWeight:"700",color:"#4caf7d"}}>ACTIVE</p>
-              <p style={{fontSize:"12px",fontWeight:"900",color:"#4caf7d"}}>{plan.weeks.length}wk</p>
-            </div>
-          </div>
-          {plan.weeks.map((w,i)=>(
-            <div key={w} style={{background:i===0?`linear-gradient(90deg,rgba(176,141,87,.15),transparent)`:T.cardInner,border:`1px solid ${i===0?T.gold:T.cardInnerBorder}`,borderRadius:"13px",padding:"13px 15px",marginBottom:"8px",display:"flex",gap:"12px",alignItems:"flex-start"}}>
-              <div style={{width:"28px",height:"28px",borderRadius:"50%",background:i===0?T.gold:"rgba(176,141,87,.2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                <span style={{color:i===0?"#fff":T.gold,fontSize:"11px",fontWeight:"900"}}>{i+1}</span>
+        {diagStep==="issue"&&(
+            <div className="slide">
+              <SectionTitle>What issue are you experiencing?</SectionTitle>
+              <div style={{display:"flex",flexDirection:"column",gap:"7px",marginBottom:"14px"}}>
+                {ISSUES.map(issue=>(
+                    <button key={issue} onClick={()=>{set("issue",issue);if(issue==="Potty accidents")setDiagStep("when");else setDiagStep("result");}} style={{padding:"12px 14px",borderRadius:"11px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",transition:"all .2s",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;e.currentTarget.style.color=T.goldLight;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;e.currentTarget.style.color=T.text;}}>
+                      {issue}<span style={{color:T.textFaint}}>›</span>
+                    </button>
+                ))}
               </div>
-              <div style={{flex:1}}>
-                <p style={{fontSize:"13px",fontWeight:"700",color:i===0?T.goldLight:T.text,marginBottom:"2px"}}>{w}</p>
-                {i===0&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700"}}>Start here today</p>}
-              </div>
-              {i===0&&<span style={{color:T.gold,fontSize:"14px"}}>▶</span>}
+              <BackBtn onClick={()=>setDiagStep("start")}/>
             </div>
-          ))}
-          <div style={{marginTop:"6px",marginBottom:"10px"}}>
-            <GoldBtn onClick={()=>setDiagStep("start")}>Back to Diagnosis Tool</GoldBtn>
-          </div>
-          <BackBtn onClick={()=>setDiagStep("result")}/>
-        </div>
-      )}
-    </ScrollBody>
+        )}
+
+        {diagStep==="when"&&(
+            <div className="slide">
+              <SectionTitle>When does this happen?</SectionTitle>
+              <div style={{display:"flex",flexDirection:"column",gap:"7px",marginBottom:"14px"}}>
+                {WHEN.map(w=>(
+                    <button key={w} onClick={()=>{set("when",w);setDiagStep("result");}} style={{padding:"12px 14px",borderRadius:"11px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,fontSize:"13.5px",fontWeight:"700",textAlign:"left",cursor:"pointer",transition:"all .2s",display:"flex",justifyContent:"space-between",alignItems:"center"}} onMouseEnter={e=>{e.currentTarget.style.borderColor=T.gold;}} onMouseLeave={e=>{e.currentTarget.style.borderColor=T.chipBorder;}}>
+                      {w}<span style={{color:T.textFaint}}>›</span>
+                    </button>
+                ))}
+              </div>
+              <BackBtn onClick={()=>setDiagStep("issue")}/>
+            </div>
+        )}
+
+        {diagStep==="result"&&plan&&(
+            <div className="slide">
+              <div style={{background:"rgba(176,141,87,.12)",border:`2px solid ${T.gold}`,borderRadius:"18px",padding:"18px",marginBottom:"16px"}}>
+                <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",marginBottom:"8px"}}>Recommended Plan</p>
+                <p style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"14px",lineHeight:1.3}}>{plan.title}</p>
+                {plan.weeks.map((w,i)=>(
+                    <div key={w} style={{display:"flex",gap:"10px",alignItems:"flex-start",marginBottom:"10px"}}>
+                      <div style={{width:"22px",height:"22px",borderRadius:"50%",background:T.gold,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:"1px"}}>
+                        <span style={{color:"white",fontSize:"10px",fontWeight:"900"}}>{i+1}</span>
+                      </div>
+                      <p style={{fontSize:"13px",color:T.text,lineHeight:1.4}}>{w}</p>
+                    </div>
+                ))}
+              </div>
+              {answers.when&&<div style={{background:T.diagCard,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px",marginBottom:"14px"}}><p style={{fontSize:"11.5px",color:T.textMuted}}>Trigger noted: <span style={{color:T.text,fontWeight:"700"}}>{answers.when}</span> — we'll customize your timeline accordingly.</p></div>}
+              <GoldBtn onClick={()=>setDiagStep("program")}>Start This Program →</GoldBtn>
+              <div style={{marginTop:"10px"}}><BackBtn onClick={()=>setDiagStep(answers.issue==="Potty accidents"?"when":"issue")}/></div>
+            </div>
+        )}
+
+        {diagStep==="program"&&plan&&(
+            <div className="slide">
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"16px"}}>
+                <div>
+                  <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",marginBottom:"4px"}}>Your Program</p>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,lineHeight:1.3}}>{plan.title}</h3>
+                </div>
+                <div style={{background:"rgba(76,175,125,.15)",borderRadius:"10px",padding:"6px 10px",textAlign:"center",flexShrink:0}}>
+                  <p style={{fontSize:"9px",fontWeight:"700",color:"#4caf7d"}}>ACTIVE</p>
+                  <p style={{fontSize:"12px",fontWeight:"900",color:"#4caf7d"}}>{plan.weeks.length}wk</p>
+                </div>
+              </div>
+              {plan.weeks.map((w,i)=>(
+                  <div key={w} style={{background:i===0?`linear-gradient(90deg,rgba(176,141,87,.15),transparent)`:T.cardInner,border:`1px solid ${i===0?T.gold:T.cardInnerBorder}`,borderRadius:"13px",padding:"13px 15px",marginBottom:"8px",display:"flex",gap:"12px",alignItems:"flex-start"}}>
+                    <div style={{width:"28px",height:"28px",borderRadius:"50%",background:i===0?T.gold:"rgba(176,141,87,.2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <span style={{color:i===0?"#fff":T.gold,fontSize:"11px",fontWeight:"900"}}>{i+1}</span>
+                    </div>
+                    <div style={{flex:1}}>
+                      <p style={{fontSize:"13px",fontWeight:"700",color:i===0?T.goldLight:T.text,marginBottom:"2px"}}>{w}</p>
+                      {i===0&&<p style={{fontSize:"10.5px",color:T.success,fontWeight:"700"}}>Start here today</p>}
+                    </div>
+                    {i===0&&<span style={{color:T.gold,fontSize:"14px"}}>▶</span>}
+                  </div>
+              ))}
+              <div style={{marginTop:"6px",marginBottom:"10px"}}>
+                <GoldBtn onClick={()=>setDiagStep("start")}>Back to Diagnosis Tool</GoldBtn>
+              </div>
+              <BackBtn onClick={()=>setDiagStep("result")}/>
+            </div>
+        )}
+      </ScrollBody>
   );
 };
 
@@ -6042,17 +6062,17 @@ const PetLifeRecord = ({petData,setPetData,onClose,onOpenSettings}) => {
   const removePhoto = () => setPetData && setPetData(d => ({...d, photoUrl: null}));
   const petWalkLog = petData?.walkLog || [];
   const milesToday = petWalkLog
-    .filter(w=>w.date===new Date().toLocaleDateString())
-    .reduce((s,w)=>s+(w.distanceMi||0),0);
+      .filter(w=>w.date===new Date().toLocaleDateString())
+      .reduce((s,w)=>s+(w.distanceMi||0),0);
   const exerciseTodayLabel = petWalkLog.length
-    ? `${milesToday.toFixed(2)} miles walked`
-    : "No walks logged yet";
+      ? `${milesToday.toFixed(2)} miles walked`
+      : "No walks logged yet";
   // Potty schedule entries logged in Live → Potty Schedule are saved straight to
   // petData.pottyLog, so the profile always reflects the most recent success rate.
   const pottyLog = petData?.pottyLog || [];
   const pottyLabel = pottyLog.length
-    ? `${pottyLog.filter(e=>e.success).length}/${pottyLog.length} successful`
-    : "Not logged yet";
+      ? `${pottyLog.filter(e=>e.success).length}/${pottyLog.length} successful`
+      : "Not logged yet";
   const stats=[
     {label:"Age",value:computeAge(petData?.birthday)||"Not set",icon:"gift"},
     {label:"Training Streak",value:"7 days",icon:"chart"},
@@ -6079,88 +6099,88 @@ const PetLifeRecord = ({petData,setPetData,onClose,onOpenSettings}) => {
     {label:"Additional Pets in Home",value:petData?.additionalPets?"Yes":"No",icon:"paw"},
   ];
   return (
-    <ScrollBody>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"18px"}}>
-        <div>
-          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Unified Record</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Pet Life Record</h2>
-        </div>
-        <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-      </div>
-
-      {/* Pet hero card */}
-      <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"18px",marginBottom:"16px",position:"relative",overflow:"hidden"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
-          <label htmlFor={inputId} style={{width:"52px",height:"52px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",color:T.gold,flexShrink:0,cursor:"pointer",overflow:"hidden",position:"relative"}}
-            title={petData?.photoUrl?"Change photo":"Add a photo"}>
-            {petData?.photoUrl
-              ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-              : <Icon name="cameraPlus" size={22}/>}
-            <input id={inputId} type="file" accept="image/*" onChange={handlePhotoChange} style={{display:"none"}}/>
-          </label>
-          <div style={{flex:1}}>
-            <h3 style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}</h3>
-            <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>{petData?.breed||"Breed not set"} · {petData?.gender==="boy"?"Male":petData?.gender==="girl"?"Female":"Gender not set"} · {computeAge(petData?.birthday)||"Age not set"}</p>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"18px"}}>
+          <div>
+            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Unified Record</p>
+            <h2 style={{fontFamily:"'Inter',serif",fontSize:"20px",color:T.text,fontWeight:"700"}}>Pet Life Record</h2>
           </div>
-          {petData?.photoUrl && (
-            <button onClick={removePhoto} title="Remove photo" style={{background:"rgba(0,0,0,.25)",border:"none",borderRadius:"7px",padding:"6px",cursor:"pointer",color:"rgba(255,255,255,.7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <Icon name="trash" size={13}/>
-            </button>
-          )}
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
         </div>
-        <div style={{display:"flex",gap:"8px"}}>
-          {[{l:"Training",v:"42%"},{l:"Health",v:"Good",ic:"check"},{l:"Streak",v:"7d",ic:"flame"}].map(({l,v,ic})=>(
-            <div key={l} style={{flex:1,background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px",textAlign:"center"}}>
-              <p style={{fontSize:"8.5px",color:"rgba(255,255,255,.5)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"2px"}}>{l}</p>
-              <p style={{fontSize:"12.5px",fontWeight:"700",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"3px"}}>{ic&&<Icon name={ic} size={11}/>}{v}</p>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Full stats grid */}
-      <div className="s2" style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"14px"}}>
-        {stats.map(({label,value,icon})=>(
-          <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"center",gap:"12px"}}>
-            <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={icon} size={19}/></span>
-            <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600"}}>{label}</p>
-              <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right",maxWidth:"55%"}}>{value}</p>
+        {/* Pet hero card */}
+        <div className="s1" style={{background:T.green,borderRadius:"18px",padding:"18px",marginBottom:"16px",position:"relative",overflow:"hidden"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px"}}>
+            <label htmlFor={inputId} style={{width:"52px",height:"52px",borderRadius:"50%",background:petData?.photoUrl?"transparent":"rgba(176,141,87,.25)",border:`2px solid ${T.gold}`,display:"flex",alignItems:"center",justifyContent:"center",color:T.gold,flexShrink:0,cursor:"pointer",overflow:"hidden",position:"relative"}}
+                   title={petData?.photoUrl?"Change photo":"Add a photo"}>
+              {petData?.photoUrl
+                  ? <img src={petData.photoUrl} alt={petName} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  : <Icon name="cameraPlus" size={22}/>}
+              <input id={inputId} type="file" accept="image/*" onChange={handlePhotoChange} style={{display:"none"}}/>
+            </label>
+            <div style={{flex:1}}>
+              <h3 style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"2px"}}>{petName}</h3>
+              <p style={{fontSize:"12px",color:"rgba(255,255,255,.6)"}}>{petData?.breed||"Breed not set"} · {petData?.gender==="boy"?"Male":petData?.gender==="girl"?"Female":"Gender not set"} · {computeAge(petData?.birthday)||"Age not set"}</p>
             </div>
+            {petData?.photoUrl && (
+                <button onClick={removePhoto} title="Remove photo" style={{background:"rgba(0,0,0,.25)",border:"none",borderRadius:"7px",padding:"6px",cursor:"pointer",color:"rgba(255,255,255,.7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <Icon name="trash" size={13}/>
+                </button>
+            )}
           </div>
-        ))}
-      </div>
+          <div style={{display:"flex",gap:"8px"}}>
+            {[{l:"Training",v:"42%"},{l:"Health",v:"Good",ic:"check"},{l:"Streak",v:"7d",ic:"flame"}].map(({l,v,ic})=>(
+                <div key={l} style={{flex:1,background:"rgba(0,0,0,.25)",borderRadius:"8px",padding:"7px",textAlign:"center"}}>
+                  <p style={{fontSize:"8.5px",color:"rgba(255,255,255,.5)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:"2px"}}>{l}</p>
+                  <p style={{fontSize:"12.5px",fontWeight:"700",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",gap:"3px"}}>{ic&&<Icon name={ic} size={11}/>}{v}</p>
+                </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Setup Answers — everything captured during account setup */}
-      <div className="s2b" style={{marginBottom:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px",paddingLeft:"2px"}}>From Your Setup</p>
-        <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
-          {setupAnswers.map(({label,value,icon})=>(
-            <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"flex-start",gap:"12px"}}>
-              <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold,marginTop:"1px"}}><Icon name={icon} size={19}/></span>
-              <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"10px"}}>
-                <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600",flexShrink:0}}>{label}</p>
-                <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right"}}>{value}</p>
+        {/* Full stats grid */}
+        <div className="s2" style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"14px"}}>
+          {stats.map(({label,value,icon})=>(
+              <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"center",gap:"12px"}}>
+                <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold}}><Icon name={icon} size={19}/></span>
+                <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600"}}>{label}</p>
+                  <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right",maxWidth:"55%"}}>{value}</p>
+                </div>
               </div>
-            </div>
           ))}
         </div>
-      </div>
 
-      {/* Health records quick-links — uploading/viewing the actual files happens in
-          Settings → Profile, so these tap through there instead of dead-ending. */}
-      <div className="s3" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px"}}>
-        <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Health Records</p>
-        <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"10px",lineHeight:1.4}}>Tap any record to view or upload it in Settings.</p>
-        {["Vaccine Records","Vet Records","Medications","Food & Allergies"].map(r=>(
-          <div key={r} onClick={()=>onOpenSettings&&onOpenSettings()}
-            style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`,cursor:onOpenSettings?"pointer":"default"}}>
-            <span style={{fontSize:"13px",color:T.text}}>{r}</span>
-            <span style={{fontSize:"12px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>View →</span>
+        {/* Setup Answers — everything captured during account setup */}
+        <div className="s2b" style={{marginBottom:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px",paddingLeft:"2px"}}>From Your Setup</p>
+          <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+            {setupAnswers.map(({label,value,icon})=>(
+                <div key={label} style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"12px 14px",display:"flex",alignItems:"flex-start",gap:"12px"}}>
+                  <span style={{width:"28px",display:"flex",justifyContent:"center",flexShrink:0,color:T.gold,marginTop:"1px"}}><Icon name={icon} size={19}/></span>
+                  <div style={{flex:1,display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:"10px"}}>
+                    <p style={{fontSize:"12px",color:T.textMuted,fontWeight:"600",flexShrink:0}}>{label}</p>
+                    <p style={{fontSize:"13px",fontWeight:"700",color:T.text,textAlign:"right"}}>{value}</p>
+                  </div>
+                </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </ScrollBody>
+        </div>
+
+        {/* Health records quick-links — uploading/viewing the actual files happens in
+          Settings → Profile, so these tap through there instead of dead-ending. */}
+        <div className="s3" style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px"}}>
+          <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"3px"}}>Health Records</p>
+          <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"10px",lineHeight:1.4}}>Tap any record to view or upload it in Settings.</p>
+          {["Vaccine Records","Vet Records","Medications","Food & Allergies"].map(r=>(
+              <div key={r} onClick={()=>onOpenSettings&&onOpenSettings()}
+                   style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`,cursor:onOpenSettings?"pointer":"default"}}>
+                <span style={{fontSize:"13px",color:T.text}}>{r}</span>
+                <span style={{fontSize:"12px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>View →</span>
+              </div>
+          ))}
+        </div>
+      </ScrollBody>
   );
 };
 
@@ -6230,13 +6250,13 @@ const buildRenewalEmail = (details) => {
         <span style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#B08D57;">Payment Receipt</span>
       </td></tr>
       ${[
-        ["Plan",details.plan],
-        ["Amount Charged",details.amount],
-        ["Card Charged","•••• •••• •••• "+details.card],
-        ["Date Processed",dateStr+" · "+timeStr],
-        ["Next Renewal Date",details.nextDate],
-        ["Receipt Email",details.email],
-      ].map(([l,v])=>`
+    ["Plan",details.plan],
+    ["Amount Charged",details.amount],
+    ["Card Charged","•••• •••• •••• "+details.card],
+    ["Date Processed",dateStr+" · "+timeStr],
+    ["Next Renewal Date",details.nextDate],
+    ["Receipt Email",details.email],
+  ].map(([l,v])=>`
       <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:12px;color:#888;">${l}</td>
@@ -6278,12 +6298,12 @@ const buildDeleteEmail = (details) => {
         <span style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#B08D57;">Deletion Confirmation</span>
       </td></tr>
       ${[
-        ["Account Email", details.email],
-        ["Deletion Requested", dateStr+" · "+timeStr],
-        ["Data Purge Date", purgeDate],
-        ["Recovery Window", "30 days from deletion date"],
-        ["Data Removed", "All training data, pet profiles &amp; records"],
-      ].map(([l,v])=>`
+    ["Account Email", details.email],
+    ["Deletion Requested", dateStr+" · "+timeStr],
+    ["Data Purge Date", purgeDate],
+    ["Recovery Window", "30 days from deletion date"],
+    ["Data Removed", "All training data, pet profiles &amp; records"],
+  ].map(([l,v])=>`
       <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:12px;color:#888;">${l}</td>
@@ -6362,20 +6382,20 @@ const buildAdminAccountDeletedEmail = (details) => {
   const dateStr = now.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   const timeStr = now.toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit",timeZoneName:"short"});
   const petsList = (details.pets||[]).length
-    ? details.pets.map(p=>`${p.name||"Unnamed pet"}${p.breed?` (${p.breed})`:""}`).join(", ")
-    : "No pets on file";
+      ? details.pets.map(p=>`${p.name||"Unnamed pet"}${p.breed?` (${p.breed})`:""}`).join(", ")
+      : "No pets on file";
   const body = `
     <h2 style="margin:0 0 6px;font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#1C2636;">Account Deleted — Internal Record</h2>
     <p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;">A member deleted their account on ${dateStr} · ${timeStr}. Keeping this on file for your records.</p>
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef;border:1px solid #e0d8cc;border-radius:12px;margin-bottom:24px;">
       ${[
-        ["Name", details.name||"—"],
-        ["Email", details.email||"—"],
-        ["Phone", details.phone||"—"],
-        ["Pet(s)", petsList],
-        ["Plan", details.plan||"—"],
-        ["Deleted On", dateStr+" · "+timeStr],
-      ].map(([l,v])=>`
+    ["Name", details.name||"—"],
+    ["Email", details.email||"—"],
+    ["Phone", details.phone||"—"],
+    ["Pet(s)", petsList],
+    ["Plan", details.plan||"—"],
+    ["Deleted On", dateStr+" · "+timeStr],
+  ].map(([l,v])=>`
       <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-size:12px;color:#888;">${l}</td><td style="font-size:13px;font-weight:700;color:#1C2636;text-align:right;">${v}</td></tr></table></td></tr>`).join("")}
     </table>
     <p style="font-size:12px;color:#999;line-height:1.6;margin:0;">The member also received their own confirmation email with the 30-day recovery window.</p>`;
@@ -6403,12 +6423,12 @@ const buildCancellationEmail = (details) => {
         <span style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#B08D57;">Cancellation Confirmation</span>
       </td></tr>
       ${[
-        ["Account Email", details.email],
-        ["Plan Cancelled", details.plan],
-        ["Cancelled On", dateStr+" · "+timeStr],
-        ["Access Until", accessDate],
-        ["Future Charges", "None — no further billing"],
-      ].map(([l,v])=>`
+    ["Account Email", details.email],
+    ["Plan Cancelled", details.plan],
+    ["Cancelled On", dateStr+" · "+timeStr],
+    ["Access Until", accessDate],
+    ["Future Charges", "None — no further billing"],
+  ].map(([l,v])=>`
       <tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
           <td style="font-size:12px;color:#888;">${l}</td>
@@ -6590,8 +6610,8 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
       {key:"phone",label:"Phone"},
     ];
     const changes=fieldsToCheck
-      .filter(f=>(prev[f.key]||"")!==(client[f.key]||""))
-      .map(f=>({label:f.label,oldValue:prev[f.key]||"(not set)",newValue:client[f.key]||"(not set)"}));
+        .filter(f=>(prev[f.key]||"")!==(client[f.key]||""))
+        .map(f=>({label:f.label,oldValue:prev[f.key]||"(not set)",newValue:client[f.key]||"(not set)"}));
     if(changes.length){
       simulateSendEmail("adminProfileUpdate",{
         memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
@@ -6722,212 +6742,212 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   const TABS=[{id:"profile",label:"Profile"},{id:"settings",label:"Settings"},{id:"contact",label:"Contact Us"}];
 
   return (
-    <ScrollBody>
-      {/* Save confirmation popup */}
-      {showSaved&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
-          Updated
-        </div>
-      )}
-
-      {/* Card saved toast */}
-      {cardSaved&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
-          <Icon name="card" size={13} style={{marginRight:"4px"}}/>Card Updated
-        </div>
-      )}
-
-      {/* Renewal email sent toast */}
-      {renewalEmailSent&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Renewal receipt sent</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Check your email</span>
-        </div>
-      )}
-
-      {/* Cancellation email sent toast */}
-      {cancelEmailSent&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid rgba(224,122,95,.5)`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Cancellation confirmed</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Confirmation email sent</span>
-        </div>
-      )}
-
-      {/* Restart success toast */}
-      {restartSuccess&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          <Icon name="party" size={13} style={{marginRight:"4px"}}/>Subscription Reactivated!
-        </div>
-      )}
-
-      {/* Cancel subscription confirmation modal */}
-      {showCancelConfirm&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.textFaint}}><Icon name="x" size={40}/></div>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Cancel Subscription?</h3>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your access will continue until <strong style={{color:T.text}}>{client.renewalDate}</strong>. No further charges will be made.</p>
-              <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.5}}>You can reactivate at any time from this page.</p>
+      <ScrollBody>
+        {/* Save confirmation popup */}
+        {showSaved&&(
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
+              Updated
             </div>
-            <button onClick={handleCancelSubscription} style={{width:"100%",padding:"12px",background:"rgba(224,122,95,.15)",border:"1.5px solid #e07a5f",borderRadius:"10px",color:"#e07a5f",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
-              Yes, Cancel My Subscription
-            </button>
-            <button onClick={()=>setShowCancelConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-              Keep My Subscription
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Restart subscription confirmation modal */}
-      {showRestartConfirm&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="paw" size={40}/></div>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reactivate Subscription?</h3>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your <strong style={{color:T.text}}>{client.program}</strong> will resume and your card ending in <strong style={{color:T.text}}>{client.cardLast4}</strong> will be billed on your next renewal date.</p>
+        {/* Card saved toast */}
+        {cardSaved&&(
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
+              <Icon name="card" size={13} style={{marginRight:"4px"}}/>Card Updated
             </div>
-            <GoldBtn onClick={handleRestartSubscription} style={{marginBottom:"8px"}}>Yes, Reactivate →</GoldBtn>
-            <button onClick={()=>setShowRestartConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-              Not Yet
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Delete Account confirmation modal */}
-      {showDeleteConfirm&&!deleteSuccess&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.brown}}><Icon name="alert" size={40}/></div>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Delete Account?</h3>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>This will <strong style={{color:"#e07a5f"}}>permanently delete</strong> your account and all associated data. This action cannot be undone.</p>
+        {/* Renewal email sent toast */}
+        {renewalEmailSent&&(
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
+              <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Renewal receipt sent</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Check your email</span>
             </div>
-            <button onClick={handleDeleteAccount} style={{width:"100%",padding:"12px",background:"rgba(224,122,95,.15)",border:"1.5px solid #e07a5f",borderRadius:"10px",color:"#e07a5f",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
-              Yes, Delete My Account
-            </button>
-            <button onClick={()=>setShowDeleteConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Delete success screen */}
-      {deleteSuccess&&(
-        <div style={{position:"fixed",inset:0,background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"32px"}}>
-          <div style={{textAlign:"center",animation:"rise .45s both",maxWidth:"300px"}}>
-            <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:`0 0 0 16px rgba(76,175,125,.1)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
-            <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Account Deleted</h2>
-            <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your account has been scheduled for deletion.</p>
-            <p style={{fontSize:"12px",color:T.textFaint,marginBottom:"18px"}}>A confirmation email has been sent.</p>
-            <div style={{background:"rgba(176,141,87,.1)",border:`1px solid rgba(176,141,87,.3)`,borderRadius:"12px",padding:"14px 16px",textAlign:"left"}}>
-              <p style={{fontSize:"11px",fontWeight:"700",color:T.gold,marginBottom:"6px",letterSpacing:".08em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="clock" size={12}/>Changed your mind?</p>
-              <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your data is held for <strong style={{color:T.text}}>30 days</strong> before permanent purge. Contact us to restore your account:</p>
-              <p style={{fontSize:"12px",color:T.gold,fontWeight:"700",marginBottom:"2px"}}>info@guidingpaw.com</p>
-              <p style={{fontSize:"12px",color:T.gold,fontWeight:"700"}}>801-435-1239</p>
+        {/* Cancellation email sent toast */}
+        {cancelEmailSent&&(
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid rgba(224,122,95,.5)`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
+              <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Cancellation confirmed</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Confirmation email sent</span>
             </div>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Update Card modal */}
-      {showUpdateCard&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"340px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Update Payment Card</h3>
-              <button onClick={()=>setShowUpdateCard(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
+        {/* Restart success toast */}
+        {restartSuccess&&(
+            <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
+              <Icon name="party" size={13} style={{marginRight:"4px"}}/>Subscription Reactivated!
             </div>
-            {[
-              {label:"Name on Card",val:newCardName,set:setNewCardName,ph:"Jane Smith",type:"text"},
-              {label:"Card Number",val:newCardNum,set:(v)=>setNewCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
-            ].map(f=>(
-              <div key={f.label} style={{marginBottom:"12px"}}>
-                <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
-                <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
-                  style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-              </div>
-            ))}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"16px"}}>
-              {[{label:"Expiry",val:newExpiry,set:(v)=>setNewExpiry(fmtExp(v)),ph:"MM/YY"},{label:"CVV",val:newCvv,set:setNewCvv,ph:"•••"}].map(f=>(
-                <div key={f.label}>
-                  <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
-                  <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
-                    style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+        )}
+
+        {/* Cancel subscription confirmation modal */}
+        {showCancelConfirm&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
+                <div style={{textAlign:"center",marginBottom:"16px"}}>
+                  <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.textFaint}}><Icon name="x" size={40}/></div>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Cancel Subscription?</h3>
+                  <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your access will continue until <strong style={{color:T.text}}>{client.renewalDate}</strong>. No further charges will be made.</p>
+                  <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.5}}>You can reactivate at any time from this page.</p>
                 </div>
-              ))}
+                <button onClick={handleCancelSubscription} style={{width:"100%",padding:"12px",background:"rgba(224,122,95,.15)",border:"1.5px solid #e07a5f",borderRadius:"10px",color:"#e07a5f",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
+                  Yes, Cancel My Subscription
+                </button>
+                <button onClick={()=>setShowCancelConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                  Keep My Subscription
+                </button>
+              </div>
             </div>
-            <GoldBtn onClick={handleSaveCard}>Save New Card</GoldBtn>
-          </div>
+        )}
+
+        {/* Restart subscription confirmation modal */}
+        {showRestartConfirm&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
+                <div style={{textAlign:"center",marginBottom:"16px"}}>
+                  <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="paw" size={40}/></div>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reactivate Subscription?</h3>
+                  <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your <strong style={{color:T.text}}>{client.program}</strong> will resume and your card ending in <strong style={{color:T.text}}>{client.cardLast4}</strong> will be billed on your next renewal date.</p>
+                </div>
+                <GoldBtn onClick={handleRestartSubscription} style={{marginBottom:"8px"}}>Yes, Reactivate →</GoldBtn>
+                <button onClick={()=>setShowRestartConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                  Not Yet
+                </button>
+              </div>
+            </div>
+        )}
+
+        {/* Delete Account confirmation modal */}
+        {showDeleteConfirm&&!deleteSuccess&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
+                <div style={{textAlign:"center",marginBottom:"16px"}}>
+                  <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.brown}}><Icon name="alert" size={40}/></div>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Delete Account?</h3>
+                  <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6}}>This will <strong style={{color:"#e07a5f"}}>permanently delete</strong> your account and all associated data. This action cannot be undone.</p>
+                </div>
+                <button onClick={handleDeleteAccount} style={{width:"100%",padding:"12px",background:"rgba(224,122,95,.15)",border:"1.5px solid #e07a5f",borderRadius:"10px",color:"#e07a5f",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
+                  Yes, Delete My Account
+                </button>
+                <button onClick={()=>setShowDeleteConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+        )}
+
+        {/* Delete success screen */}
+        {deleteSuccess&&(
+            <div style={{position:"fixed",inset:0,background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"32px"}}>
+              <div style={{textAlign:"center",animation:"rise .45s both",maxWidth:"300px"}}>
+                <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:`0 0 0 16px rgba(76,175,125,.1)`}}><Icon name="check" size={36} color="#fff" strokeWidth={3}/></div>
+                <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Account Deleted</h2>
+                <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your account has been scheduled for deletion.</p>
+                <p style={{fontSize:"12px",color:T.textFaint,marginBottom:"18px"}}>A confirmation email has been sent.</p>
+                <div style={{background:"rgba(176,141,87,.1)",border:`1px solid rgba(176,141,87,.3)`,borderRadius:"12px",padding:"14px 16px",textAlign:"left"}}>
+                  <p style={{fontSize:"11px",fontWeight:"700",color:T.gold,marginBottom:"6px",letterSpacing:".08em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"5px"}}><Icon name="clock" size={12}/>Changed your mind?</p>
+                  <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your data is held for <strong style={{color:T.text}}>30 days</strong> before permanent purge. Contact us to restore your account:</p>
+                  <p style={{fontSize:"12px",color:T.gold,fontWeight:"700",marginBottom:"2px"}}>info@guidingpaw.com</p>
+                  <p style={{fontSize:"12px",color:T.gold,fontWeight:"700"}}>801-435-1239</p>
+                </div>
+              </div>
+            </div>
+        )}
+
+        {/* Update Card modal */}
+        {showUpdateCard&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"340px",width:"100%",animation:"rise .35s both"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Update Payment Card</h3>
+                  <button onClick={()=>setShowUpdateCard(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
+                </div>
+                {[
+                  {label:"Name on Card",val:newCardName,set:setNewCardName,ph:"Jane Smith",type:"text"},
+                  {label:"Card Number",val:newCardNum,set:(v)=>setNewCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
+                ].map(f=>(
+                    <div key={f.label} style={{marginBottom:"12px"}}>
+                      <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
+                      <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
+                             style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                    </div>
+                ))}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"16px"}}>
+                  {[{label:"Expiry",val:newExpiry,set:(v)=>setNewExpiry(fmtExp(v)),ph:"MM/YY"},{label:"CVV",val:newCvv,set:setNewCvv,ph:"•••"}].map(f=>(
+                      <div key={f.label}>
+                        <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
+                        <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
+                               style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                      </div>
+                  ))}
+                </div>
+                <GoldBtn onClick={handleSaveCard}>Save New Card</GoldBtn>
+              </div>
+            </div>
+        )}
+
+        {/* Change Password modal */}
+        {showChangePassword&&(
+            <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
+              <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"360px",width:"100%",maxHeight:"88vh",overflowY:"auto",animation:"rise .35s both"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
+                  <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Change Password</h3>
+                  <button onClick={closeChangePassword} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
+                </div>
+
+                {/* Current password */}
+                <div style={{marginBottom:"14px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.currentPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>Current Password</label>
+                  <div style={{position:"relative"}}>
+                    <input type={showCurrentPw?"text":"password"} value={currentPw}
+                           onChange={e=>{setCurrentPw(e.target.value);setPwErrors(r=>({...r,currentPw:undefined}));}}
+                           placeholder="Enter current password"
+                           style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.currentPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                    <button type="button" onClick={()=>setShowCurrentPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showCurrentPw?"eyeOff":"eye"} size={16}/></button>
+                  </div>
+                  {pwErrors.currentPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.currentPw}</p>}
+                </div>
+
+                {/* New password */}
+                <div style={{marginBottom:"14px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.newPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>New Password</label>
+                  <div style={{position:"relative"}}>
+                    <input type={showNewPw?"text":"password"} value={newPw}
+                           onChange={e=>{setNewPw(e.target.value);setPwErrors(r=>({...r,newPw:undefined}));}}
+                           placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
+                           style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.newPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                    <button type="button" onClick={()=>setShowNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showNewPw?"eyeOff":"eye"} size={16}/></button>
+                  </div>
+                  {pwErrors.newPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.newPw}</p>}
+                  <PasswordStrengthMeter pw={newPw}/>
+                  <GeneratePasswordBtn onGenerate={handleGenerateNewPw}/>
+                  <PasswordChecklist pw={newPw}/>
+                </div>
+
+                {/* Confirm new password */}
+                <div style={{marginBottom:"18px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.confirmNewPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>Confirm New Password</label>
+                  <div style={{position:"relative"}}>
+                    <input type={showConfirmNewPw?"text":"password"} value={confirmNewPw}
+                           onChange={e=>{setConfirmNewPw(e.target.value);setPwErrors(r=>({...r,confirmNewPw:undefined}));}}
+                           placeholder="Re-enter new password"
+                           style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.confirmNewPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                    <button type="button" onClick={()=>setShowConfirmNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmNewPw?"eyeOff":"eye"} size={16}/></button>
+                  </div>
+                  {pwErrors.confirmNewPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.confirmNewPw}</p>}
+                  {!pwErrors.confirmNewPw && confirmNewPw.length>0 && confirmNewPw===newPw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
+                </div>
+
+                <GoldBtn onClick={handleSavePassword}>Save New Password</GoldBtn>
+              </div>
+            </div>
+        )}
+
+        <div className="s1" style={{marginBottom:"14px"}}>
+          <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Account</h2>
         </div>
-      )}
 
-      {/* Change Password modal */}
-      {showChangePassword&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"360px",width:"100%",maxHeight:"88vh",overflowY:"auto",animation:"rise .35s both"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Change Password</h3>
-              <button onClick={closeChangePassword} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-            </div>
-
-            {/* Current password */}
-            <div style={{marginBottom:"14px"}}>
-              <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.currentPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>Current Password</label>
-              <div style={{position:"relative"}}>
-                <input type={showCurrentPw?"text":"password"} value={currentPw}
-                  onChange={e=>{setCurrentPw(e.target.value);setPwErrors(r=>({...r,currentPw:undefined}));}}
-                  placeholder="Enter current password"
-                  style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.currentPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowCurrentPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showCurrentPw?"eyeOff":"eye"} size={16}/></button>
-              </div>
-              {pwErrors.currentPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.currentPw}</p>}
-            </div>
-
-            {/* New password */}
-            <div style={{marginBottom:"14px"}}>
-              <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.newPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>New Password</label>
-              <div style={{position:"relative"}}>
-                <input type={showNewPw?"text":"password"} value={newPw}
-                  onChange={e=>{setNewPw(e.target.value);setPwErrors(r=>({...r,newPw:undefined}));}}
-                  placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
-                  style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.newPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showNewPw?"eyeOff":"eye"} size={16}/></button>
-              </div>
-              {pwErrors.newPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.newPw}</p>}
-              <PasswordStrengthMeter pw={newPw}/>
-              <GeneratePasswordBtn onGenerate={handleGenerateNewPw}/>
-              <PasswordChecklist pw={newPw}/>
-            </div>
-
-            {/* Confirm new password */}
-            <div style={{marginBottom:"18px"}}>
-              <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:pwErrors.confirmNewPw?T.brown:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>Confirm New Password</label>
-              <div style={{position:"relative"}}>
-                <input type={showConfirmNewPw?"text":"password"} value={confirmNewPw}
-                  onChange={e=>{setConfirmNewPw(e.target.value);setPwErrors(r=>({...r,confirmNewPw:undefined}));}}
-                  placeholder="Re-enter new password"
-                  style={{width:"100%",padding:"11px 44px 11px 13px",background:T.inputBg,border:`1px solid ${pwErrors.confirmNewPw?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                <button type="button" onClick={()=>setShowConfirmNewPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:"16px",padding:"2px",color:T.textMuted}}><Icon name={showConfirmNewPw?"eyeOff":"eye"} size={16}/></button>
-              </div>
-              {pwErrors.confirmNewPw&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {pwErrors.confirmNewPw}</p>}
-              {!pwErrors.confirmNewPw && confirmNewPw.length>0 && confirmNewPw===newPw && <p style={{fontSize:"10px",color:"#4caf7d",marginTop:"3px",fontWeight:"600"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Passwords match</p>}
-            </div>
-
-            <GoldBtn onClick={handleSavePassword}>Save New Password</GoldBtn>
-          </div>
-        </div>
-      )}
-
-      <div className="s1" style={{marginBottom:"14px"}}>
-        <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",color:T.text,fontWeight:"700"}}>Account</h2>
-      </div>
-
-      {onOpenHandoutLibrary && (
-        <button onClick={onOpenHandoutLibrary}
-          style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,cursor:"pointer",marginBottom:"10px",transition:"all .2s"}}>
+        {onOpenHandoutLibrary && (
+            <button onClick={onOpenHandoutLibrary}
+                    style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,cursor:"pointer",marginBottom:"10px",transition:"all .2s"}}>
           <span style={{display:"flex",alignItems:"center",gap:"9px"}}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color:T.gold}}>
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -6935,13 +6955,13 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             </svg>
             <span style={{fontSize:"13.5px",fontWeight:"700"}}>Training Handouts</span>
           </span>
-          <span style={{color:T.textFaint}}>›</span>
-        </button>
-      )}
+              <span style={{color:T.textFaint}}>›</span>
+            </button>
+        )}
 
-      {onOpenVideoLibrary && (
-        <button onClick={onOpenVideoLibrary}
-          style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,cursor:"pointer",marginBottom:"16px",transition:"all .2s"}}>
+        {onOpenVideoLibrary && (
+            <button onClick={onOpenVideoLibrary}
+                    style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 15px",borderRadius:"12px",border:`1px solid ${T.chipBorder}`,background:T.chipBg,color:T.text,cursor:"pointer",marginBottom:"16px",transition:"all .2s"}}>
           <span style={{display:"flex",alignItems:"center",gap:"9px"}}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color:T.gold}}>
               <polygon points="23 7 16 12 23 17 23 7"/>
@@ -6949,313 +6969,313 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             </svg>
             <span style={{fontSize:"13.5px",fontWeight:"700"}}>Training Videos</span>
           </span>
-          <span style={{color:T.textFaint}}>›</span>
-        </button>
-      )}
+              <span style={{color:T.textFaint}}>›</span>
+            </button>
+        )}
 
-      {/* Tab nav */}
-      <div style={{display:"flex",gap:"6px",marginBottom:"16px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"5px"}}>
-        {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)}
-            style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"11px",fontWeight:"700",transition:"all .2s",
-              background:tab===t.id?T.gold:"transparent",color:tab===t.id?"#fff":T.textMuted}}>
-            {t.label}
+        {/* Tab nav */}
+        <div style={{display:"flex",gap:"6px",marginBottom:"16px",background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"12px",padding:"5px"}}>
+          {TABS.map(t=>(
+              <button key={t.id} onClick={()=>setTab(t.id)}
+                      style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"11px",fontWeight:"700",transition:"all .2s",
+                        background:tab===t.id?T.gold:"transparent",color:tab===t.id?"#fff":T.textMuted}}>
+                {t.label}
+              </button>
+          ))}
+          <button onClick={onSignOut}
+                  style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"11px",fontWeight:"700",transition:"all .2s",background:"transparent",color:T.signOutText}}>
+            Sign Out
           </button>
-        ))}
-        <button onClick={onSignOut}
-          style={{flex:1,padding:"8px 4px",borderRadius:"8px",border:"none",cursor:"pointer",fontFamily:"'Lato',sans-serif",fontSize:"11px",fontWeight:"700",transition:"all .2s",background:"transparent",color:T.signOutText}}>
-          Sign Out
-        </button>
-      </div>
+        </div>
 
-      {/* PROFILE TAB — pet info */}
-      {tab==="profile"&&(
-        <>
-          {/* Pet switcher */}
-          {pets.length>1&&(
-            <div style={{display:"flex",gap:"7px",marginBottom:"14px",flexWrap:"wrap"}}>
-              {pets.map((p,i)=>(
-                <button key={i} onClick={()=>setActivePet(i)}
-                  style={{padding:"7px 14px",borderRadius:"20px",border:`1px solid ${activePet===i?T.gold:T.chipBorder}`,background:activePet===i?"rgba(176,141,87,.18)":T.chipBg,color:activePet===i?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:activePet===i?"700":"400",cursor:"pointer",transition:"all .18s",fontFamily:"'Lato',sans-serif"}}>
-                  {p.name||`Pet ${i+1}`}
-                </button>
-              ))}
-            </div>
-          )}
+        {/* PROFILE TAB — pet info */}
+        {tab==="profile"&&(
+            <>
+              {/* Pet switcher */}
+              {pets.length>1&&(
+                  <div style={{display:"flex",gap:"7px",marginBottom:"14px",flexWrap:"wrap"}}>
+                    {pets.map((p,i)=>(
+                        <button key={i} onClick={()=>setActivePet(i)}
+                                style={{padding:"7px 14px",borderRadius:"20px",border:`1px solid ${activePet===i?T.gold:T.chipBorder}`,background:activePet===i?"rgba(176,141,87,.18)":T.chipBg,color:activePet===i?T.goldLight:T.textMuted,fontSize:"12px",fontWeight:activePet===i?"700":"400",cursor:"pointer",transition:"all .18s",fontFamily:"'Lato',sans-serif"}}>
+                          {p.name||`Pet ${i+1}`}
+                        </button>
+                    ))}
+                  </div>
+              )}
 
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Pet Profile</p>
-            {[
-              {k:"name",l:"Pet Name",ph:"Buddy"},
-              {k:"breed",l:"Breed",ph:"e.g. Labrador Retriever"},
-              {k:"birthday",l:"Birthday",ph:"MM/DD/YYYY"},
-              {k:"gender",l:"Gender",ph:"Male / Female"},
-              {k:"weight",l:"Weight",ph:"e.g. 45 lbs"},
-              {k:"food",l:"Daily Food Amount",ph:"e.g. 2 cups twice daily"},
-              {k:"allergiesAndSensitivities",l:"Allergies & Food Sensitivities",ph:"e.g. chicken, pollen, bee stings"},
-              {k:"medications",l:"Medications",ph:"Name, dose, frequency"},
-              {k:"grooming",l:"Grooming Needs",ph:"e.g. brush 3x/week"},
-              {k:"potty",l:"Potty Training Notes",ph:"Schedule, signals, accidents"},
-            ].map(({k,l,ph})=>(
-              <div key={k} style={{marginBottom:"10px"}}>
-                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
-                <input value={pet[k]||""} onChange={e=>sp(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                {k==="birthday" && computeAge(pet.birthday) && (
-                  <p style={{fontSize:"10.5px",color:T.textFaint,marginTop:"4px"}}>Current age: <strong style={{color:T.textMuted}}>{computeAge(pet.birthday)}</strong> (calculated automatically)</p>
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Pet Profile</p>
+                {[
+                  {k:"name",l:"Pet Name",ph:"Buddy"},
+                  {k:"breed",l:"Breed",ph:"e.g. Labrador Retriever"},
+                  {k:"birthday",l:"Birthday",ph:"MM/DD/YYYY"},
+                  {k:"gender",l:"Gender",ph:"Male / Female"},
+                  {k:"weight",l:"Weight",ph:"e.g. 45 lbs"},
+                  {k:"food",l:"Daily Food Amount",ph:"e.g. 2 cups twice daily"},
+                  {k:"allergiesAndSensitivities",l:"Allergies & Food Sensitivities",ph:"e.g. chicken, pollen, bee stings"},
+                  {k:"medications",l:"Medications",ph:"Name, dose, frequency"},
+                  {k:"grooming",l:"Grooming Needs",ph:"e.g. brush 3x/week"},
+                  {k:"potty",l:"Potty Training Notes",ph:"Schedule, signals, accidents"},
+                ].map(({k,l,ph})=>(
+                    <div key={k} style={{marginBottom:"10px"}}>
+                      <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
+                      <input value={pet[k]||""} onChange={e=>sp(k,k==="name"?capitalizeName(e.target.value):e.target.value)} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                      {k==="birthday" && computeAge(pet.birthday) && (
+                          <p style={{fontSize:"10.5px",color:T.textFaint,marginTop:"4px"}}>Current age: <strong style={{color:T.textMuted}}>{computeAge(pet.birthday)}</strong> (calculated automatically)</p>
+                      )}
+                    </div>
+                ))}
+                <GoldBtn onClick={handleSavePetProfile} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Pet Profile</GoldBtn>
+              </div>
+
+              {/* Training Setup — everything captured during the onboarding questionnaire,
+              editable here since a dog's needs, skills, and schedule change over time. */}
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Training Setup</p>
+                <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"12px",lineHeight:1.4}}>From your account setup — update anytime things change.</p>
+
+                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Role in the Family</label>
+                <ChipGroup options={[{value:"bestfriend",label:"Best Friend"},{value:"kid",label:"Kid"},{value:"family",label:"Family Member"},{value:"watchdog",label:"Watchdog"},{value:"service",label:"Service / Emotional Support"}]}
+                           selected={petData?.role} onToggle={v=>setupToggle("role",v)}/>
+
+                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Knows Already</label>
+                <ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]}
+                           selected={petData?.knows} onToggle={v=>setupToggle("knows",v)}/>
+
+                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Behavior Issues to Work On</label>
+                <ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]}
+                           selected={petData?.issues} onToggle={v=>setupToggle("issues",v)}/>
+
+                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Daily Training Time</label>
+                <ChipGroup options={["5 – 10 min","15 – 30 min","More than 30 min"]}
+                           selected={petData?.trainTime} onToggle={v=>setupToggle("trainTime",v)}/>
+
+                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Preferred Training Time</label>
+                <div style={{display:"flex",alignItems:"center",gap:"10px",margin:"4px 0 18px"}}>
+                  <div style={{textAlign:"center"}}>
+                    <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Hour</p>
+                    <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
+                      {Array.from({length:12},(_,i)=>i+1).map(h=><div key={h} onClick={()=>setupSet("trainHour",String(h))} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:petData?.trainHour===String(h)?"rgba(176,141,87,.2)":"transparent",color:petData?.trainHour===String(h)?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{h}</div>)}
+                    </div>
+                  </div>
+                  <div style={{fontSize:"20px",color:T.gold,fontWeight:"900",paddingTop:"22px"}}>:</div>
+                  <div style={{textAlign:"center"}}>
+                    <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Min</p>
+                    <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
+                      {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m=><div key={m} onClick={()=>setupSet("trainMin",m)} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:(petData?.trainMin||"00")===m?"rgba(176,141,87,.2)":"transparent",color:(petData?.trainMin||"00")===m?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{m}</div>)}
+                    </div>
+                  </div>
+                  <div style={{textAlign:"center",paddingTop:"22px"}}>
+                    <div style={{display:"flex",flexDirection:"column",gap:"5px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>setupSet("trainAmPm",ap)} style={{padding:"8px 11px",borderRadius:"7px",fontWeight:"700",fontSize:"11px",border:`1px solid ${petData?.trainAmPm===ap?T.gold:T.inputBorder}`,background:petData?.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:petData?.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
+                  </div>
+                </div>
+
+                <GoldBtn onClick={handleSaveTrainingSetup} style={{padding:"11px",fontSize:"12px"}}>Save Training Setup</GoldBtn>
+              </div>
+
+              {/* Health records / upload */}
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Health Records</p>
+                {["Vaccine Records","Vet Records"].map(r=>(
+                    <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
+                      <span style={{fontSize:"13.5px",color:T.text}}>{r}</span>
+                      <button onClick={()=>handleUpload(r)} style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>Upload</button>
+                    </div>
+                ))}
+                {/* Uploaded docs + quick-add notes */}
+                {([...(pet.docs||[]),...quickAddDocs]).length>0&&(
+                    <div style={{marginTop:"12px"}}>
+                      <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".13em",textTransform:"uppercase",marginBottom:"8px"}}>Attached Documents & Notes</p>
+                      {[...(pet.docs||[]),...quickAddDocs].map((doc,di)=>(
+                          <div key={di} style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"9px",marginBottom:"6px"}}>
+                            <Icon name={doc.url?"clipboard":"pencil"} size={16}/>
+                            <div style={{flex:1}}>
+                              <p style={{fontSize:"12px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{doc.name}</p>
+                              <p style={{fontSize:"10px",color:T.textMuted}}>{doc.type} · {doc.date}</p>
+                            </div>
+                            {doc.url&&(
+                                <ProtectedMedia type="document">
+                                  <a href={doc.url} target="_blank" rel="noreferrer"
+                                     onContextMenu={e=>e.preventDefault()}
+                                     download={false}
+                                     style={{fontSize:"11px",color:T.gold,fontWeight:"700",textDecoration:"none"}}>View</a>
+                                </ProtectedMedia>
+                            )}
+                          </div>
+                      ))}
+                    </div>
                 )}
               </div>
-            ))}
-            <GoldBtn onClick={handleSavePetProfile} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Pet Profile</GoldBtn>
-          </div>
 
-          {/* Training Setup — everything captured during the onboarding questionnaire,
-              editable here since a dog's needs, skills, and schedule change over time. */}
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"4px"}}>Training Setup</p>
-            <p style={{fontSize:"11px",color:T.textMuted,marginBottom:"12px",lineHeight:1.4}}>From your account setup — update anytime things change.</p>
+              <button onClick={addPet} style={{width:"100%",padding:"11px",background:"transparent",border:`1px dashed ${T.gold}`,borderRadius:"11px",color:T.gold,fontSize:"12px",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"12px"}}>
+                + Add Another Pet
+              </button>
+            </>
+        )}
 
-            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Role in the Family</label>
-            <ChipGroup options={[{value:"bestfriend",label:"Best Friend"},{value:"kid",label:"Kid"},{value:"family",label:"Family Member"},{value:"watchdog",label:"Watchdog"},{value:"service",label:"Service / Emotional Support"}]}
-              selected={petData?.role} onToggle={v=>setupToggle("role",v)}/>
-
-            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Knows Already</label>
-            <ChipGroup options={["Name","Stand","Sit","Down","Leave it","Come / Here","Crate / Kennel","Heel","High five / Shake","None of the above"]}
-              selected={petData?.knows} onToggle={v=>setupToggle("knows",v)}/>
-
-            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Behavior Issues to Work On</label>
-            <ChipGroup options={["Walking","Potty issues","Biting","Chewing","Jumping","Destructive behavior","Counter surfing","Eating poop","Barking","Reactivity / Aggression","Separation anxiety","Humping","Crate training","Socialization"]}
-              selected={petData?.issues} onToggle={v=>setupToggle("issues",v)}/>
-
-            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Daily Training Time</label>
-            <ChipGroup options={["5 – 10 min","15 – 30 min","More than 30 min"]}
-              selected={petData?.trainTime} onToggle={v=>setupToggle("trainTime",v)}/>
-
-            <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"7px"}}>Preferred Training Time</label>
-            <div style={{display:"flex",alignItems:"center",gap:"10px",margin:"4px 0 18px"}}>
-              <div style={{textAlign:"center"}}>
-                <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Hour</p>
-                <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
-                  {Array.from({length:12},(_,i)=>i+1).map(h=><div key={h} onClick={()=>setupSet("trainHour",String(h))} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:petData?.trainHour===String(h)?"rgba(176,141,87,.2)":"transparent",color:petData?.trainHour===String(h)?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{h}</div>)}
-                </div>
-              </div>
-              <div style={{fontSize:"20px",color:T.gold,fontWeight:"900",paddingTop:"22px"}}>:</div>
-              <div style={{textAlign:"center"}}>
-                <p style={{fontSize:"9px",color:T.textFaint,letterSpacing:".1em",textTransform:"uppercase",marginBottom:"5px"}}>Min</p>
-                <div style={{height:"88px",overflowY:"auto",border:`1px solid ${T.inputBorder}`,borderRadius:"9px",width:"54px",scrollSnapType:"y mandatory"}}>
-                  {["00","05","10","15","20","25","30","35","40","45","50","55"].map(m=><div key={m} onClick={()=>setupSet("trainMin",m)} style={{height:"30px",display:"flex",alignItems:"center",justifyContent:"center",scrollSnapAlign:"start",cursor:"pointer",background:(petData?.trainMin||"00")===m?"rgba(176,141,87,.2)":"transparent",color:(petData?.trainMin||"00")===m?T.gold:T.text,fontSize:"14px",fontWeight:"700"}}>{m}</div>)}
-                </div>
-              </div>
-              <div style={{textAlign:"center",paddingTop:"22px"}}>
-                <div style={{display:"flex",flexDirection:"column",gap:"5px"}}>{["AM","PM"].map(ap=><button key={ap} onClick={()=>setupSet("trainAmPm",ap)} style={{padding:"8px 11px",borderRadius:"7px",fontWeight:"700",fontSize:"11px",border:`1px solid ${petData?.trainAmPm===ap?T.gold:T.inputBorder}`,background:petData?.trainAmPm===ap?"rgba(176,141,87,.18)":T.inputBg,color:petData?.trainAmPm===ap?T.gold:T.text,cursor:"pointer"}}>{ap}</button>)}</div>
-              </div>
-            </div>
-
-            <GoldBtn onClick={handleSaveTrainingSetup} style={{padding:"11px",fontSize:"12px"}}>Save Training Setup</GoldBtn>
-          </div>
-
-          {/* Health records / upload */}
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Health Records</p>
-            {["Vaccine Records","Vet Records"].map(r=>(
-              <div key={r} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"13.5px",color:T.text}}>{r}</span>
-                <button onClick={()=>handleUpload(r)} style={{background:T.streakCard,border:`1px solid ${T.streakBorder}`,borderRadius:"8px",padding:"5px 12px",fontSize:"11px",color:T.gold,cursor:"pointer",fontWeight:"700"}}>Upload</button>
-              </div>
-            ))}
-            {/* Uploaded docs + quick-add notes */}
-            {([...(pet.docs||[]),...quickAddDocs]).length>0&&(
-              <div style={{marginTop:"12px"}}>
-                <p style={{fontSize:"9.5px",color:T.gold,fontWeight:"700",letterSpacing:".13em",textTransform:"uppercase",marginBottom:"8px"}}>Attached Documents & Notes</p>
-                {[...(pet.docs||[]),...quickAddDocs].map((doc,di)=>(
-                  <div key={di} style={{display:"flex",alignItems:"center",gap:"10px",padding:"8px 10px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"9px",marginBottom:"6px"}}>
-                    <Icon name={doc.url?"clipboard":"pencil"} size={16}/>
-                    <div style={{flex:1}}>
-                      <p style={{fontSize:"12px",fontWeight:"700",color:T.text,marginBottom:"1px"}}>{doc.name}</p>
-                      <p style={{fontSize:"10px",color:T.textMuted}}>{doc.type} · {doc.date}</p>
+        {/* SETTINGS TAB — client / account info */}
+        {tab==="settings"&&(
+            <>
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Account Info</p>
+                {[
+                  {k:"firstName",l:"First Name",ph:"Jane"},
+                  {k:"lastName",l:"Last Name",ph:"Smith"},
+                ].map(({k,l,ph})=>(
+                    <div key={k} style={{marginBottom:"10px"}}>
+                      <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
+                      <input value={client[k]||""} onChange={e=>sc(k,capitalizeName(e.target.value))} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
                     </div>
-                    {doc.url&&(
-                      <ProtectedMedia type="document">
-                        <a href={doc.url} target="_blank" rel="noreferrer"
-                          onContextMenu={e=>e.preventDefault()}
-                          download={false}
-                          style={{fontSize:"11px",color:T.gold,fontWeight:"700",textDecoration:"none"}}>View</a>
-                      </ProtectedMedia>
-                    )}
-                  </div>
                 ))}
+
+                {/* Email — validated for @ and . on save */}
+                <div style={{marginBottom:"10px"}}>
+                  <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:accountErrors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"4px"}}>Email</label>
+                  <input type="email" value={client.email||""} onChange={e=>{sc("email",e.target.value);setAccountErrors(r=>({...r,email:undefined}));}} placeholder="you@example.com"
+                         style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${accountErrors.email?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+                  {accountErrors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {accountErrors.email}</p>}
+                </div>
+
+                {/* Phone — country picked first so we know which digit-count/format to validate against */}
+                <div style={{marginBottom:"10px"}}>
+                  <PhoneField label="Phone" countryCode={client.countryCode||"US"} onCountryChange={v=>sc("countryCode",v)}
+                              phone={client.phone||""} onPhoneChange={v=>sc("phone",v)}
+                              error={accountErrors.phone} onFocusClear={()=>setAccountErrors(r=>({...r,phone:undefined}))}/>
+                </div>
+
+                <GoldBtn onClick={handleSaveAccountInfo} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Account Info</GoldBtn>
               </div>
-            )}
-          </div>
 
-          <button onClick={addPet} style={{width:"100%",padding:"11px",background:"transparent",border:`1px dashed ${T.gold}`,borderRadius:"11px",color:T.gold,fontSize:"12px",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"12px"}}>
-            + Add Another Pet
-          </button>
-        </>
-      )}
-
-      {/* SETTINGS TAB — client / account info */}
-      {tab==="settings"&&(
-        <>
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Account Info</p>
-            {[
-              {k:"firstName",l:"First Name",ph:"Jane"},
-              {k:"lastName",l:"Last Name",ph:"Smith"},
-            ].map(({k,l,ph})=>(
-              <div key={k} style={{marginBottom:"10px"}}>
-                <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:T.gold,fontWeight:"700",marginBottom:"4px"}}>{l}</label>
-                <input value={client[k]||""} onChange={e=>sc(k,capitalizeName(e.target.value))} placeholder={ph} style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Password</p>
+                {pwChangedSuccess ? (
+                    <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"10px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
+                      <Icon name="check" size={16} color={T.success} strokeWidth={3}/>
+                      <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Password updated successfully.</p>
+                    </div>
+                ) : (
+                    <>
+                      <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"10px"}}>Keep your account secure with a strong, unique password.</p>
+                      <button onClick={()=>setShowChangePassword(true)} style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+                        <Icon name="lock" size={13}/>Change Password
+                      </button>
+                    </>
+                )}
               </div>
-            ))}
 
-            {/* Email — validated for @ and . on save */}
-            <div style={{marginBottom:"10px"}}>
-              <label style={{display:"block",fontSize:"9.5px",letterSpacing:".13em",textTransform:"uppercase",color:accountErrors.email?T.brown:T.gold,fontWeight:"700",marginBottom:"4px"}}>Email</label>
-              <input type="email" value={client.email||""} onChange={e=>{sc("email",e.target.value);setAccountErrors(r=>({...r,email:undefined}));}} placeholder="you@example.com"
-                style={{width:"100%",padding:"10px 13px",background:T.inputBg,border:`1px solid ${accountErrors.email?T.brown:T.inputBorder}`,borderRadius:"9px",fontSize:"13.5px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-              {accountErrors.email&&<p style={{fontSize:"10px",color:"#e07a5f",marginTop:"3px",fontWeight:"600"}}><Icon name="alert" size={11} style={{marginRight:"2px"}}/> {accountErrors.email}</p>}
-            </div>
-
-            {/* Phone — country picked first so we know which digit-count/format to validate against */}
-            <div style={{marginBottom:"10px"}}>
-              <PhoneField label="Phone" countryCode={client.countryCode||"US"} onCountryChange={v=>sc("countryCode",v)}
-                phone={client.phone||""} onPhoneChange={v=>sc("phone",v)}
-                error={accountErrors.phone} onFocusClear={()=>setAccountErrors(r=>({...r,phone:undefined}))}/>
-            </div>
-
-            <GoldBtn onClick={handleSaveAccountInfo} style={{marginTop:"6px",padding:"11px",fontSize:"12px"}}>Save Account Info</GoldBtn>
-          </div>
-
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"12px"}}>Password</p>
-            {pwChangedSuccess ? (
-              <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"10px",padding:"10px 13px",display:"flex",alignItems:"center",gap:"8px"}}>
-                <Icon name="check" size={16} color={T.success} strokeWidth={3}/>
-                <p style={{fontSize:"12px",color:"#4caf7d",fontWeight:"700"}}>Password updated successfully.</p>
-              </div>
-            ) : (
-              <>
-                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"10px"}}>Keep your account secure with a strong, unique password.</p>
-                <button onClick={()=>setShowChangePassword(true)} style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-                  <Icon name="lock" size={13}/>Change Password
-                </button>
-              </>
-            )}
-          </div>
-
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
-              <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>Billing & Plan</p>
-              <span style={{fontSize:"10px",fontWeight:"900",letterSpacing:".08em",padding:"3px 9px",borderRadius:"20px",
-                background:subStatus==="active"?"rgba(76,175,125,.15)":"rgba(224,122,95,.12)",
-                color:subStatus==="active"?"#4caf7d":"#e07a5f",
-                border:`1px solid ${subStatus==="active"?"rgba(76,175,125,.4)":"rgba(224,122,95,.35)"}`}}>
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
+                  <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>Billing & Plan</p>
+                  <span style={{fontSize:"10px",fontWeight:"900",letterSpacing:".08em",padding:"3px 9px",borderRadius:"20px",
+                    background:subStatus==="active"?"rgba(76,175,125,.15)":"rgba(224,122,95,.12)",
+                    color:subStatus==="active"?"#4caf7d":"#e07a5f",
+                    border:`1px solid ${subStatus==="active"?"rgba(76,175,125,.4)":"rgba(224,122,95,.35)"}`}}>
                 {subStatus==="active"?"● ACTIVE":"● CANCELLED"}
               </span>
-            </div>
+                </div>
 
-            {/* Cancelled banner */}
-            {subStatus==="cancelled"&&(
-              <div style={{background:"rgba(224,122,95,.08)",border:"1px solid rgba(224,122,95,.25)",borderRadius:"10px",padding:"12px 14px",marginBottom:"12px"}}>
-                <p style={{fontSize:"12px",fontWeight:"700",color:"#e07a5f",marginBottom:"4px"}}>Subscription Cancelled</p>
-                <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.55}}>Your access continues until <strong style={{color:T.text}}>{client.renewalDate}</strong>. Reactivate below to resume billing and keep your training going.</p>
+                {/* Cancelled banner */}
+                {subStatus==="cancelled"&&(
+                    <div style={{background:"rgba(224,122,95,.08)",border:"1px solid rgba(224,122,95,.25)",borderRadius:"10px",padding:"12px 14px",marginBottom:"12px"}}>
+                      <p style={{fontSize:"12px",fontWeight:"700",color:"#e07a5f",marginBottom:"4px"}}>Subscription Cancelled</p>
+                      <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.55}}>Your access continues until <strong style={{color:T.text}}>{client.renewalDate}</strong>. Reactivate below to resume billing and keep your training going.</p>
+                    </div>
+                )}
+
+                {[
+                  {l:"Program",v:client.program},
+                  {l:subStatus==="cancelled"?"Access Until":"Next Renewal",v:client.renewalDate},
+                  {l:"Card on File",v:`•••• •••• •••• ${client.cardLast4}`},
+                ].map(({l,v})=>(
+                    <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
+                      <span style={{fontSize:"12px",color:T.textMuted}}>{l}</span>
+                      <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{v}</span>
+                    </div>
+                ))}
+
+                {/* Update card button */}
+                <button onClick={()=>setShowUpdateCard(true)} style={{width:"100%",marginTop:"12px",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+                  <Icon name="card" size={13} style={{marginRight:"5px"}}/>Update / Change Payment Card
+                </button>
+
+                {/* Cancel or Reactivate */}
+                {subStatus==="active"?(
+                    <button onClick={()=>setShowCancelConfirm(true)} style={{width:"100%",marginTop:"8px",padding:"10px",background:"transparent",border:`1px solid rgba(224,122,95,.4)`,borderRadius:"9px",color:"#e07a5f",fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                      Cancel Subscription
+                    </button>
+                ):(
+                    <GoldBtn onClick={()=>setShowRestartConfirm(true)} style={{marginTop:"10px",padding:"11px",fontSize:"12px"}}>
+                      Reactivate My Subscription
+                    </GoldBtn>
+                )}
+
+                {/* Auto-renewal email demo */}
+                {subStatus==="active"&&(
+                    <div style={{marginTop:"12px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"11px 13px"}}>
+                      <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5,marginBottom:"8px"}}>A receipt email is automatically sent each time your subscription renews and your card is charged.</p>
+                      <button onClick={handleSimulateRenewal} style={{background:"rgba(76,175,125,.12)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"8px",padding:"7px 12px",fontSize:"11px",color:"#4caf7d",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                        <Icon name="mail" size={12}/>Simulate Renewal Email (Demo)
+                      </button>
+                    </div>
+                )}
               </div>
-            )}
 
-            {[
-              {l:"Program",v:client.program},
-              {l:subStatus==="cancelled"?"Access Until":"Next Renewal",v:client.renewalDate},
-              {l:"Card on File",v:`•••• •••• •••• ${client.cardLast4}`},
-            ].map(({l,v})=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"12px",color:T.textMuted}}>{l}</span>
-                <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{v}</span>
+              <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{darkMode?"Dark Mode":"Light Mode"}</p><p style={{fontSize:"11px",color:T.textMuted}}>Switch display preference</p></div>
+                <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
               </div>
-            ))}
 
-            {/* Update card button */}
-            <button onClick={()=>setShowUpdateCard(true)} style={{width:"100%",marginTop:"12px",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-              <Icon name="card" size={13} style={{marginRight:"5px"}}/>Update / Change Payment Card
-            </button>
-
-            {/* Cancel or Reactivate */}
-            {subStatus==="active"?(
-              <button onClick={()=>setShowCancelConfirm(true)} style={{width:"100%",marginTop:"8px",padding:"10px",background:"transparent",border:`1px solid rgba(224,122,95,.4)`,borderRadius:"9px",color:"#e07a5f",fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-                Cancel Subscription
-              </button>
-            ):(
-              <GoldBtn onClick={()=>setShowRestartConfirm(true)} style={{marginTop:"10px",padding:"11px",fontSize:"12px"}}>
-                Reactivate My Subscription
-              </GoldBtn>
-            )}
-
-            {/* Auto-renewal email demo */}
-            {subStatus==="active"&&(
-              <div style={{marginTop:"12px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"11px 13px"}}>
-                <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5,marginBottom:"8px"}}>A receipt email is automatically sent each time your subscription renews and your card is charged.</p>
-                <button onClick={handleSimulateRenewal} style={{background:"rgba(76,175,125,.12)",border:"1px solid rgba(76,175,125,.3)",borderRadius:"8px",padding:"7px 12px",fontSize:"11px",color:"#4caf7d",fontWeight:"700",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-                  <Icon name="mail" size={12}/>Simulate Renewal Email (Demo)
+              {/* Delete Account */}
+              <div style={{background:"rgba(224,122,95,.06)",border:"1.5px solid rgba(224,122,95,.25)",borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
+                <p style={{fontSize:"10px",color:"#e07a5f",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px"}}>Danger Zone</p>
+                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"12px"}}>Permanently delete your account and all training data. This cannot be undone.</p>
+                <button onClick={()=>setShowDeleteConfirm(true)} style={{width:"100%",padding:"11px",background:"rgba(224,122,95,.12)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".06em"}}>
+                  <Icon name="trash" size={13} style={{marginRight:"4px"}}/>Delete My Account
                 </button>
               </div>
-            )}
-          </div>
+            </>
+        )}
 
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div><p style={{fontSize:"13px",fontWeight:"700",color:T.text,marginBottom:"2px"}}>{darkMode?"Dark Mode":"Light Mode"}</p><p style={{fontSize:"11px",color:T.textMuted}}>Switch display preference</p></div>
-            <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
-          </div>
-
-          {/* Delete Account */}
-          <div style={{background:"rgba(224,122,95,.06)",border:"1.5px solid rgba(224,122,95,.25)",borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
-            <p style={{fontSize:"10px",color:"#e07a5f",fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase",marginBottom:"8px"}}>Danger Zone</p>
-            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.5,marginBottom:"12px"}}>Permanently delete your account and all training data. This cannot be undone.</p>
-            <button onClick={()=>setShowDeleteConfirm(true)} style={{width:"100%",padding:"11px",background:"rgba(224,122,95,.12)",border:"1.5px solid #e07a5f",borderRadius:"9px",color:"#e07a5f",fontWeight:"900",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",letterSpacing:".06em"}}>
-              <Icon name="trash" size={13} style={{marginRight:"4px"}}/>Delete My Account
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* CONTACT TAB */}
-      {tab==="contact"&&(
-        <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"18px",marginBottom:"12px"}}>
-          <div style={{textAlign:"center",marginBottom:"18px"}}>
-            <LogoImg size={48}/>
-            <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginTop:"10px",marginBottom:"4px"}}>Guiding Paw</h3>
-            <p style={{fontSize:"12px",color:T.textMuted}}>Professional Dog Training</p>
-          </div>
-          {[
-            {icon:"mail",label:"Email",val:"info@guidingpaw.com",href:"mailto:info@guidingpaw.com"},
-            {icon:"phone",label:"Phone",val:"801-435-1239",href:"tel:+18014351239"},
-            {icon:"globe",label:"Website",val:"www.guidingpaw.com",href:"https://guidingpaw.com/"},
-            {icon:"pin",label:"Location",val:"Serving clients worldwide"},
-          ].map(({icon,label,val,href})=>(
-            <div key={label} style={{display:"flex",alignItems:"center",gap:"12px",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
-              <span style={{width:"26px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={17}/></span>
-              <div>
-                <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",textTransform:"uppercase",letterSpacing:".1em",marginBottom:"2px"}}>{label}</p>
-                {href
-                  ? <a href={href} target={href.startsWith("http")?"_blank":undefined} rel={href.startsWith("http")?"noopener noreferrer":undefined}
-                      style={{fontSize:"13px",color:T.text,fontWeight:"600",textDecoration:"none",cursor:"pointer"}}
-                      onMouseEnter={e=>{e.currentTarget.style.color=T.gold;e.currentTarget.style.textDecoration="underline";}}
-                      onMouseLeave={e=>{e.currentTarget.style.color=T.text;e.currentTarget.style.textDecoration="none";}}>
-                      {val}
-                    </a>
-                  : <p style={{fontSize:"13px",color:T.text,fontWeight:"600"}}>{val}</p>}
+        {/* CONTACT TAB */}
+        {tab==="contact"&&(
+            <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"18px",marginBottom:"12px"}}>
+              <div style={{textAlign:"center",marginBottom:"18px"}}>
+                <LogoImg size={48}/>
+                <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginTop:"10px",marginBottom:"4px"}}>Guiding Paw</h3>
+                <p style={{fontSize:"12px",color:T.textMuted}}>Professional Dog Training</p>
+              </div>
+              {[
+                {icon:"mail",label:"Email",val:"info@guidingpaw.com",href:"mailto:info@guidingpaw.com"},
+                {icon:"phone",label:"Phone",val:"801-435-1239",href:"tel:+18014351239"},
+                {icon:"globe",label:"Website",val:"www.guidingpaw.com",href:"https://guidingpaw.com/"},
+                {icon:"pin",label:"Location",val:"Serving clients worldwide"},
+              ].map(({icon,label,val,href})=>(
+                  <div key={label} style={{display:"flex",alignItems:"center",gap:"12px",padding:"11px 0",borderBottom:`1px solid ${T.divider}`}}>
+                    <span style={{width:"26px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name={icon} size={17}/></span>
+                    <div>
+                      <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",textTransform:"uppercase",letterSpacing:".1em",marginBottom:"2px"}}>{label}</p>
+                      {href
+                          ? <a href={href} target={href.startsWith("http")?"_blank":undefined} rel={href.startsWith("http")?"noopener noreferrer":undefined}
+                               style={{fontSize:"13px",color:T.text,fontWeight:"600",textDecoration:"none",cursor:"pointer"}}
+                               onMouseEnter={e=>{e.currentTarget.style.color=T.gold;e.currentTarget.style.textDecoration="underline";}}
+                               onMouseLeave={e=>{e.currentTarget.style.color=T.text;e.currentTarget.style.textDecoration="none";}}>
+                            {val}
+                          </a>
+                          : <p style={{fontSize:"13px",color:T.text,fontWeight:"600"}}>{val}</p>}
+                    </div>
+                  </div>
+              ))}
+              <div style={{marginTop:"16px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"12px 14px"}}>
+                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,textAlign:"center"}}>
+                  We typically respond within 24 hours. For urgent training questions,{" "}
+                  {onOpenDiagnosis
+                      ? <span onClick={onOpenDiagnosis} style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>use the Diagnosis Tool</span>
+                      : <>use the Diagnosis Tool</>} in the app.
+                </p>
               </div>
             </div>
-          ))}
-          <div style={{marginTop:"16px",background:T.navyAccentBg,border:`1px solid ${T.navyAccentBorder}`,borderRadius:"10px",padding:"12px 14px"}}>
-            <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.6,textAlign:"center"}}>
-              We typically respond within 24 hours. For urgent training questions,{" "}
-              {onOpenDiagnosis
-                ? <span onClick={onOpenDiagnosis} style={{color:T.gold,textDecoration:"underline",textDecorationStyle:"dotted",textUnderlineOffset:"2px",cursor:"pointer",fontWeight:"700"}}>use the Diagnosis Tool</span>
-                : <>use the Diagnosis Tool</>} in the app.
-            </p>
-          </div>
-        </div>
-      )}
-    </ScrollBody>
+        )}
+      </ScrollBody>
   );
 };
 
@@ -7587,8 +7607,8 @@ export default function App() {
     setPlan(pendingData?.plan||"annual");
     const birthday = pendingData?.birthday||"";
     const purchasedProgram = pendingData?.program==="puppy" ? "puppy"
-      : pendingData?.program==="standard" ? "standard"
-      : getEnrolledProgram({birthday});
+        : pendingData?.program==="standard" ? "standard"
+            : getEnrolledProgram({birthday});
     setPetData({...pendingData, birthday, enrolledProgram:purchasedProgram, purchasedPrograms:[purchasedProgram]});
     setShowWelcome(true); setScreen("app");
 
@@ -7679,109 +7699,109 @@ export default function App() {
   const isAuthScreen = screen!=="app";
 
   return (
-    <ThemeContext.Provider value={T}>
-      <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
-        <style>{globalCss(T)}</style>
+      <ThemeContext.Provider value={T}>
+        <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
+          <style>{globalCss(T)}</style>
 
-        {/* Locked-video toast — shown when someone taps a video that isn't unlocked yet */}
-        {videoLockedMsg && (
-          <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",display:"flex",alignItems:"center",gap:"7px"}}>
-            <Icon name="lock" size={13}/>{videoLockedMsg}
-          </div>
-        )}
+          {/* Locked-video toast — shown when someone taps a video that isn't unlocked yet */}
+          {videoLockedMsg && (
+              <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid ${T.gold}`,color:T.text,padding:"14px 22px",borderRadius:"14px",fontWeight:"700",fontSize:"12.5px",zIndex:1200,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center",display:"flex",alignItems:"center",gap:"7px"}}>
+                <Icon name="lock" size={13}/>{videoLockedMsg}
+              </div>
+          )}
 
-        {/* ── Auth screens (centered phone-style on all breakpoints) ── */}
-        {isAuthScreen && (
-          <div style={{width:"100%",maxWidth:"390px",margin:"0 auto"}}>
-            {screen==="signin"&&<SignInScreen onSignIn={handleSignIn} goSignUp={handleGoRegister} darkMode={darkMode} setDarkMode={setDarkMode}/>}
-            {screen==="register"&&<RegistrationScreen onVerify={handleRegistered} onBack={()=>setScreen("signin")} darkMode={darkMode} setDarkMode={setDarkMode}/>}
-            {screen==="verify"&&<EmailVerificationScreen userData={regData} onVerified={handleVerified} onBack={()=>setScreen("register")}/>}
-            {screen==="onboarding"&&<OnboardingScreen userData={regData} onGoToPayment={handleGoToPayment} darkMode={darkMode} setDarkMode={setDarkMode}/>}
-            {screen==="payment"&&<PaymentScreen petData={pendingData} onSuccess={handlePaySuccess} onBack={()=>setScreen("onboarding")}/>}
-            {screen==="success"&&<SuccessScreen petData={pendingData} onContinue={handleSuccessContinue}/>}
-          </div>
-        )}
+          {/* ── Auth screens (centered phone-style on all breakpoints) ── */}
+          {isAuthScreen && (
+              <div style={{width:"100%",maxWidth:"390px",margin:"0 auto"}}>
+                {screen==="signin"&&<SignInScreen onSignIn={handleSignIn} goSignUp={handleGoRegister} darkMode={darkMode} setDarkMode={setDarkMode}/>}
+                {screen==="register"&&<RegistrationScreen onVerify={handleRegistered} onBack={()=>setScreen("signin")} darkMode={darkMode} setDarkMode={setDarkMode}/>}
+                {screen==="verify"&&<EmailVerificationScreen userData={regData} onVerified={handleVerified} onBack={()=>setScreen("register")}/>}
+                {screen==="onboarding"&&<OnboardingScreen userData={regData} onGoToPayment={handleGoToPayment} darkMode={darkMode} setDarkMode={setDarkMode}/>}
+                {screen==="payment"&&<PaymentScreen petData={pendingData} onSuccess={handlePaySuccess} onBack={()=>setScreen("onboarding")}/>}
+                {screen==="success"&&<SuccessScreen petData={pendingData} onContinue={handleSuccessContinue}/>}
+              </div>
+          )}
 
-        {/* ── App: unified layout — same sidebar + topbar structure on phone & desktop ── */}
-        {screen==="app"&&(
-          <div className="web-layout" style={{background:T.bg}}>
-            <SideNav
-              page={page}
-              setPage={navigateToPage}
-              setShowDiag={setShowDiag}
-              setShowLifeRecord={setShowLifeRecord}
-              setShowWelcome={setShowWelcome}
-              setShowVideo={setShowVideo}
-              setVideoHistory={setVideoHistory}
-              setShowGame={setShowGame}
-              setShowHandout={setShowHandout}
-              setHandoutHistory={setHandoutHistory}
-              plan={plan}
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
-              onSignOut={()=>{clearSession();setScreen("signin");}}
-              mobileOpen={mobileNavOpen}
-              setMobileOpen={setMobileNavOpen}
-            />
-            <div className="web-main" style={{background:T.bg}}>
-              {/* Top bar */}
-              <div className="web-topbar" style={{background:T.navTopbarBg,borderBottom:`1px solid ${T.navBarBorder}`}}>
-                {/* Full-width banner — stretches edge-to-edge across the very top on both phone and desktop */}
-                <TopBanner setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}/>
-                <div className="web-topbar-row">
-                  <button className="hamburger-btn" onClick={()=>setMobileNavOpen(v=>!v)} style={{color:T.navTextStrong}} title="Menu">
-                    <Icon name="menu" size={20}/>
-                  </button>
-                  <div style={{flex:1}}/>
-                  <div style={{display:"flex",gap:"12px",alignItems:"center"}}>
-                    <div className="icon-tt">
-                      <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);}}
-                        style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                          <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
-                        </svg>
+          {/* ── App: unified layout — same sidebar + topbar structure on phone & desktop ── */}
+          {screen==="app"&&(
+              <div className="web-layout" style={{background:T.bg}}>
+                <SideNav
+                    page={page}
+                    setPage={navigateToPage}
+                    setShowDiag={setShowDiag}
+                    setShowLifeRecord={setShowLifeRecord}
+                    setShowWelcome={setShowWelcome}
+                    setShowVideo={setShowVideo}
+                    setVideoHistory={setVideoHistory}
+                    setShowGame={setShowGame}
+                    setShowHandout={setShowHandout}
+                    setHandoutHistory={setHandoutHistory}
+                    plan={plan}
+                    darkMode={darkMode}
+                    setDarkMode={setDarkMode}
+                    onSignOut={()=>{clearSession();setScreen("signin");}}
+                    mobileOpen={mobileNavOpen}
+                    setMobileOpen={setMobileNavOpen}
+                />
+                <div className="web-main" style={{background:T.bg}}>
+                  {/* Top bar */}
+                  <div className="web-topbar" style={{background:T.navTopbarBg,borderBottom:`1px solid ${T.navBarBorder}`}}>
+                    {/* Full-width banner — stretches edge-to-edge across the very top on both phone and desktop */}
+                    <TopBanner setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}/>
+                    <div className="web-topbar-row">
+                      <button className="hamburger-btn" onClick={()=>setMobileNavOpen(v=>!v)} style={{color:T.navTextStrong}} title="Menu">
+                        <Icon name="menu" size={20}/>
                       </button>
-                      <span className="icon-tt-bubble">Behavior Diagnosis</span>
-                    </div>
-                    <div className="icon-tt">
-                      <button onClick={openHandoutLibrary}
-                        style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                        </svg>
-                      </button>
-                      <span className="icon-tt-bubble">Training Handouts</span>
-                    </div>
-                    <div className="icon-tt">
-                      <button onClick={openVideoLibrary}
-                        style={{background:"none",border:"none",cursor:"pointer",color:showVideo?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                        <Icon name="video" size={18}/>
-                      </button>
-                      <span className="icon-tt-bubble">Training Videos</span>
-                    </div>
-                    <div className="icon-tt">
-                      <button onClick={()=>{navigateToPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}
-                        style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
-                        <Icon name="settings" size={18}/>
-                      </button>
-                      <span className="icon-tt-bubble">Settings</span>
+                      <div style={{flex:1}}/>
+                      <div style={{display:"flex",gap:"12px",alignItems:"center"}}>
+                        <div className="icon-tt">
+                          <button onClick={()=>{setShowDiag(true);setShowLifeRecord(false);setShowWelcome(false);setShowGame(null);}}
+                                  style={{background:"none",border:"none",cursor:"pointer",color:showDiag?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                              <text x="12" y="13" textAnchor="middle" fontSize="9" fontWeight="900" fill="currentColor" stroke="none" fontFamily="sans-serif">?</text>
+                            </svg>
+                          </button>
+                          <span className="icon-tt-bubble">Behavior Diagnosis</span>
+                        </div>
+                        <div className="icon-tt">
+                          <button onClick={openHandoutLibrary}
+                                  style={{background:"none",border:"none",cursor:"pointer",color:showHandout?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            </svg>
+                          </button>
+                          <span className="icon-tt-bubble">Training Handouts</span>
+                        </div>
+                        <div className="icon-tt">
+                          <button onClick={openVideoLibrary}
+                                  style={{background:"none",border:"none",cursor:"pointer",color:showVideo?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                            <Icon name="video" size={18}/>
+                          </button>
+                          <span className="icon-tt-bubble">Training Videos</span>
+                        </div>
+                        <div className="icon-tt">
+                          <button onClick={()=>{navigateToPage("settings");setShowDiag(false);setShowLifeRecord(false);setShowWelcome(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}}
+                                  style={{background:"none",border:"none",cursor:"pointer",color:page==="settings"?T.navActiveText:T.navText,transition:"color .2s",display:"flex",alignItems:"center"}}>
+                            <Icon name="settings" size={18}/>
+                          </button>
+                          <span className="icon-tt-bubble">Settings</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  {/* Page content */}
+                  <div className="web-content">
+                    {renderWebPage()}
+                  </div>
+                  {/* Quick-add / walk tracker bar — same on phone & desktop for feature parity */}
+                  {!showWelcome&&<BottomNav active={page} setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}} plan={plan} showPlus={showPlus} setShowPlus={setShowPlus} onQuickAdd={handleQuickAdd} walkLog={walkLog} setWalkLog={setWalkLog} petData={petData} setPetData={setPetData}/>}
                 </div>
               </div>
-              {/* Page content */}
-              <div className="web-content">
-                {renderWebPage()}
-              </div>
-              {/* Quick-add / walk tracker bar — same on phone & desktop for feature parity */}
-              {!showWelcome&&<BottomNav active={page} setPage={(p)=>{navigateToPage(p);setShowDiag(false);setShowLifeRecord(false);setShowVideo(null);setVideoHistory([]);setShowGame(null);setShowHandout(null);setHandoutHistory([]);}} plan={plan} showPlus={showPlus} setShowPlus={setShowPlus} onQuickAdd={handleQuickAdd} walkLog={walkLog} setWalkLog={setWalkLog} petData={petData} setPetData={setPetData}/>}
-            </div>
-          </div>
-        )}
+          )}
 
-      </div>
-    </ThemeContext.Provider>
+        </div>
+      </ThemeContext.Provider>
   );
 }
