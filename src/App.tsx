@@ -1349,6 +1349,154 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SCREEN: RESET PASSWORD — served at /reset-password, the link sent by
+// resetPasswordForEmail (see PASSWORD_RESET_REDIRECT_URL). Supabase's client
+// auto-consumes the recovery token in the URL on load (detectSessionInUrl,
+// on by default) and fires a PASSWORD_RECOVERY auth event once it does — this
+// screen just waits for that (or an already-established session, in case the
+// event fired before this component's listener attached) and otherwise shows
+// an "invalid or expired" state instead of a stuck spinner.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const ResetPasswordScreen = ({darkMode, setDarkMode}) => {
+  const T = useTheme();
+  const [status, setStatus] = useState("verifying"); // "verifying" | "form" | "invalid" | "success"
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({data:{session}}) => {
+      if(!cancelled && session?.user) setStatus("form");
+      else if(!cancelled) setStatus(s => s==="verifying" ? "invalid" : s);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if(event === "PASSWORD_RECOVERY" && session?.user) setStatus("form");
+    });
+    return () => { cancelled = true; subscription.unsubscribe(); };
+  }, []);
+
+  const inputStyle = (field) => ({
+    width:"100%", padding:"11px 14px",
+    background: T.inputBg,
+    border:`1px solid ${errors[field]?T.brown:T.inputBorder}`,
+    borderRadius:"10px", fontSize:"14px", color:T.text, outline:"none",
+    fontFamily:"'Lato',sans-serif", transition:"border-color .2s",
+  });
+
+  const handleSubmit = async () => {
+    const e = {};
+    if(!isPasswordValid(newPw)) e.newPw = `Password must be at least ${PASSWORD_MIN_LENGTH} characters and include a capital letter, a number, and a special character.`;
+    if(confirmPw !== newPw) e.confirmPw = "Passwords do not match.";
+    setErrors(e);
+    if(Object.keys(e).length>0) return;
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setSaving(false);
+    if(error){ setErrors({auth: error.message || "Something went wrong. Please try again."}); return; }
+    // Sign out of the recovery session — they should log back in fresh with the
+    // new password rather than silently land in the app from this device/browser.
+    await supabase.auth.signOut();
+    setStatus("success");
+  };
+
+  const goToSignIn = () => { window.location.href = "/"; };
+
+  return (
+    <PhoneShell>
+      <TopBanner/>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"4px"}}>
+          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
+        </div>
+
+        {status==="verifying" && (
+          <div style={{textAlign:"center",padding:"60px 0"}}>
+            <span style={{display:"inline-block",width:"22px",height:"22px",border:"2.5px solid rgba(176,141,87,.3)",borderTopColor:T.gold,borderRadius:"50%",animation:"spin .7s linear infinite"}}/>
+            <p style={{marginTop:"14px",fontSize:"13px",color:T.textMuted}}>Verifying your reset link…</p>
+          </div>
+        )}
+
+        {status==="invalid" && (
+          <div style={{textAlign:"center",padding:"40px 0"}}>
+            <Icon name="alert" size={32} color="#e07a5f"/>
+            <p style={{marginTop:"14px",fontSize:"15px",fontWeight:"700",color:T.text}}>This link is invalid or has expired</p>
+            <p style={{marginTop:"6px",fontSize:"12.5px",color:T.textMuted,lineHeight:1.5}}>Password reset links only work once and expire after a while. Request a new one from the sign-in screen.</p>
+            <button onClick={goToSignIn} style={{marginTop:"22px",padding:"12px 22px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              Back to Sign In
+            </button>
+          </div>
+        )}
+
+        {status==="success" && (
+          <div style={{textAlign:"center",padding:"40px 0"}}>
+            <Icon name="checkCircle" size={36} color={T.success}/>
+            <p style={{marginTop:"14px",fontSize:"15px",fontWeight:"700",color:T.text}}>Password updated</p>
+            <p style={{marginTop:"6px",fontSize:"12.5px",color:T.textMuted,lineHeight:1.5}}>Sign in with your new password to continue.</p>
+            <button onClick={goToSignIn} style={{marginTop:"22px",padding:"12px 22px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              Continue to Sign In
+            </button>
+          </div>
+        )}
+
+        {status==="form" && (
+          <>
+            <p style={{fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"4px",fontFamily:"'Inter',serif"}}>Set a new password</p>
+            <p style={{fontSize:"12.5px",color:T.textMuted,marginBottom:"20px",lineHeight:1.5}}>Choose a new password for your account.</p>
+
+            {errors.auth && (
+              <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"14px",display:"flex",gap:"8px",alignItems:"flex-start"}}>
+                <Icon name="alert" size={15} style={{flexShrink:0}}/>
+                <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"700"}}>{errors.auth}</p>
+              </div>
+            )}
+
+            <div style={{marginBottom:"14px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.newPw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>New Password</label>
+              <div style={{position:"relative"}}>
+                <input type={showPw?"text":"password"} value={newPw} placeholder={`Min ${PASSWORD_MIN_LENGTH} characters`}
+                  onChange={e=>{setNewPw(e.target.value);setErrors(r=>({...r,newPw:undefined,auth:undefined}));}}
+                  style={{...inputStyle("newPw"),paddingRight:"44px"}}/>
+                <button onClick={()=>setShowPw(v=>!v)} tabIndex={-1} style={{position:"absolute",right:"12px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:T.textMuted}}>
+                  <Icon name={showPw?"eyeOff":"eye"} size={16}/>
+                </button>
+              </div>
+              {errors.newPw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}>{errors.newPw}</p>}
+              <PasswordStrengthMeter pw={newPw}/>
+              <PasswordChecklist pw={newPw}/>
+            </div>
+
+            <div style={{marginBottom:"20px"}}>
+              <label style={{display:"block",fontSize:"10px",letterSpacing:".16em",textTransform:"uppercase",color:errors.confirmPw?T.brown:T.gold,fontWeight:"700",marginBottom:"5px"}}>Confirm Password</label>
+              <input type={showPw?"text":"password"} value={confirmPw} placeholder="Re-enter password"
+                onChange={e=>{setConfirmPw(e.target.value);setErrors(r=>({...r,confirmPw:undefined,auth:undefined}));}}
+                onKeyDown={e=>{ if(e.key==="Enter" && !saving) handleSubmit(); }}
+                style={inputStyle("confirmPw")}/>
+              {errors.confirmPw&&<p style={{fontSize:"11px",color:"#e07a5f",marginTop:"4px",fontWeight:"600"}}>{errors.confirmPw}</p>}
+            </div>
+
+            <button onClick={handleSubmit} disabled={saving} style={{
+              width:"100%",padding:"13px",borderRadius:"11px",border:"none",
+              background:saving?"rgba(176,141,87,.4)":T.gold,color:"#fff",
+              fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",
+              fontFamily:"'Lato',sans-serif",cursor:saving?"not-allowed":"pointer",
+              display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",
+            }}>
+              {saving
+                ? <><span style={{width:"14px",height:"14px",border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite"}}/>Saving…</>
+                : "Set New Password"}
+            </button>
+          </>
+        )}
+      </ScrollBody>
+    </PhoneShell>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: REGISTRATION — first name, last name, email, password
 // ═══════════════════════════════════════════════════════════════════════════════
 const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
@@ -8038,7 +8186,7 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROOT APP
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function App() {
+function App() {
   // Some Chrome installs fail to paint the initial CSS media-query layout (mobile vs.
   // desktop view) on first load, leaving the page blank until something forces a
   // reflow — e.g. resizing the window or opening DevTools. Dispatching a resize event
@@ -8695,4 +8843,33 @@ export default function App() {
       </div>
     </ThemeContext.Provider>
   );
+}
+
+// ─── /reset-password is served as its own standalone screen, entirely outside
+// the normal signed-in/signed-out state machine above (App assumes a session
+// found on mount means "go straight to the dashboard", which is wrong for a
+// password-recovery session). Decided once, before App's hooks ever run, so
+// there's no conditional-hooks issue — this is a separate component tree, not
+// an early return inside App. See vercel.json for the rewrite that lets this
+// path reach index.html instead of 404ing on a static host.
+function ResetPasswordApp() {
+  const [darkMode, setDarkMode] = useState(true);
+  const T = darkMode ? DARK : LIGHT;
+  return (
+    <ThemeContext.Provider value={T}>
+      <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
+        <style>{globalCss(T)}</style>
+        <div style={{width:"100%",maxWidth:"390px",margin:"0 auto"}}>
+          <ResetPasswordScreen darkMode={darkMode} setDarkMode={setDarkMode}/>
+        </div>
+      </div>
+    </ThemeContext.Provider>
+  );
+}
+
+export default function AppRoot() {
+  if (typeof window !== "undefined" && window.location.pathname === "/reset-password") {
+    return <ResetPasswordApp/>;
+  }
+  return <App/>;
 }
