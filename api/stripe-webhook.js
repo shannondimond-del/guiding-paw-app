@@ -20,7 +20,20 @@ import Stripe from "stripe";
 export const config = { api: { bodyParser: false } };
 
 const GHL_SIGNUP_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/7cb24ea9-b069-439b-bd06-12fef01a33ff";
+const GHL_EMAIL_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/03ad1ca1-fa02-4452-a262-3463157d69af";
+const SUPPORT_EMAIL = "info@guidingpaw.com";
+const GRACE_PERIOD_DAYS = 7;
 const programLabel = (program) => program === "puppy" ? "12-Week Puppy Training Program" : "6-Week Training Program";
+
+// Stripe's own subscription.status values, mapped onto the app's smaller
+// vocabulary (active | past_due | canceled | unpaid) so the column never
+// drifts from whatever Stripe's own state machine says.
+const STRIPE_TO_APP_STATUS = {
+  active: "active", trialing: "active",
+  past_due: "past_due", incomplete: "past_due",
+  canceled: "canceled", incomplete_expired: "canceled", paused: "canceled",
+  unpaid: "unpaid",
+};
 
 const parseBirthday = (b) => {
   if (!b) return null;
@@ -63,6 +76,38 @@ function sendSignupWebhook({ firstName, lastName, email, phone, dogName, dogAge,
   return fetch(GHL_SIGNUP_WEBHOOK, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
   }).catch(err => console.error("[GHL signup webhook] failed to send:", err));
+}
+
+function buildAdminPaymentFailedEmail({ memberName, memberEmail, error, graceEndsAt }) {
+  const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const graceStr = graceEndsAt ? new Date(graceEndsAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—";
+  const rows = [["Member", memberName], ["Email", memberEmail], ["Error", error], ["Access blocked after", graceStr]]
+    .map(([l, v]) => `<tr><td style="padding:11px 20px;border-bottom:1px solid #e0d8cc;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="font-size:12px;color:#888;">${l}</td><td style="font-size:13px;font-weight:700;color:#1C2636;text-align:right;">${v}</td></tr></table></td></tr>`)
+    .join("");
+  // Simplified standalone shell (not emailShell from src/App.tsx — that
+  // embeds a large base64 logo not worth duplicating into this server file
+  // for an internal-only notification).
+  const html = `
+    <div style="font-family:Georgia,serif;background:#f0ece4;padding:32px 16px;">
+      <div style="max-width:580px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;">
+        <div style="background:#1C2636;padding:24px 32px;">
+          <div style="font-size:20px;font-weight:700;color:#D8C6AE;">Guiding Paw — Payment Failed</div>
+        </div>
+        <div style="padding:32px;">
+          <h2 style="margin:0 0 6px;font-size:20px;color:#1C2636;">Membership payment failed</h2>
+          <p style="margin:0 0 20px;font-size:14px;color:#666;line-height:1.6;">A membership payment failed on ${dateStr}. The member has a ${GRACE_PERIOD_DAYS}-day grace period before access is blocked.</p>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f5ef;border:1px solid #e0d8cc;border-radius:12px;">${rows}</table>
+        </div>
+      </div>
+    </div>`;
+  return { subject: `Payment failed — ${memberName}`, html, to: SUPPORT_EMAIL };
+}
+
+function sendAdminEmail({ subject, html, to }) {
+  return fetch(GHL_EMAIL_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "adminPaymentFailed", to, subject, html }),
+  }).catch(err => console.error("[GHL admin email] failed to send:", err));
 }
 
 async function readRawBody(req) {
@@ -119,16 +164,25 @@ export default async function handler(req, res) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object;
-        if (session.mode === "payment") {
-          await handleProgramPurchase(supabase, session);
-        }
-        // mode === "subscription" (membership) is handled in Milestone B.
+        if (session.mode === "payment") await handleProgramPurchase(supabase, session);
+        else if (session.mode === "subscription") await handleMembershipActivation(supabase, session);
         break;
       }
+      case "invoice.payment_succeeded":
+        await handleInvoiceSucceeded(supabase, event.data.object);
+        break;
+      case "invoice.payment_failed":
+        await handleInvoiceFailed(supabase, event.data.object);
+        break;
+      case "customer.subscription.deleted":
+        await handleSubscriptionDeleted(supabase, event.data.object);
+        break;
+      case "customer.subscription.updated":
+        await handleSubscriptionUpdated(supabase, event.data.object);
+        break;
       default:
-        // Every other event type (including the membership-subscription
-        // events added in Milestone B) is safely acknowledged as a no-op
-        // for now, rather than left unregistered in Stripe.
+        // Every other event type is safely acknowledged as a no-op rather
+        // than left unregistered in Stripe.
         break;
     }
     res.status(200).end("ok");
@@ -208,4 +262,99 @@ async function handleProgramPurchase(supabase, session) {
     }, { onConflict: "pet_id" });
     if (streakError) console.error("[stripe-webhook] streaks insert failed:", streakError);
   }
+}
+
+// checkout.session.completed, mode: "subscription" — the Ongoing Membership
+// was actually paid for and activated (contrast with the old
+// activateMembership() in src/App.tsx, which used to flip these same
+// columns with no payment ever collected at all).
+async function handleMembershipActivation(supabase, session) {
+  const userId = session.metadata?.supabase_user_id || session.client_reference_id;
+  if (!userId) {
+    console.error("[stripe-webhook] subscription checkout.session.completed with no supabase_user_id");
+    return;
+  }
+  const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
+  const { error } = await supabase.from("users").update({
+    plan: "membership",
+    stripe_subscription_id: subscriptionId,
+    subscription_status: "active",
+    grace_period_ends_at: null,
+    last_payment_error: null,
+  }).eq("id", userId);
+  if (error) console.error("[stripe-webhook] membership activation failed:", error);
+}
+
+// A subscription invoice (first charge or a renewal) succeeded — recovers
+// an account out of the past_due warning banner, or confirms an already-
+// active one stays that way. Idempotent by nature (a plain UPDATE), so no
+// harm running it again if it overlaps with handleMembershipActivation for
+// the very first invoice.
+async function handleInvoiceSucceeded(supabase, invoice) {
+  const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+  if (!customerId) return;
+  const { error } = await supabase.from("users").update({
+    subscription_status: "active",
+    grace_period_ends_at: null,
+    last_payment_error: null,
+  }).eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe-webhook] invoice.payment_succeeded update failed:", error);
+}
+
+// A subscription invoice failed — starts (or continues) the 7-day grace
+// period and notifies Shannon/admin every time, per the checklist.
+async function handleInvoiceFailed(supabase, invoice) {
+  const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id;
+  if (!customerId) return;
+
+  const { data: userRow, error: fetchError } = await supabase
+    .from("users")
+    .select("id, first_name, last_name, email, grace_period_ends_at")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+  if (fetchError || !userRow) {
+    console.error("[stripe-webhook] invoice.payment_failed: no user for customer", customerId, fetchError);
+    return;
+  }
+
+  const errorMessage = invoice.last_finalization_error?.message || "Payment failed";
+  // A failure within an already-active grace window doesn't push the
+  // deadline back out — only a fresh past_due starts a new 7 days.
+  const stillInGrace = userRow.grace_period_ends_at && new Date(userRow.grace_period_ends_at) > new Date();
+  const graceEndsAt = stillInGrace
+    ? userRow.grace_period_ends_at
+    : new Date(Date.now() + GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
+  const { error: updateError } = await supabase.from("users").update({
+    subscription_status: "past_due",
+    grace_period_ends_at: graceEndsAt,
+    last_payment_error: errorMessage,
+  }).eq("id", userRow.id);
+  if (updateError) console.error("[stripe-webhook] invoice.payment_failed update failed:", updateError);
+
+  await sendAdminEmail(buildAdminPaymentFailedEmail({
+    memberName: `${userRow.first_name || ""} ${userRow.last_name || ""}`.trim() || "Unknown member",
+    memberEmail: userRow.email || "—",
+    error: errorMessage,
+    graceEndsAt,
+  }));
+}
+
+// The real "grace period expired" transition — driven by Stripe's own
+// retry/dunning schedule finally giving up, not a client-side date check.
+async function handleSubscriptionDeleted(supabase, subscription) {
+  const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+  if (!customerId) return;
+  const { error } = await supabase.from("users").update({ subscription_status: "canceled" }).eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe-webhook] customer.subscription.deleted update failed:", error);
+}
+
+// Catch-all for any other Stripe-driven status change (e.g. a Dashboard-
+// initiated edit) — keeps our column a faithful mirror of Stripe's state.
+async function handleSubscriptionUpdated(supabase, subscription) {
+  const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id;
+  if (!customerId) return;
+  const status = STRIPE_TO_APP_STATUS[subscription.status] || subscription.status;
+  const { error } = await supabase.from("users").update({ subscription_status: status }).eq("stripe_customer_id", customerId);
+  if (error) console.error("[stripe-webhook] customer.subscription.updated update failed:", error);
 }

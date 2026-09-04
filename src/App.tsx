@@ -2051,6 +2051,15 @@ const PROGRAM_PRICE = {
   membership: 9.99,              // /mo, household-wide, once a dog has completed its program
 };
 
+// Real subscription_status values, written by api/stripe-webhook.js, mapped
+// onto a status-pill style for Settings' Ongoing Membership card.
+const SUBSCRIPTION_STATUS_META = {
+  active:   { label:"● ACTIVE",    bg:"rgba(76,175,125,.15)", color:"#4caf7d", border:"rgba(76,175,125,.4)" },
+  past_due: { label:"● PAST DUE",  bg:"rgba(240,160,88,.15)", color:"#f0a058", border:"rgba(240,160,88,.4)" },
+  canceled: { label:"● CANCELED",  bg:"rgba(224,122,95,.12)", color:"#e07a5f", border:"rgba(224,122,95,.35)" },
+  unpaid:   { label:"● UNPAID",    bg:"rgba(224,122,95,.12)", color:"#e07a5f", border:"rgba(224,122,95,.35)" },
+};
+
 // Age gating — purely a function of the dog's actual birthday. 0–18 weeks old = Puppy
 // Program; 19+ weeks old = 6-Week Program. There's no "suggested, but you can choose
 // either" anymore — the age determines the program.
@@ -4657,29 +4666,38 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
   const [justEarnedBadge,setJustEarnedBadge]=useState(null); // {label, isFinal, program} — drives BadgeEarnedOverlay
 
   // ── Graduation-triggered offers ─────────────────────────────────────────────
-  // Puppy grads choose between the discounted 6-Week Program or going straight to
-  // ongoing membership. 6-Week grads are moved to ongoing membership automatically
-  // (no choice to make — see activateMembership below).
+  // Puppy grads choose between the discounted 6-Week Program or ongoing
+  // membership. 6-Week grads are prompted to start ongoing membership
+  // automatically (see showMembershipStarted below) — but starting it now
+  // means a real Stripe Checkout redirect (handleStartMembershipCheckout),
+  // since actually charging a card requires collecting one; it can no
+  // longer just flip a status column with no payment step at all.
   const [showPuppyGradOffer,setShowPuppyGradOffer]=useState(false);
   const [showMembershipStarted,setShowMembershipStarted]=useState(false);
   const [gradOfferBusy,setGradOfferBusy]=useState(false);
 
-  const activateMembership = async () => {
-    setPetData && setPetData(d=>({...d, membershipActive:true}));
-    if(userId){ const { error } = await supabase.from("users").update({ plan:"membership", subscription_status:"active" }).eq("id", userId); if(error) console.error("[users] failed to activate membership:", error); }
-    setShowMembershipStarted(true);
+  const handleStartMembershipCheckout = async () => {
+    setGradOfferBusy(true);
+    try{
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){ setGradOfferBusy(false); return; }
+      const res = await fetch("/api/create-membership-checkout-session", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` },
+      });
+      const result = await res.json();
+      if(result.url){ window.location.href = result.url; return; }
+      setGradOfferBusy(false);
+    }catch(err){
+      console.error("[membership checkout] failed to start:", err);
+      setGradOfferBusy(false);
+    }
   };
 
   const choosePuppyGradDiscountProgram = async () => {
     setGradOfferBusy(true);
     setPetData && setPetData(d=>({...d, purchasedPrograms:[...new Set([...getPurchasedPrograms(d), "standard"])], enrolledProgram:"standard"}));
     if(petId) await saveEnrollment(petId, "standard");
-    setGradOfferBusy(false);
-    setShowPuppyGradOffer(false);
-  };
-  const choosePuppyGradMembership = async () => {
-    setGradOfferBusy(true);
-    await activateMembership();
     setGradOfferBusy(false);
     setShowPuppyGradOffer(false);
   };
@@ -5122,7 +5140,7 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
                         saveLesson(petId, "standard", week.id, "__week_complete__", true, { week_completed_at: new Date(now).toISOString() });
                         setJustEarnedBadge({label: week.label, isFinal:true, program:"standard"});
                         sendCertificateWebhook("standard", petData); // final week — fire the GHL certificate workflow, same as Puppy
-                        activateMembership(); // 6-Week grads move to ongoing membership automatically — no choice to make
+                        setShowMembershipStarted(true); // 6-Week grads are prompted to start ongoing membership (real payment now required)
                       }}
                       disabled={!allLessonsDone}
                       style={{width:"100%",padding:"12px",
@@ -5182,7 +5200,7 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
             <span style={{display:"block",fontWeight:"900",fontSize:"14px"}}>Get the 6-Week Training Program</span>
             <span style={{display:"block",fontSize:"12px",opacity:.85,marginTop:"2px"}}>${PROGRAM_PRICE.standardGradDiscount} one-time — discounted for graduates (regularly ${PROGRAM_PRICE.standard})</span>
           </button>
-          <button onClick={choosePuppyGradMembership} disabled={gradOfferBusy} style={{width:"100%",padding:"14px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",color:T.text,cursor:gradOfferBusy?"wait":"pointer",fontFamily:"'Lato',sans-serif",textAlign:"left"}}>
+          <button onClick={()=>{setShowPuppyGradOffer(false);handleStartMembershipCheckout();}} disabled={gradOfferBusy} style={{width:"100%",padding:"14px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"12px",color:T.text,cursor:gradOfferBusy?"wait":"pointer",fontFamily:"'Lato',sans-serif",textAlign:"left"}}>
             <span style={{display:"block",fontWeight:"900",fontSize:"14px"}}>Start Ongoing Membership</span>
             <span style={{display:"block",fontSize:"12px",color:T.textMuted,marginTop:"2px"}}>${PROGRAM_PRICE.membership}/mo — skip the 6-week program for now</span>
           </button>
@@ -5190,17 +5208,23 @@ const LearnScreen = ({petData, setPetData, puppyCompleted, setPuppyCompleted, pu
       </div>
     )}
 
-    {/* Ongoing membership confirmation — shown automatically once the 6-Week
-        Program's final week is completed (no choice to make, unlike Puppy grads
-        above), and also shown if a Puppy grad picks membership directly. */}
+    {/* Ongoing membership prompt — shown automatically once the 6-Week
+        Program's final week is completed. Unlike the old fake flow, this no
+        longer activates membership itself — it's a real Stripe Checkout
+        redirect, since a card actually has to be collected now. Dismissible:
+        real billing shouldn't force checkout immediately, and membership can
+        still be started later from Settings. */}
     {showMembershipStarted && (
       <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
         <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both",textAlign:"center"}}>
-          <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.success}}><Icon name="check" size={36}/></div>
-          <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>You're on Ongoing Membership</h3>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"16px"}}>${PROGRAM_PRICE.membership}/mo, billed to your card on file. Cancel anytime from Settings.</p>
-          <button onClick={()=>setShowMembershipStarted(false)} style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",color:"#fff",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-            Got It
+          <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="paw" size={36}/></div>
+          <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Keep training with Ongoing Membership</h3>
+          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"16px"}}>${PROGRAM_PRICE.membership}/mo, cancel anytime from Settings.</p>
+          <button onClick={handleStartMembershipCheckout} disabled={gradOfferBusy} style={{width:"100%",padding:"12px",background:T.gold,border:"none",borderRadius:"10px",color:"#fff",fontWeight:"900",fontSize:"13px",cursor:gradOfferBusy?"wait":"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px"}}>
+            {gradOfferBusy ? "Redirecting…" : "Continue to Payment"}
+          </button>
+          <button onClick={()=>setShowMembershipStarted(false)} disabled={gradOfferBusy} style={{width:"100%",padding:"10px",background:"transparent",border:"none",color:T.textMuted,fontWeight:"700",fontSize:"12px",cursor:gradOfferBusy?"wait":"pointer",fontFamily:"'Lato',sans-serif"}}>
+            Maybe Later
           </button>
         </div>
       </div>
@@ -7303,20 +7327,11 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   const [deleteBusy,setDeleteBusy]=useState(false);
   const [deleteError,setDeleteError]=useState("");
 
-  // Subscription state
-  const [subStatus,setSubStatus]=useState("active"); // "active" | "cancelled"
-  const [showCancelConfirm,setShowCancelConfirm]=useState(false);
-  const [showRestartConfirm,setShowRestartConfirm]=useState(false);
-  const [cancelEmailSent,setCancelEmailSent]=useState(false);
-  const [restartSuccess,setRestartSuccess]=useState(false);
-
-  // Update card state
-  const [showUpdateCard,setShowUpdateCard]=useState(false);
-  const [newCardNum,setNewCardNum]=useState("");
-  const [newExpiry,setNewExpiry]=useState("");
-  const [newCvv,setNewCvv]=useState("");
-  const [newCardName,setNewCardName]=useState("");
-  const [cardSaved,setCardSaved]=useState(false);
+  // Subscription state — real status lives on client.subscriptionStatus
+  // (from the users row, written by api/stripe-webhook.js). Cancel,
+  // reactivate, and card updates all happen in Stripe's hosted Billing
+  // Portal now (see handleManageBilling) rather than custom UI here.
+  const [billingBusy,setBillingBusy]=useState(false);
 
   // Change password state — real password change happens through Supabase Auth
   // (see handleSavePassword below). The app never stores the client's password itself.
@@ -7431,7 +7446,9 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   const [client,setClient]=useState({
     firstName:petData?.firstName||"",lastName:petData?.lastName||"",
     email:petData?.email||"",phone:petData?.phone||"",countryCode:petData?.countryCode||"US",
-    cardLast4:petData?.cardLast4||"",program:petData?.program||"",renewalDate:petData?.renewalDate||"",
+    cardLast4:petData?.cardLast4||"",program:petData?.enrolledProgram||petData?.program||"",renewalDate:petData?.renewalDate||"",
+    subscriptionStatus:petData?.subscriptionStatus||"active",gracePeriodEndsAt:petData?.gracePeriodEndsAt||null,
+    stripeSubscriptionId:petData?.stripeSubscriptionId||null,
   });
   const sc=(k,v)=>setClient(c=>({...c,[k]:v}));
   const [accountErrors,setAccountErrors]=useState({});
@@ -7495,55 +7512,48 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
   };
 
 
-  const handleCancelSubscription=()=>{
-    simulateSendEmail("cancellation",{
-      name:client.firstName||"Member",
-      email:client.email||"you@example.com",
-      plan:"Ongoing Membership",
-      renewalDate:client.renewalDate,
-    });
-    simulateSendEmail("adminSubscriptionChange",{
-      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
-      memberEmail:client.email||"you@example.com",
-      action:"Cancelled",
-      plan:"Ongoing Membership",
-      extra:`Access continues until ${client.renewalDate}`,
-    });
-    setSubStatus("cancelled");
-    setShowCancelConfirm(false);
-    setCancelEmailSent(true);
-    setTimeout(()=>setCancelEmailSent(false),3500);
+  // Cancel, reactivate, and card updates all happen in Stripe's hosted
+  // Billing Portal — same reasoning as choosing Checkout over Elements for
+  // the purchase flow: less custom UI, less PCI-sensitive surface, and the
+  // Portal already shows the real renewal date/card/invoice history that a
+  // hand-rolled panel here would otherwise have to duplicate from Stripe.
+  const handleManageBilling=async()=>{
+    setBillingBusy(true);
+    try{
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){ setBillingBusy(false); return; }
+      const res = await fetch("/api/create-billing-portal-session", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` },
+      });
+      const result = await res.json();
+      if(result.url){ window.location.href = result.url; return; }
+      setBillingBusy(false);
+    }catch(err){
+      console.error("[billing portal] failed to open:", err);
+      setBillingBusy(false);
+    }
   };
 
-  const handleRestartSubscription=()=>{
-    simulateSendEmail("adminSubscriptionChange",{
-      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
-      memberEmail:client.email||"you@example.com",
-      action:"Reactivated",
-      plan:"Ongoing Membership",
-      extra:"Billing resumed immediately",
-    });
-    setSubStatus("active");
-    setShowRestartConfirm(false);
-    setRestartSuccess(true);
-    setTimeout(()=>setRestartSuccess(false),3000);
-  };
-
-  const handleSaveCard=()=>{
-    if(!newCardNum.trim()) return;
-    const last4=newCardNum.replace(/\s/g,"").slice(-4);
-    sc("cardLast4",last4);
-    simulateSendEmail("adminSubscriptionChange",{
-      memberName:`${client.firstName||""} ${client.lastName||""}`.trim()||"Member",
-      memberEmail:client.email||"you@example.com",
-      action:"Card Updated",
-      plan:client.program?programLabel(client.program):"—",
-      extra:`New card ending in ${last4}`,
-    });
-    setCardSaved(true);
-    setShowUpdateCard(false);
-    setNewCardNum("");setNewExpiry("");setNewCvv("");setNewCardName("");
-    setTimeout(()=>setCardSaved(false),2500);
+  // Starting membership (rather than managing an existing one) is a real
+  // Checkout redirect, same as LearnScreen's graduation-offer flow — a card
+  // has to be collected before there's anything for the Portal to manage.
+  const handleStartMembership=async()=>{
+    setBillingBusy(true);
+    try{
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){ setBillingBusy(false); return; }
+      const res = await fetch("/api/create-membership-checkout-session", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` },
+      });
+      const result = await res.json();
+      if(result.url){ window.location.href = result.url; return; }
+      setBillingBusy(false);
+    }catch(err){
+      console.error("[membership checkout] failed to start:", err);
+      setBillingBusy(false);
+    }
   };
 
   const handleDeleteAccount=async()=>{
@@ -7584,9 +7594,6 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
     await supabase.auth.signOut();
     onAccountDeleted();
   };
-
-  const fmtCard=(v)=>v.replace(/\D/g,"").replace(/(.{4})/g,"$1 ").trim().slice(0,19);
-  const fmtExp=(v)=>{ const d=v.replace(/\D/g,""); return d.length>=2?d.slice(0,2)+"/"+d.slice(2,4):d; };
 
   const [docUploadBusy,setDocUploadBusy]=useState(false);
   // Always re-sign a fresh url at the moment of viewing, rather than trust
@@ -7683,64 +7690,6 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
         </div>
       )}
 
-      {/* Card saved toast */}
-      {cardSaved&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both"}}>
-          <Icon name="card" size={13} style={{marginRight:"4px"}}/>Card Updated
-        </div>
-      )}
-
-      {/* Cancellation email sent toast */}
-      {cancelEmailSent&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.navy,border:`1px solid rgba(224,122,95,.5)`,color:T.text,padding:"14px 24px",borderRadius:"14px",fontWeight:"700",fontSize:"13px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          <span style={{display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name="mail" size={13}/>Cancellation confirmed</span><br/><span style={{fontSize:"11px",color:T.textMuted}}>Confirmation email sent</span>
-        </div>
-      )}
-
-      {/* Restart success toast */}
-      {restartSuccess&&(
-        <div style={{position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",background:T.success,color:"#fff",padding:"14px 28px",borderRadius:"14px",fontWeight:"900",fontSize:"15px",zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,.4)",animation:"successPop .3s both",textAlign:"center"}}>
-          <Icon name="party" size={13} style={{marginRight:"4px"}}/>Membership Reactivated!
-        </div>
-      )}
-
-      {/* Cancel membership confirmation modal */}
-      {showCancelConfirm&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.textFaint}}><Icon name="x" size={40}/></div>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Cancel Membership?</h3>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your access will continue until <strong style={{color:T.text}}>{client.renewalDate}</strong>. No further charges will be made.</p>
-              <p style={{fontSize:"12px",color:T.textFaint,lineHeight:1.5}}>You can reactivate at any time from this page.</p>
-            </div>
-            <button onClick={handleCancelSubscription} style={{width:"100%",padding:"12px",background:"rgba(224,122,95,.15)",border:"1.5px solid #e07a5f",borderRadius:"10px",color:"#e07a5f",fontWeight:"900",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif",marginBottom:"8px",letterSpacing:".06em"}}>
-              Yes, Cancel My Membership
-            </button>
-            <button onClick={()=>setShowCancelConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-              Keep My Membership
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Restart membership confirmation modal */}
-      {showRestartConfirm&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"320px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{textAlign:"center",marginBottom:"16px"}}>
-              <div style={{marginBottom:"8px",display:"flex",justifyContent:"center",color:T.gold}}><Icon name="paw" size={40}/></div>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"18px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Reactivate Membership?</h3>
-              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"6px"}}>Your Ongoing Membership will resume and your card ending in <strong style={{color:T.text}}>{client.cardLast4}</strong> will be billed on your next renewal date.</p>
-            </div>
-            <GoldBtn onClick={handleRestartSubscription} style={{marginBottom:"8px"}}>Yes, Reactivate →</GoldBtn>
-            <button onClick={()=>setShowRestartConfirm(false)} style={{width:"100%",padding:"12px",background:T.chipBg,border:`1px solid ${T.chipBorder}`,borderRadius:"10px",color:T.text,fontWeight:"700",fontSize:"13px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-              Not Yet
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Delete Pet confirmation modal */}
       {petToDelete!==null&&(
         <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
@@ -7798,37 +7747,6 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
         </div>
       )}
 
-      {/* Update Card modal */}
-      {showUpdateCard&&(
-        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.65)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"24px"}}>
-          <div style={{background:T.cardSolid,border:`1px solid ${T.cardBorder}`,borderRadius:"18px",padding:"24px",maxWidth:"340px",width:"100%",animation:"rise .35s both"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}}>
-              <h3 style={{fontFamily:"'Inter',serif",fontSize:"17px",fontWeight:"700",color:T.text}}>Update Payment Card</h3>
-              <button onClick={()=>setShowUpdateCard(false)} style={{background:"none",border:"none",cursor:"pointer",color:T.textFaint,fontSize:"20px"}}><Icon name="x" size={18}/></button>
-            </div>
-            {[
-              {label:"Name on Card",val:newCardName,set:setNewCardName,ph:"Jane Smith",type:"text"},
-              {label:"Card Number",val:newCardNum,set:(v)=>setNewCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
-            ].map(f=>(
-              <div key={f.label} style={{marginBottom:"12px"}}>
-                <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
-                <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
-                  style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-              </div>
-            ))}
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"16px"}}>
-              {[{label:"Expiry",val:newExpiry,set:(v)=>setNewExpiry(fmtExp(v)),ph:"MM/YY"},{label:"CVV",val:newCvv,set:setNewCvv,ph:"•••"}].map(f=>(
-                <div key={f.label}>
-                  <label style={{display:"block",fontSize:"9.5px",fontWeight:"700",color:T.gold,letterSpacing:".13em",textTransform:"uppercase",marginBottom:"4px"}}>{f.label}</label>
-                  <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
-                    style={{width:"100%",padding:"11px 13px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"9px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-                </div>
-              ))}
-            </div>
-            <GoldBtn onClick={handleSaveCard}>Save New Card</GoldBtn>
-          </div>
-        </div>
-      )}
 
       {/* Change Password modal */}
       {showChangePassword&&(
@@ -8114,8 +8032,9 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             )}
           </div>
 
-          {/* Your Program — a one-time purchase, not a subscription. No renewal
-              date and no cancel option here; that only applies to the
+          {/* Your Program — a one-time purchase, not a subscription. No card-
+              on-file/renewal here (Stripe doesn't retain a reusable card for
+              a one-time Checkout by default) — that only applies to the
               recurring Ongoing Membership below. */}
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
@@ -8127,7 +8046,6 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
             {[
               {l:"Program",v:client.program?programLabel(client.program):"—"},
               {l:"Type",v:"One-time purchase"},
-              {l:"Card on File",v:`•••• •••• •••• ${client.cardLast4}`},
             ].map(({l,v})=>(
               <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
                 <span style={{fontSize:"12px",color:T.textMuted}}>{l}</span>
@@ -8135,58 +8053,57 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               </div>
             ))}
             <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.55,marginTop:"10px"}}>Your program is a single one-time purchase — there's nothing to renew or cancel here. Once you graduate, you can choose to continue with Ongoing Membership below.</p>
-            <button onClick={()=>setShowUpdateCard(true)} style={{width:"100%",marginTop:"12px",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
-              <Icon name="card" size={13} style={{marginRight:"5px"}}/>Update / Change Payment Card
-            </button>
           </div>
 
           {/* Ongoing Membership — the recurring, cancellable part of the new
-              pricing model ($/mo after graduation). This is what Cancel /
-              Reactivate and the renewal date actually apply to. */}
+              pricing model ($/mo after graduation). Cancel, reactivate, and
+              card updates all happen in Stripe's hosted Billing Portal
+              (handleManageBilling) rather than custom UI — it already shows
+              the real renewal date, card, and invoice history, so this card
+              doesn't try to duplicate that, only the status. */}
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px"}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"12px"}}>
               <p style={{fontSize:"10px",color:T.gold,fontWeight:"700",letterSpacing:".14em",textTransform:"uppercase"}}>Ongoing Membership</p>
-              <span style={{fontSize:"10px",fontWeight:"900",letterSpacing:".08em",padding:"3px 9px",borderRadius:"20px",
-                background:subStatus==="active"?"rgba(76,175,125,.15)":"rgba(224,122,95,.12)",
-                color:subStatus==="active"?"#4caf7d":"#e07a5f",
-                border:`1px solid ${subStatus==="active"?"rgba(76,175,125,.4)":"rgba(224,122,95,.35)"}`}}>
-                {subStatus==="active"?"● ACTIVE":"● CANCELLED"}
-              </span>
+              {client.stripeSubscriptionId && (()=>{
+                const meta = SUBSCRIPTION_STATUS_META[client.subscriptionStatus] || SUBSCRIPTION_STATUS_META.active;
+                return (
+                  <span style={{fontSize:"10px",fontWeight:"900",letterSpacing:".08em",padding:"3px 9px",borderRadius:"20px",background:meta.bg,color:meta.color,border:`1px solid ${meta.border}`}}>
+                    {meta.label}
+                  </span>
+                );
+              })()}
             </div>
 
-            {/* Cancelled banner */}
-            {subStatus==="cancelled"&&(
-              <div style={{background:"rgba(224,122,95,.08)",border:"1px solid rgba(224,122,95,.25)",borderRadius:"10px",padding:"12px 14px",marginBottom:"12px"}}>
-                <p style={{fontSize:"12px",fontWeight:"700",color:"#e07a5f",marginBottom:"4px"}}>Membership Cancelled</p>
-                <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.55}}>Your access continues until <strong style={{color:T.text}}>{client.renewalDate}</strong>. Reactivate below to resume billing and keep your membership going.</p>
-              </div>
+            {!client.stripeSubscriptionId ? (
+              <>
+                <p style={{fontSize:"12px",color:T.textMuted,lineHeight:1.55,marginBottom:"12px"}}>Not started yet. ${PROGRAM_PRICE.membership}/mo, cancel anytime.</p>
+                <GoldBtn onClick={handleStartMembership} style={{padding:"11px",fontSize:"12px"}}>
+                  {billingBusy ? "Redirecting…" : "Start Ongoing Membership"}
+                </GoldBtn>
+              </>
+            ) : (
+              <>
+                {client.subscriptionStatus==="past_due" && (
+                  <div style={{background:"rgba(240,160,88,.08)",border:"1px solid rgba(240,160,88,.3)",borderRadius:"10px",padding:"12px 14px",marginBottom:"12px"}}>
+                    <p style={{fontSize:"12px",fontWeight:"700",color:"#f0a058",marginBottom:"4px"}}>Payment Failed</p>
+                    <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.55}}>Update your card in Billing before {client.gracePeriodEndsAt ? new Date(client.gracePeriodEndsAt).toLocaleDateString() : "the grace period ends"} to keep access.</p>
+                  </div>
+                )}
+                {(client.subscriptionStatus==="canceled"||client.subscriptionStatus==="unpaid") && (
+                  <div style={{background:"rgba(224,122,95,.08)",border:"1px solid rgba(224,122,95,.25)",borderRadius:"10px",padding:"12px 14px",marginBottom:"12px"}}>
+                    <p style={{fontSize:"12px",fontWeight:"700",color:"#e07a5f",marginBottom:"4px"}}>Membership Inactive</p>
+                    <p style={{fontSize:"11.5px",color:T.textMuted,lineHeight:1.55}}>Manage Billing below to reactivate.</p>
+                  </div>
+                )}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`,marginBottom:"12px"}}>
+                  <span style={{fontSize:"12px",color:T.textMuted}}>Price</span>
+                  <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>${PROGRAM_PRICE.membership}/mo</span>
+                </div>
+                <button onClick={handleManageBilling} disabled={billingBusy} style={{width:"100%",padding:"10px",background:"transparent",border:`1px solid ${T.gold}`,borderRadius:"9px",color:T.gold,fontWeight:"700",fontSize:"12px",cursor:billingBusy?"wait":"pointer",fontFamily:"'Lato',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px"}}>
+                  <Icon name="card" size={13}/>{billingBusy ? "Redirecting…" : "Manage Billing"}
+                </button>
+              </>
             )}
-
-            {[
-              {l:"Price",v:`$${PROGRAM_PRICE.membership}/mo`},
-              {l:subStatus==="cancelled"?"Access Until":"Next Renewal",v:client.renewalDate},
-              {l:"Card on File",v:`•••• •••• •••• ${client.cardLast4}`},
-            ].map(({l,v})=>(
-              <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"12px",color:T.textMuted}}>{l}</span>
-                <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{v}</span>
-              </div>
-            ))}
-
-            {/* Cancel or Reactivate */}
-            {subStatus==="active"?(
-              <button onClick={()=>setShowCancelConfirm(true)} style={{width:"100%",marginTop:"12px",padding:"10px",background:"transparent",border:`1px solid rgba(224,122,95,.4)`,borderRadius:"9px",color:"#e07a5f",fontWeight:"700",fontSize:"12px",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
-                Cancel Membership
-              </button>
-            ):(
-              <GoldBtn onClick={()=>setShowRestartConfirm(true)} style={{marginTop:"12px",padding:"11px",fontSize:"12px"}}>
-                Reactivate My Membership
-              </GoldBtn>
-            )}
-
-            {/* Real receipt emails are sent automatically on renewal via the GHL
-                webhook (see GHL_EMAIL_WEBHOOK) — the demo simulate-button that
-                used to be here has been removed. */}
           </div>
 
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -8499,6 +8416,12 @@ function App() {
       firstName: userData.first_name, lastName: userData.last_name, email: userData.email,
       phone: userData.phone, countryCode: userData.country_code, plan: userData.plan,
       cardLast4: userData.card_last4, renewalDate: userData.renewal_date,
+      // Real billing state, written by api/stripe-webhook.js — subscriptionStatus
+      // defaults to "active" for everyone (including one-time-only purchasers,
+      // who never touch these columns at all); stripeSubscriptionId is what
+      // actually distinguishes a real membership subscriber from them.
+      subscriptionStatus: userData.subscription_status, gracePeriodEndsAt: userData.grace_period_ends_at,
+      stripeSubscriptionId: userData.stripe_subscription_id,
     };
     // 4. Training data (enrollment, lesson progress, streak) for the active pet
     const training = await loadPetTrainingData(activePetRow.id);
@@ -8745,6 +8668,18 @@ function App() {
 
   const isAuthScreen = screen!=="app";
 
+  // ── Membership billing gate ──────────────────────────────────────────────
+  // stripeSubscriptionId (not plan) is the "real membership subscriber"
+  // discriminator — plan doubles as a free-text label for one-time program
+  // purchasers, who must never be gated here regardless of their
+  // subscription_status (which simply defaults to "active" and is never
+  // touched for them). Written by api/stripe-webhook.js.
+  const isMembershipUser = !!petData?.stripeSubscriptionId;
+  const graceExpired = petData?.gracePeriodEndsAt && new Date(petData.gracePeriodEndsAt) < new Date();
+  const subscriptionStatus = petData?.subscriptionStatus;
+  const billingBlocked = isMembershipUser && (subscriptionStatus==="canceled" || subscriptionStatus==="unpaid" || (subscriptionStatus==="past_due" && graceExpired));
+  const billingWarning = isMembershipUser && subscriptionStatus==="past_due" && !graceExpired;
+
   return (
     <ThemeContext.Provider value={T}>
       <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
@@ -8768,8 +8703,34 @@ function App() {
           </div>
         )}
 
+        {/* ── Membership billing block — replaces the entire app shell, same
+            full-viewport pattern as the account-deletion success screen.
+            Only ever reached by a real membership subscriber whose grace
+            period has actually expired; never a one-time purchaser. ── */}
+        {screen==="app"&&billingBlocked&&(
+          <div style={{position:"fixed",inset:0,background:T.bg,display:"flex",alignItems:"center",justifyContent:"center",padding:"32px",zIndex:100}}>
+            <div style={{textAlign:"center",maxWidth:"320px"}}>
+              <div style={{width:"80px",height:"80px",borderRadius:"50%",background:"#e07a5f",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 0 0 16px rgba(224,122,95,.1)"}}>
+                <Icon name="lock" size={32} color="#fff"/>
+              </div>
+              <h2 style={{fontFamily:"'Inter',serif",fontSize:"22px",fontWeight:"700",color:T.text,marginBottom:"8px"}}>Your Membership Needs Attention</h2>
+              <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"20px"}}>{subscriptionStatus==="past_due" ? "Your grace period has ended. Update your payment method to restore access." : "Your Ongoing Membership is no longer active. Reactivate to continue training."}</p>
+              <button onClick={async ()=>{
+                const { data: { session } } = await supabase.auth.getSession();
+                if(!session) return;
+                const res = await fetch("/api/create-billing-portal-session", { method:"POST", headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` } });
+                const result = await res.json();
+                if(result.url) window.location.href = result.url;
+              }} style={{padding:"13px 28px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+                Manage Billing
+              </button>
+              <p style={{marginTop:"18px",fontSize:"11.5px",color:T.textFaint}}>Need help? <a href={`mailto:${SUPPORT_EMAIL}`} style={{color:T.gold}}>{SUPPORT_EMAIL}</a></p>
+            </div>
+          </div>
+        )}
+
         {/* ── App: unified layout — same sidebar + topbar structure on phone & desktop ── */}
-        {screen==="app"&&(
+        {screen==="app"&&!billingBlocked&&(
           <div className="web-layout" style={{background:T.bg}}>
             <SideNav
               page={page}
@@ -8790,6 +8751,26 @@ function App() {
               setMobileOpen={setMobileNavOpen}
             />
             <div className="web-main" style={{background:T.bg}}>
+              {/* Past-due warning — payment failed but still within the grace
+                  period, so nothing is blocked yet. Never shown to one-time
+                  purchasers (billingWarning already gates on isMembershipUser). */}
+              {billingWarning && (
+                <div style={{background:"rgba(240,160,88,.15)",borderBottom:"1px solid rgba(240,160,88,.4)",padding:"10px 16px",display:"flex",alignItems:"center",gap:"8px",justifyContent:"center",flexWrap:"wrap"}}>
+                  <Icon name="alert" size={14} color="#f0a058"/>
+                  <span style={{fontSize:"12.5px",color:T.text,fontWeight:"600"}}>
+                    Your last payment didn't go through{petData?.gracePeriodEndsAt ? ` — update your card by ${new Date(petData.gracePeriodEndsAt).toLocaleDateString()} to keep your membership` : " — update your card to keep your membership"}.
+                  </span>
+                  <button onClick={async ()=>{
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if(!session) return;
+                    const res = await fetch("/api/create-billing-portal-session", { method:"POST", headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` } });
+                    const result = await res.json();
+                    if(result.url) window.location.href = result.url;
+                  }} style={{background:"none",border:"none",color:"#f0a058",fontWeight:"800",fontSize:"12.5px",cursor:"pointer",textDecoration:"underline",fontFamily:"'Lato',sans-serif"}}>
+                    Update Now
+                  </button>
+                </div>
+              )}
               {/* Top bar */}
               <div className="web-topbar" style={{background:T.navTopbarBg,borderBottom:`1px solid ${T.navBarBorder}`}}>
                 {/* Full-width banner — stretches edge-to-edge across the very top on both phone and desktop */}

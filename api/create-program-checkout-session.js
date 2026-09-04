@@ -13,6 +13,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import { getOrCreateStripeCustomer } from "./_lib/stripeCustomer.js";
 
 const PRICE_IDS = {
   puppy: process.env.STRIPE_PRICE_ID_PUPPY,
@@ -58,33 +59,7 @@ export default async function handler(req, res) {
     }
 
     const stripe = new Stripe(stripeSecretKey);
-
-    // Get-or-create the Stripe Customer for this account, reused across
-    // both the program purchase and (later) membership checkout.
-    const { data: userRow, error: userRowError } = await supabase
-      .from("users")
-      .select("stripe_customer_id")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (userRowError) {
-      console.error("[create-program-checkout-session] failed to read users row:", userRowError);
-      res.status(500).json({ error: "Something went wrong. Please try again." });
-      return;
-    }
-
-    let customerId = userRow?.stripe_customer_id;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        metadata: { supabase_user_id: user.id },
-      });
-      customerId = customer.id;
-      await supabase.from("users").upsert(
-        { id: user.id, stripe_customer_id: customerId },
-        { onConflict: "id" }
-      );
-    }
-
+    const customerId = await getOrCreateStripeCustomer(supabase, stripe, user);
     const origin = `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}`;
 
     const session = await stripe.checkout.sessions.create({
