@@ -1513,6 +1513,111 @@ const ResetPasswordScreen = ({darkMode, setDarkMode}) => {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SCREEN: CHECKOUT COMPLETE — served at /checkout-complete, Stripe Checkout's
+// success_url. The webhook (api/stripe-webhook.js), not this page, is the
+// source of truth for the actual account/pet writes — a full-page redirect
+// destroys React state, so this page only ever polls Supabase for the row
+// the webhook creates, then hands off to the normal signed-in app. See
+// ResetPasswordScreen above for why this can't just be an early return
+// inside the normal screen-driven flow.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const CheckoutCompleteScreen = ({darkMode, setDarkMode}) => {
+  const T = useTheme();
+  const [status, setStatus] = useState("polling"); // "polling" | "success" | "timeout" | "error"
+  const [info, setInfo] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const poll = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session?.user){ if(!cancelled) setStatus("error"); return; }
+      const userId = session.user.id;
+      const deadline = Date.now() + 15000;
+      while(!cancelled && Date.now() < deadline){
+        const { data: pet } = await supabase.from("pets").select("id,name").eq("owner_id", userId).order("id",{ascending:false}).limit(1).maybeSingle();
+        if(pet){
+          const { data: enrollment } = await supabase.from("program_enrollment").select("program").eq("pet_id", pet.id).limit(1).maybeSingle();
+          if(!cancelled){
+            await claimSessionSlot(userId); // this device becomes the active one, same as an explicit sign-in
+            try{ localStorage.removeItem("gp_pending_onboarding"); }catch{}
+            setInfo({ program: enrollment?.program || "standard" });
+            setStatus("success");
+          }
+          return;
+        }
+        await new Promise(r=>setTimeout(r, 1500));
+      }
+      if(!cancelled) setStatus("timeout");
+    };
+    poll();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Signal the normal app shell to show the first-time WelcomeDashboard once
+  // it mounts (it can't be set directly — this page is a separate component
+  // tree from the root App, and the redirect below is a full page reload).
+  const continueToApp = () => {
+    try{ localStorage.setItem("gp_show_welcome", "1"); }catch{}
+    window.location.href = "/";
+  };
+
+  return (
+    <PhoneShell>
+      <TopBanner/>
+      <ScrollBody>
+        <div style={{display:"flex",justifyContent:"flex-end",marginBottom:"4px"}}>
+          <ThemeToggle darkMode={darkMode} setDarkMode={setDarkMode}/>
+        </div>
+
+        {status==="polling" && (
+          <div style={{textAlign:"center",padding:"60px 0"}}>
+            <span style={{display:"inline-block",width:"22px",height:"22px",border:"2.5px solid rgba(176,141,87,.3)",borderTopColor:T.gold,borderRadius:"50%",animation:"spin .7s linear infinite"}}/>
+            <p style={{marginTop:"14px",fontSize:"13px",color:T.textMuted}}>Finalizing your purchase…</p>
+          </div>
+        )}
+
+        {status==="error" && (
+          <div style={{textAlign:"center",padding:"40px 0"}}>
+            <Icon name="alert" size={32} color="#e07a5f"/>
+            <p style={{marginTop:"14px",fontSize:"15px",fontWeight:"700",color:T.text}}>You're not signed in</p>
+            <p style={{marginTop:"6px",fontSize:"12.5px",color:T.textMuted,lineHeight:1.5}}>Sign back in to check on your purchase.</p>
+            <button onClick={continueToApp} style={{marginTop:"22px",padding:"12px 22px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              Go to Sign In
+            </button>
+          </div>
+        )}
+
+        {status==="timeout" && (
+          <div style={{textAlign:"center",padding:"40px 0"}}>
+            <Icon name="clock" size={32} color={T.gold}/>
+            <p style={{marginTop:"14px",fontSize:"15px",fontWeight:"700",color:T.text}}>Almost there</p>
+            <p style={{marginTop:"6px",fontSize:"12.5px",color:T.textMuted,lineHeight:1.5}}>Your payment succeeded — we're still finishing setting up your account. This can take a minute; check back shortly.</p>
+            <button onClick={()=>window.location.reload()} style={{marginTop:"22px",padding:"12px 22px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".08em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              Check Again
+            </button>
+          </div>
+        )}
+
+        {status==="success" && (
+          <div style={{textAlign:"center",padding:"20px 0"}}>
+            <div style={{width:"80px",height:"80px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",boxShadow:"0 0 0 16px rgba(76,175,125,.1)"}}>
+              <Icon name="check" size={36} color="#fff" strokeWidth={3}/>
+            </div>
+            <p style={{marginTop:"20px",fontSize:"11px",fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",color:T.gold}}>Payment Successful</p>
+            <p style={{marginTop:"6px",fontSize:"22px",fontWeight:"700",color:T.text,fontFamily:"'Inter',serif"}}>Welcome to Guiding Paw!</p>
+            <p style={{marginTop:"8px",fontSize:"13px",color:T.textMuted,lineHeight:1.5}}>Your <strong style={{color:T.goldL}}>{programLabel(info?.program)}</strong> is unlocked and ready to go.</p>
+            <button onClick={continueToApp} style={{marginTop:"24px",width:"100%",padding:"13px",borderRadius:"11px",border:"none",background:T.gold,color:"#fff",fontSize:"13px",fontWeight:"900",letterSpacing:".1em",textTransform:"uppercase",cursor:"pointer",fontFamily:"'Lato',sans-serif"}}>
+              Let's Get Started
+            </button>
+          </div>
+        )}
+      </ScrollBody>
+    </PhoneShell>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: REGISTRATION — first name, last name, email, password
 // ═══════════════════════════════════════════════════════════════════════════════
 const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
@@ -1962,22 +2067,44 @@ const PLAN_DETAILS = {
   membership: {name:"Ongoing Membership",price:`$${PROGRAM_PRICE.membership}`,per:"/mo",trial:`$${PROGRAM_PRICE.membership}/mo, billed monthly`},
 };
 
-const PaymentScreen = ({petData, onSuccess, onBack}) => {
+const PaymentScreen = ({petData, onBack}) => {
   const T=useTheme();
   const program = petData?.program || "standard";
   const price = program==="puppy" ? PROGRAM_PRICE.puppy : PROGRAM_PRICE.standard;
-  const [cardName,setCardName]=useState("");
-  const [cardNum,setCardNum]=useState("");
-  const [expiry,setExpiry]=useState("");
-  const [cvv,setCvv]=useState("");
   const [loading,setLoading]=useState(false);
+  const [payError,setPayError]=useState("");
 
-  const fmtCard=(v)=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
-  const fmtExpiry=(v)=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
-
-  const handlePay=()=>{
+  // Real Stripe Checkout: builds a Checkout Session server-side (which needs
+  // this data since the account/pet writes happen webhook-side, not here —
+  // see api/stripe-webhook.js) and redirects to Stripe's hosted payment
+  // page. Persist the in-progress onboarding data first, so a cancelled
+  // Checkout can resume onboarding instead of losing it on the redirect.
+  const handlePay=async ()=>{
     setLoading(true);
-    setTimeout(()=>{ setLoading(false); onSuccess(); }, 1800);
+    setPayError("");
+    try{
+      const { data: { session } } = await supabase.auth.getSession();
+      if(!session){ setLoading(false); setPayError("Your session expired — please sign in again."); return; }
+      try{ localStorage.setItem("gp_pending_onboarding", JSON.stringify(petData)); }catch{}
+      const res = await fetch("/api/create-program-checkout-session", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          program,
+          pet:{ name:petData?.name, breed:petData?.breed, birthday:petData?.birthday, gender:petData?.gender, weight:petData?.weight },
+          onboarding:{ role:petData?.role, trainingGoals:petData?.issues, preferredTrainingTime:petData?.trainTime },
+          account:{ firstName:petData?.firstName, lastName:petData?.lastName, phone:petData?.phone, countryCode:petData?.countryCode },
+        }),
+      });
+      const result = await res.json();
+      if(result.url){ window.location.href = result.url; return; }
+      setLoading(false);
+      setPayError(result.error || "Something went wrong starting checkout. Please try again.");
+    }catch(err){
+      console.error("[checkout] failed to start:", err);
+      setLoading(false);
+      setPayError("Something went wrong starting checkout. Please try again.");
+    }
   };
 
   return (
@@ -2021,28 +2148,12 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
           <div style={{flex:1,height:"1px",background:T.divider}}/><span style={{fontSize:"11px",color:T.textFaint,fontWeight:"700"}}>or pay with card</span><div style={{flex:1,height:"1px",background:T.divider}}/>
         </div>
 
-        {/* Card fields */}
-        <div className="s3">
-          {[
-            {label:"Name on Card",val:cardName,set:setCardName,ph:"Jane Smith",type:"text"},
-            {label:"Card Number",val:cardNum,set:(v)=>setCardNum(fmtCard(v)),ph:"1234 5678 9012 3456",type:"text"},
-          ].map(f=>(
-            <div key={f.label} style={{marginBottom:"12px"}}>
-              <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
-              <input type={f.type} value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph}
-                style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-            </div>
-          ))}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"12px"}}>
-            {[{label:"Expiry",val:expiry,set:(v)=>setExpiry(fmtExpiry(v)),ph:"MM/YY"},{label:"CVV",val:cvv,set:setCvv,ph:"•••"}].map(f=>(
-              <div key={f.label}>
-                <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>{f.label}</label>
-                <input value={f.val} onChange={e=>f.set(e.target.value)} placeholder={f.ph} maxLength={f.label==="CVV"?4:5}
-                  style={{width:"100%",padding:"12px 14px",background:T.inputBg,border:`1px solid ${T.inputBorder}`,borderRadius:"10px",fontSize:"14px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-              </div>
-            ))}
+        {payError && (
+          <div style={{background:"rgba(163,86,42,.15)",border:"1px solid rgba(163,86,42,.4)",borderRadius:"10px",padding:"10px 14px",marginBottom:"16px",display:"flex",gap:"8px",alignItems:"flex-start"}}>
+            <Icon name="alert" size={15} style={{flexShrink:0}}/>
+            <p style={{fontSize:"12px",color:"#e07a5f",fontWeight:"700"}}>{payError}</p>
           </div>
-        </div>
+        )}
 
         {/* Pay button */}
         <button onClick={handlePay} disabled={loading} style={{
@@ -2058,57 +2169,6 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
         </button>
         <p style={{textAlign:"center",fontSize:"10px",color:T.textFaint,marginTop:"10px",lineHeight:1.5}}>One-time charge. No recurring subscription.</p>
       </ScrollBody>
-    </PhoneShell>
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SCREEN: PAYMENT SUCCESS (animated)
-// ═══════════════════════════════════════════════════════════════════════════════
-const SuccessScreen = ({petData, onContinue}) => {
-  const T=useTheme();
-  const [phase,setPhase]=useState(0); // 0=checkmark, 1=details, 2=button
-  const program = petData?.program || "standard";
-  const price = program==="puppy" ? PROGRAM_PRICE.puppy : PROGRAM_PRICE.standard;
-  useState(()=>{ // cascade animations
-    const t1=setTimeout(()=>setPhase(1),900);
-    const t2=setTimeout(()=>setPhase(2),1600);
-    return ()=>{clearTimeout(t1);clearTimeout(t2);};
-  });
-  return (
-    <PhoneShell>
-      <TopBanner/>
-      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"32px 28px",textAlign:"center"}}>
-        {/* Animated checkmark ring */}
-        <div style={{position:"relative",marginBottom:"24px"}}>
-          <div style={{width:"90px",height:"90px",borderRadius:"50%",background:T.success,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 0 0 12px rgba(76,175,125,.12), 0 0 0 24px rgba(76,175,125,.06)`,animation:"successPop .5s cubic-bezier(.22,1,.36,1) both"}}>
-            <span style={{animation:"checkIn .4s .2s both",display:"block"}}><Icon name="check" size={42} color={T.success} strokeWidth={3}/></span>
-          </div>
-        </div>
-
-        <div style={{animation:phase>=1?"fadeUp .5s both":"none",opacity:phase>=1?1:0}}>
-          <p style={{fontSize:"11px",fontWeight:"900",letterSpacing:".18em",textTransform:"uppercase",color:T.gold,marginBottom:"8px"}}>Payment Successful</p>
-          <h2 style={{fontFamily:"'Inter',serif",fontSize:"26px",fontWeight:"700",color:T.text,marginBottom:"8px",lineHeight:1.25}}>Welcome to Guiding Paw!</h2>
-          <p style={{fontSize:"13px",color:T.textMuted,lineHeight:1.6,marginBottom:"20px"}}>Your <strong style={{color:T.goldL}}>{programLabel(program)}</strong> is unlocked and ready to go.</p>
-
-          <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"24px",textAlign:"left"}}>
-            {[
-              {icon:"paw",label:"Program",val:programLabel(program)},
-              {icon:"card",label:"Charged",val:`$${price} one-time`},
-              {icon:"mail",label:"Receipt sent to",val:petData?.email||"your email"},
-            ].map(({icon,label,val})=>(
-              <div key={label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 0",borderBottom:`1px solid ${T.divider}`}}>
-                <span style={{fontSize:"12px",color:T.textMuted,display:"inline-flex",alignItems:"center",gap:"5px"}}><Icon name={icon} size={11}/>{label}</span>
-                <span style={{fontSize:"12px",fontWeight:"700",color:T.text}}>{val}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div style={{width:"100%",animation:phase>=2?"fadeUp .45s .05s both":"none",opacity:phase>=2?1:0}}>
-          <GoldBtn onClick={onContinue}>Let's Get Started <Icon name="paw" size={13} style={{marginLeft:"2px"}}/></GoldBtn>
-        </div>
-      </div>
     </PhoneShell>
   );
 };
@@ -2485,23 +2545,9 @@ const sendAbandonedCheckoutWebhook = ({ firstName, lastName, email, phone, dogNa
   }).catch(err => console.error("[GHL abandoned checkout webhook] failed to send:", err));
 };
 
-// ─── GHL NEW SIGNUP WEBHOOK ───────────────────────────────────────────────────
-// Fires once payment succeeds and the account is created, so GHL can tag the
-// contact "purchased" (updating the same contact created by the abandoned
-// checkout webhook above, not creating a duplicate).
-const GHL_SIGNUP_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/7cb24ea9-b069-439b-bd06-12fef01a33ff";
-
-const sendSignupWebhook = ({ firstName, lastName, email, phone, dogName, dogAge, dogBreed, program }) => {
-  if(!GHL_SIGNUP_WEBHOOK) return;
-  const payload = {
-    first_name: firstName || "", last_name: lastName || "", email: email || "", phone: phone || "",
-    dogs_name: dogName || "", dogs_age: dogAge || "", dogs_breed: dogBreed || "",
-    program: programLabel(program),
-  };
-  fetch(GHL_SIGNUP_WEBHOOK, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-  }).catch(err => console.error("[GHL signup webhook] failed to send:", err));
-};
+// GHL new-signup webhook (tags the contact "purchased" in GoHighLevel) now
+// fires server-side from api/stripe-webhook.js once payment actually
+// completes, rather than from here — see sendSignupWebhook in that file.
 
 // ─── ACCOUNT DELETION (Supabase-backed) ──────────────────────────────────────
 // What actually happens, in order, when a member confirms account deletion:
@@ -8474,8 +8520,29 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         loadUserData(session.user.id).then(ok => {
-          if (ok) { setPage("dashboard"); setScreen("app"); }
-          // If not ok, user is mid-onboarding — stay on current screen
+          if (ok) {
+            setPage("dashboard"); setScreen("app");
+            // Set by CheckoutCompleteScreen right before it redirects here,
+            // once it's confirmed a real purchase went through — shows the
+            // first-time welcome experience one time, since a plain
+            // page-refresh mount reaching this same branch has no reason to.
+            try {
+              if (localStorage.getItem("gp_show_welcome")) {
+                localStorage.removeItem("gp_show_welcome");
+                setShowWelcome(true);
+              }
+            } catch {}
+          } else {
+            // No pets row yet — either still onboarding, or they cancelled
+            // out of Stripe Checkout. Resume exactly where PaymentScreen
+            // left off, using the onboarding data it stashed right before
+            // redirecting (a full-page redirect drops React state, but not
+            // this authenticated session — see PaymentScreen.handlePay).
+            try {
+              const saved = localStorage.getItem("gp_pending_onboarding");
+              if (saved) { setPendingData(JSON.parse(saved)); setScreen("payment"); }
+            } catch {}
+          }
         });
       }
     });
@@ -8651,81 +8718,6 @@ function App() {
       dogBreed: data?.breed || "", program: data?.program,
     });
   };
-  const handlePaySuccess=()=>setScreen("success");
-  const handleSuccessContinue=async ()=>{
-    setPlan(pendingData?.plan||"annual");
-    const birthday = pendingData?.birthday||"";
-    const purchasedProgram = pendingData?.program==="puppy" ? "puppy"
-      : pendingData?.program==="standard" ? "standard"
-      : getEnrolledProgram({birthday});
-    setPetData({...pendingData, birthday, enrolledProgram:purchasedProgram, purchasedPrograms:[purchasedProgram]});
-    setShowWelcome(true); setScreen("app");
-
-    // ── Write collected data to Supabase ──
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return;
-    const authId = session.user.id;
-    setUserId(authId);
-
-    sendSignupWebhook({
-      firstName: regData?.firstName || pendingData?.firstName || "",
-      lastName: regData?.lastName || pendingData?.lastName || "",
-      email: session.user.email, phone: regData?.phone || "",
-      dogName: pendingData?.name || "", dogAge: computeAge(birthday) || "",
-      dogBreed: pendingData?.breed || "", program: purchasedProgram,
-    });
-
-    // 1. Upsert users
-    const { error: userUpsertError } = await supabase.from("users").upsert({
-      id: authId,
-      first_name: regData?.firstName || pendingData?.firstName || "",
-      last_name: regData?.lastName || pendingData?.lastName || "",
-      email: session.user.email,
-      phone: regData?.phone || "",
-      country_code: regData?.countryCode || "US",
-      role: pendingData?.role ? [pendingData.role] : [],
-      training_goals: pendingData?.issues || [],
-      preferred_training_time: Array.isArray(pendingData?.trainTime) ? pendingData.trainTime : (pendingData?.trainTime ? [pendingData.trainTime] : []),
-      plan: pendingData?.plan || "annual",
-      card_last4: pendingData?.cardLast4 || "",
-      renewal_date: pendingData?.renewalDate || null,
-      active_device_id: getDeviceId(), // this device is the first (and only) session for a brand-new account
-      active_device_claimed_at: new Date().toISOString(),
-    }, { onConflict: "id" });
-    if (userUpsertError) console.error("[users] failed to create account row on signup:", userUpsertError);
-
-    // 2. Insert pet
-    const { data: petRow, error: petInsertError } = await supabase.from("pets").insert({
-      owner_id: authId,
-      name: pendingData?.name || "",
-      breed: pendingData?.breed || "",
-      birthday: parseBirthday(birthday),
-      gender: pendingData?.gender || "",
-      weight: pendingData?.weight || null,
-      pet_type: "dog",
-    }).select().single();
-    if (petInsertError) console.error("[pets] failed to create pet on signup:", petInsertError);
-    const newPetId = petRow?.id;
-    if (newPetId) setPetId(newPetId);
-
-    // 3. Insert program enrollment
-    if (newPetId) {
-      const { error: enrollError } = await supabase.from("program_enrollment").insert({
-        pet_id: newPetId,
-        program: purchasedProgram,
-      });
-      if (enrollError) console.error("[program_enrollment] failed to create on signup:", enrollError);
-    }
-
-    // 4. Insert initial streak
-    if (newPetId) {
-      const { error: streakError } = await supabase.from("streaks").insert({
-        pet_id: newPetId,
-        current_streak: 0,
-      });
-      if (streakError) console.error("[streaks] failed to create on signup:", streakError);
-    }
-  };
   const handleDismissWelcome=()=>setShowWelcome(false);
 
   // Page content (shared by the single unified layout on phone & desktop)
@@ -8772,8 +8764,7 @@ function App() {
             {screen==="register"&&<RegistrationScreen onVerify={handleRegistered} onBack={()=>setScreen("signin")} darkMode={darkMode} setDarkMode={setDarkMode}/>}
             {screen==="verify"&&<EmailVerificationScreen userData={regData} onVerified={handleVerified} onBack={()=>setScreen("register")}/>}
             {screen==="onboarding"&&<OnboardingScreen userData={regData} onGoToPayment={handleGoToPayment} darkMode={darkMode} setDarkMode={setDarkMode}/>}
-            {screen==="payment"&&<PaymentScreen petData={pendingData} onSuccess={handlePaySuccess} onBack={()=>setScreen("onboarding")}/>}
-            {screen==="success"&&<SuccessScreen petData={pendingData} onContinue={handleSuccessContinue}/>}
+            {screen==="payment"&&<PaymentScreen petData={pendingData} onBack={()=>setScreen("onboarding")}/>}
           </div>
         )}
 
@@ -8886,9 +8877,30 @@ function ResetPasswordApp() {
   );
 }
 
+// Same pattern as ResetPasswordApp above — /checkout-complete is Stripe
+// Checkout's success_url, reached via a full page redirect from Stripe's
+// hosted payment page.
+function CheckoutCompleteApp() {
+  const [darkMode, setDarkMode] = useState(true);
+  const T = darkMode ? DARK : LIGHT;
+  return (
+    <ThemeContext.Provider value={T}>
+      <div className="app-root" style={{background:T.bg,fontFamily:"'Lato',sans-serif"}}>
+        <style>{globalCss(T)}</style>
+        <div style={{width:"100%",maxWidth:"390px",margin:"0 auto"}}>
+          <CheckoutCompleteScreen darkMode={darkMode} setDarkMode={setDarkMode}/>
+        </div>
+      </div>
+    </ThemeContext.Provider>
+  );
+}
+
 export default function AppRoot() {
   if (typeof window !== "undefined" && window.location.pathname === "/reset-password") {
     return <ResetPasswordApp/>;
+  }
+  if (typeof window !== "undefined" && window.location.pathname === "/checkout-complete") {
+    return <CheckoutCompleteApp/>;
   }
   return <App/>;
 }
