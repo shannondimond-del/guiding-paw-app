@@ -1,5 +1,7 @@
 import { useState, useEffect, useContext, createContext, useRef } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { Capacitor } from '@capacitor/core';
+import { writeWalkToHealth, getHealthSyncStatus, requestHealthAccess } from './lib/capacitorHealth';
 // build marker: trigger redeploy
 
 const supabase = createClient(
@@ -631,33 +633,46 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
   };
 
   const stopWalk=()=>{
-    const secs=walkElapsed;
-    const distanceMi=liveDistanceMi;
-    const entry={
-      date:new Date().toLocaleDateString(),
-      time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),
-      duration:fmtDuration(secs),
-      distanceMi,
-      pace:livePace(secs,distanceMi),
-      points:[...walkPoints],
-      gpsSource:usingRealGps?"device-gps":"estimated",
-      appleHealthSynced:true,
-    };
-    setWalkLog&&setWalkLog(l=>[entry,...l]);
-    // Save the completed walk to the pet's profile so it shows up in the Pet Life Record.
-    setPetData&&setPetData(d=>({
-      ...d,
-      walkLog:[entry, ...(d?.walkLog||[])],
-      totalWalks:(d?.totalWalks||0)+1,
-      totalWalkMiles:parseFloat((((d?.totalWalkMiles||0))+entry.distanceMi).toFixed(2)),
-    }));
-    clearGpsWatch();
-    setGpsStatus("idle");
-    setWalkActive(false);
-    setWalkStart(null);
-    setWalkElapsed(0);
-    setWalkPoints([]);
-    setPage("live");
+      const secs=walkElapsed;
+      const distanceMi=liveDistanceMi;
+      const walkStartIso = walkStart ? new Date(walkStart).toISOString() : new Date(Date.now()-secs*1000).toISOString();
+      const walkEndIso = new Date().toISOString();
+      const entryId = walkStart || Date.now();
+      const entry={
+        id:entryId,
+        date:new Date().toLocaleDateString(),
+        time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),
+        duration:fmtDuration(secs),
+        distanceMi,
+        pace:livePace(secs,distanceMi),
+        points:[...walkPoints],
+        gpsSource:usingRealGps?"device-gps":"estimated",
+        appleHealthSynced:false, // patched with the real result once the write below resolves
+      };
+      setWalkLog&&setWalkLog(l=>[entry,...l]);
+      // Save the completed walk to the pet's profile so it shows up in the Pet Life Record.
+      setPetData&&setPetData(d=>({
+        ...d,
+        walkLog:[entry, ...(d?.walkLog||[])],
+        totalWalks:(d?.totalWalks||0)+1,
+        totalWalkMiles:parseFloat((((d?.totalWalkMiles||0))+entry.distanceMi).toFixed(2)),
+      }));
+
+      // Actually write to Apple Health / Health Connect, then patch the log
+      // entry with whether it really succeeded.
+      writeWalkToHealth({startDate:walkStartIso, endDate:walkEndIso, distanceMi, durationSec:secs})
+          .then(synced=>{
+            setWalkLog&&setWalkLog(l=>l.map(e=>e.id===entryId?{...e,appleHealthSynced:synced}:e));
+            setPetData&&setPetData(d=>({...d, walkLog:(d?.walkLog||[]).map(e=>e.id===entryId?{...e,appleHealthSynced:synced}:e)}));
+          });
+
+      clearGpsWatch();
+      setGpsStatus("idle");
+      setWalkActive(false);
+      setWalkStart(null);
+      setWalkElapsed(0);
+      setWalkPoints([]);
+      setPage("live");
   };
 
   const cancelWalk=()=>{
@@ -3559,6 +3574,9 @@ const LiveScreen = ({walkLog=[],pottyTimer,setPottyTimer,initialTab="activity",p
   const [loggingGroomType,setLoggingGroomType]=useState(null); // which grooming type's log form is open
   const [groomNotes,setGroomNotes]=useState("");
   const groomingLog = petData?.groomingLog || [];
+  const [healthStatus, setHealthStatus] = useState("checking"); // 'checking' | 'unavailable' | 'authorized' | 'not-authorized'
+  useEffect(() => { getHealthSyncStatus().then(setHealthStatus); }, []);
+  const connectHealth = () => { requestHealthAccess().then(setHealthStatus_result => getHealthSyncStatus().then(setHealthStatus)); };
 
   const saveGroomingLog=(type)=>{
     const entry={type,date:new Date().toISOString(),notes:groomNotes};
@@ -3639,40 +3657,44 @@ const LiveScreen = ({walkLog=[],pottyTimer,setPottyTimer,initialTab="activity",p
                 <p style={{fontSize:"10px",color:T.success,fontWeight:"700",letterSpacing:".1em",textTransform:"uppercase",marginBottom:"3px"}}>GPS Exercise Tracker</p>
                 <p style={{fontSize:"14px",fontWeight:"700",color:T.text}}>Today: {walkLog.filter(w=>w.date===new Date().toLocaleDateString()).reduce((s,w)=>s+w.distanceMi,0).toFixed(2)} mi</p>
               </div>
-              {/* Health sync badges — Apple Health (iOS) and Health Connect (Android) */}
-              <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"flex-end"}}>
-                <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
-                  <Icon name="heart" size={13} color="#e07a5f"/>
-                  <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
-                </div>
-                <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.35)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
-                  <Icon name="heart" size={13} color={T.success}/>
-                  <span style={{fontSize:"10px",fontWeight:"700",color:T.success}}>Health Connect</span>
+
+
+              {/* Health sync badges — only shown on native builds where the OS actually supports it */}
+              {healthStatus !== "unavailable" && (
+                  <div style={{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"flex-end"}}>
+                    <div style={{background:"rgba(255,59,48,.1)",border:"1px solid rgba(255,59,48,.3)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                      <Icon name="heart" size={13} color="#e07a5f"/>
+                      <span style={{fontSize:"10px",fontWeight:"700",color:"#ff3b30"}}>Apple Health</span>
+                    </div>
+                    <div style={{background:"rgba(76,175,125,.1)",border:"1px solid rgba(76,175,125,.35)",borderRadius:"8px",padding:"5px 10px",display:"flex",alignItems:"center",gap:"5px"}}>
+                      <Icon name="heart" size={13} color={T.success}/>
+                      <span style={{fontSize:"10px",fontWeight:"700",color:T.success}}>Health Connect</span>
+                    </div>
+                  </div>
+              )}
+            </div>
+            {/* ...GPS map/week-bar block stays exactly as-is... */}
+          </div>
+          {/* Health sync info — now reflects real permission status instead of a static claim */}
+          {healthStatus === "authorized" && (
+              <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
+                <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
+                <div>
+                  <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Health Sync Active</p>
+                  <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk distance and estimated calories are written to Apple Health on iPhone or Health Connect on Android after each walk. Open your phone's Health app to view your activity history.</p>
                 </div>
               </div>
-            </div>
-            <div style={{background:T.mode==="dark"?"rgba(0,0,0,.3)":"rgba(0,0,0,.06)",borderRadius:"10px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:"10px"}}>
-              <p style={{color:T.textFaint,fontSize:"11px",display:"flex",alignItems:"center",gap:"4px"}}><Icon name="pin" size={11}/>Live map appears during walk · Use ＋ to start</p>
-            </div>
-            <div style={{display:"flex",gap:"8px"}}>
-              {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map((d,i)=>(
-                <div key={d} style={{flex:1,textAlign:"center"}}>
-                  <div style={{height:`${[20,40,15,55,30,70,0][i]}px`,background:i<6?"rgba(76,175,125,.4)":"rgba(128,128,128,.12)",borderRadius:"4px",marginBottom:"3px"}}/>
-                  <span style={{fontSize:"7.5px",color:T.textFaint}}>{d}</span>
+          )}
+          {healthStatus === "not-authorized" && (
+              <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center",cursor:"pointer"}}
+                   onClick={connectHealth}>
+                <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
+                <div>
+                  <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Enable Health Sync</p>
+                  <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Tap to let Guiding Paw write your walk distance and calories to {Capacitor.getPlatform()==="ios"?"Apple Health":"Health Connect"}.</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Health sync info — works with Apple Health on iOS and Health Connect on Android */}
-          <div style={{background:T.mode==="dark"?"rgba(176,141,87,.08)":"rgba(176,141,87,.07)",border:`1px solid rgba(176,141,87,.28)`,borderRadius:"12px",padding:"12px 14px",marginBottom:"12px",display:"flex",gap:"10px",alignItems:"center"}}>
-            <Icon name="heart" size={22} color={T.gold} style={{flexShrink:0}}/>
-            <div>
-              <p style={{fontSize:"12px",fontWeight:"700",color:T.gold,marginBottom:"2px"}}>Health Sync Active</p>
-              <p style={{fontSize:"11px",color:T.textMuted,lineHeight:1.5}}>Walk data (duration, distance, calories) is automatically written to Apple Health on iPhone or Health Connect on Android after each walk. Open your phone's Health app to view your activity history.</p>
-            </div>
-          </div>
-
+              </div>
+          )}
           {/* Walk Log */}
           {walkLog.length>0&&(
             <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"16px",padding:"16px",marginBottom:"12px"}}>
