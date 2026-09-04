@@ -14,6 +14,19 @@ const supabase = createClient(
 // Supabase and it silently falls back to the Site URL instead).
 const PASSWORD_RESET_REDIRECT_URL = "https://app.guidingpaw.com/reset-password";
 
+// Where Google OAuth sends the user back after they authenticate. Unlike
+// PASSWORD_RESET_REDIRECT_URL this doesn't need a fixed production URL — the
+// app's normal signed-in/out flow (onAuthStateChange) already handles
+// routing once back at "/", so returning to wherever this instance is
+// actually running is correct for production, Vercel previews, and local
+// dev alike, as long as that exact origin is allow-listed in Supabase Auth →
+// URL Configuration → Redirect URLs.
+// NOTE: this only covers the web/PWA build. A packaged Capacitor app's
+// window.location.origin (capacitor://localhost etc.) isn't a reachable
+// OAuth redirect target — native Google Sign-In needs its own deep-link
+// setup, which is separate, larger work (checklist item 10).
+const oauthRedirectUrl = () => window.location.origin;
+
 const ThemeContext = createContext();
 const useTheme = () => useContext(ThemeContext);
 
@@ -1103,7 +1116,10 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: oauthRedirectUrl() },
+    });
     if(error){ setLoading(false); setErrors({auth: error.message}); }
     // On success, Supabase redirects to Google — onAuthStateChange handles the return
   };
@@ -1698,7 +1714,10 @@ const RegistrationScreen = ({onVerify, onBack, darkMode, setDarkMode}) => {
 
           <div style={{margin:"14px 0"}}><Divider/></div>
           <GoogleBtn label="Sign up with Google" onClick={async ()=>{
-            const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+            const { error } = await supabase.auth.signInWithOAuth({
+              provider: "google",
+              options: { redirectTo: oauthRedirectUrl() },
+            });
             if(!error) { /* Supabase redirects to Google — onAuthStateChange handles the return */ }
           }}/>
         </div>
