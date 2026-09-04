@@ -9,6 +9,11 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+// Where password-reset emails send the user. Must be added to Supabase Auth →
+// URL Configuration → Redirect URLs (an unlisted redirectTo is rejected by
+// Supabase and it silently falls back to the Site URL instead).
+const PASSWORD_RESET_REDIRECT_URL = "https://app.guidingpaw.com/reset-password";
+
 const ThemeContext = createContext();
 const useTheme = () => useContext(ThemeContext);
 
@@ -836,11 +841,12 @@ const BottomNav = ({active,setPage,plan,showPlus,setShowPlus,onQuickAdd,walkLog=
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SCREEN: SIGN IN — real Supabase auth (supabase.auth.signInWithPassword)
+// SCREEN: SIGN IN — real auth via the "login" Edge Function, which enforces
+// the account lockout server-side (see supabase/functions/login) instead of
+// calling supabase.auth.signInWithPassword directly.
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_SECS = 30;
+const MAX_ATTEMPTS = 5; // must match MAX_ATTEMPTS in supabase/functions/login
 
 const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 const validatePassword = (p) => p.length >= 8;
@@ -1029,7 +1035,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
   const [expiredNotice, setExpiredNotice] = useState(false);
 
   // Countdown timer for lockout
-  useState(()=>{
+  useEffect(()=>{
     if(!lockedUntil) return;
     const id = setInterval(()=>{
       const rem = Math.ceil((lockedUntil - Date.now()) / 1000);
@@ -1037,7 +1043,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
       else setLockSecs(rem);
     }, 1000);
     return ()=>clearInterval(id);
-  });
+  }, [lockedUntil]);
 
   const isLocked = lockedUntil && Date.now() < lockedUntil;
 
@@ -1051,31 +1057,45 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
     return Object.keys(e).length === 0;
   };
 
+  // Sign-in goes through /api/login rather than calling
+  // supabase.auth.signInWithPassword directly, so the attempt count and
+  // lockout live server-side (in the login_attempts table) and can't be
+  // cleared by refreshing the page or editing local state. On success the
+  // endpoint hands back a session for this client to adopt.
   const handleSignIn = async () => {
     if(isLocked) return;
     if(!validate()){ triggerShake(); return; }
     setLoading(true);
     setErrors({});
     clearKickedMsg();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password: pw,
-    });
-    if(error){
-      const next = attempts + 1;
-      setAttempts(next);
-      setLoading(false);
+    let result = {};
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), password: pw }),
+      });
+      result = await res.json();
+    } catch (err) {
+      console.error("[login] request failed:", err);
+    }
+    setLoading(false);
+    if(!result.ok){
       triggerShake();
-      if(next >= MAX_ATTEMPTS){
-        setLockedUntil(Date.now() + LOCKOUT_SECS * 1000);
-        setLockSecs(LOCKOUT_SECS);
-        setErrors({auth:`Too many failed attempts. Account locked for ${LOCKOUT_SECS} seconds.`});
+      if(result.locked){
+        const until = new Date(result.lockedUntil).getTime();
+        setLockedUntil(until);
+        setLockSecs(Math.max(0, Math.ceil((until - Date.now()) / 1000)));
+        setAttempts(MAX_ATTEMPTS);
+        setErrors({auth: result.message || "Too many failed attempts. Please try again later."});
       } else {
-        const left = MAX_ATTEMPTS - next;
-        setErrors({auth: error.message || `Incorrect email or password. ${left} attempt${left===1?"":"s"} remaining.`});
+        const remaining = typeof result.attemptsRemaining === "number" ? result.attemptsRemaining : null;
+        setAttempts(remaining!==null ? MAX_ATTEMPTS - remaining : 0);
+        setErrors({auth: result.message || "Something went wrong. Please try again."});
       }
     } else {
-      setLoading(false);
+      const { access_token, refresh_token } = result.session;
+      await supabase.auth.setSession({ access_token, refresh_token });
       // onAuthStateChange in the root App will handle navigation
       onSignIn();
     }
@@ -1092,7 +1112,14 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
     if(!validateEmail(forgotEmail)){ setForgotError("Please enter a valid email address."); return; }
     setForgotError("");
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim());
+    // Explicit redirectTo so the link in the email always points at the live
+    // web app rather than whatever Site URL happens to be set in Supabase
+    // Auth (which can silently be a dev/localhost value). This URL must also
+    // be added to Supabase Auth → URL Configuration → Redirect URLs, or
+    // Supabase will reject it and fall back to the (possibly wrong) Site URL.
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+      redirectTo: PASSWORD_RESET_REDIRECT_URL,
+    });
     setLoading(false);
     if(error){ setForgotError(error.message); }
     else { setMode("forgot_sent"); }
@@ -1776,18 +1803,10 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
   const [cardNum,setCardNum]=useState("");
   const [expiry,setExpiry]=useState("");
   const [cvv,setCvv]=useState("");
-  const [promo,setPromo]=useState("");
-  const [promoApplied,setPromoApplied]=useState(false);
-  const [promoError,setPromoError]=useState(false);
   const [loading,setLoading]=useState(false);
 
   const fmtCard=(v)=>v.replace(/\D/g,"").slice(0,16).replace(/(.{4})/g,"$1 ").trim();
   const fmtExpiry=(v)=>{const d=v.replace(/\D/g,"").slice(0,4);return d.length>2?d.slice(0,2)+"/"+d.slice(2):d;};
-
-  const applyPromo=()=>{
-    if(promo.trim().toUpperCase()==="PAWS10"){setPromoApplied(true);setPromoError(false);}
-    else{setPromoError(true);setPromoApplied(false);}
-  };
 
   const handlePay=()=>{
     setLoading(true);
@@ -1810,8 +1829,7 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
           <p style={{fontSize:"9px",fontWeight:"900",letterSpacing:".16em",textTransform:"uppercase",color:"rgba(255,255,255,.5)",marginBottom:"6px"}}>Order Summary</p>
           <p style={{fontFamily:"'Inter',serif",fontSize:"20px",fontWeight:"700",color:"#fff",marginBottom:"4px"}}>{programLabel(program)}</p>
           <div style={{display:"flex",alignItems:"baseline",gap:"4px",marginBottom:"10px"}}>
-            <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL,display:"inline-flex",alignItems:"center",gap:"5px"}}>{promoApplied&&<Icon name="tag" size={20}/>}${promoApplied?(price*0.9).toFixed(2):price}</span>
-            {promoApplied&&<span style={{fontSize:"11px",color:T.success,fontWeight:"700",marginLeft:"4px"}}>−10% applied!</span>}
+            <span style={{fontSize:"28px",fontWeight:"900",color:T.goldL,display:"inline-flex",alignItems:"center",gap:"5px"}}>${price}</span>
           </div>
           <p style={{fontSize:"11px",color:"rgba(255,255,255,.45)",lineHeight:1.5}}>One-time purchase — full lifetime access to this program. No recurring charges.</p>
           <div style={{display:"flex",gap:"10px",marginTop:"10px",flexWrap:"wrap"}}>
@@ -1859,18 +1877,6 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
           </div>
         </div>
 
-        {/* Promo code */}
-        <div className="s4" style={{marginBottom:"18px"}}>
-          <label style={{display:"block",fontSize:"10px",fontWeight:"700",color:T.gold,letterSpacing:".14em",textTransform:"uppercase",marginBottom:"5px"}}>Promo Code</label>
-          <div style={{display:"flex",gap:"8px"}}>
-            <input value={promo} onChange={e=>{setPromo(e.target.value);setPromoError(false);setPromoApplied(false);}} placeholder="Enter code (try PAWS10)"
-              style={{flex:1,padding:"11px 13px",background:T.inputBg,border:`1px solid ${promoError?T.brown:promoApplied?T.success:T.inputBorder}`,borderRadius:"10px",fontSize:"13px",color:T.text,outline:"none",fontFamily:"'Lato',sans-serif"}}/>
-            <button onClick={applyPromo} style={{padding:"11px 15px",borderRadius:"10px",background:"rgba(176,141,87,.15)",border:`1px solid ${T.gold}`,color:T.gold,fontWeight:"700",fontSize:"12px",cursor:"pointer",whiteSpace:"nowrap",fontFamily:"'Lato',sans-serif"}}>Apply</button>
-          </div>
-          {promoApplied&&<p style={{fontSize:"11px",color:T.success,fontWeight:"700",marginTop:"5px"}}><Icon name="check" size={11} strokeWidth={3} style={{marginRight:"2px"}}/>Code applied — 10% off your first payment!</p>}
-          {promoError&&<p style={{fontSize:"11px",color:"#e07a5f",fontWeight:"700",marginTop:"5px"}}><Icon name="x" size={11} style={{marginRight:"2px"}}/>Invalid code. Try PAWS10 for a demo.</p>}
-        </div>
-
         {/* Pay button */}
         <button onClick={handlePay} disabled={loading} style={{
           width:"100%",padding:"15px",borderRadius:"12px",border:"none",cursor:loading?"wait":"pointer",
@@ -1881,7 +1887,7 @@ const PaymentScreen = ({petData, onSuccess, onBack}) => {
         }}>
           {loading
             ? <><span style={{display:"inline-block",width:"16px",height:"16px",border:"2.5px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .7s linear infinite"}}/>Processing…</>
-            : <>Pay ${promoApplied?(price*0.9).toFixed(2):price}</>}
+            : <>Pay ${price}</>}
         </button>
         <p style={{textAlign:"center",fontSize:"10px",color:T.textFaint,marginTop:"10px",lineHeight:1.5}}>One-time charge. No recurring subscription.</p>
       </ScrollBody>
@@ -2293,6 +2299,41 @@ const tagAccountDeletedInGHL = (details) => {
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify(payload),
   }).catch(err => console.error("[GHL account-deleted tag webhook] failed to send:", err));
+};
+
+// ─── GHL ABANDONED CHECKOUT WEBHOOK ──────────────────────────────────────────
+// Fires the moment someone reaches the payment screen without having paid yet,
+// so GHL can tag the contact "checkout_started" and start a recovery sequence.
+const GHL_ABANDONED_CHECKOUT_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/784fcbfc-d706-4692-a41c-e52dfc5dfa74";
+
+const sendAbandonedCheckoutWebhook = ({ firstName, lastName, email, phone, dogName, dogAge, dogBreed, program }) => {
+  if(!GHL_ABANDONED_CHECKOUT_WEBHOOK) return;
+  const payload = {
+    first_name: firstName || "", last_name: lastName || "", email: email || "", phone: phone || "",
+    dogs_name: dogName || "", dogs_age: dogAge || "", dogs_breed: dogBreed || "",
+    program: programLabel(program),
+  };
+  fetch(GHL_ABANDONED_CHECKOUT_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+  }).catch(err => console.error("[GHL abandoned checkout webhook] failed to send:", err));
+};
+
+// ─── GHL NEW SIGNUP WEBHOOK ───────────────────────────────────────────────────
+// Fires once payment succeeds and the account is created, so GHL can tag the
+// contact "purchased" (updating the same contact created by the abandoned
+// checkout webhook above, not creating a duplicate).
+const GHL_SIGNUP_WEBHOOK = "https://services.leadconnectorhq.com/hooks/Vgv3jETZdSkRK8bOLkJd/webhook-trigger/7cb24ea9-b069-439b-bd06-12fef01a33ff";
+
+const sendSignupWebhook = ({ firstName, lastName, email, phone, dogName, dogAge, dogBreed, program }) => {
+  if(!GHL_SIGNUP_WEBHOOK) return;
+  const payload = {
+    first_name: firstName || "", last_name: lastName || "", email: email || "", phone: phone || "",
+    dogs_name: dogName || "", dogs_age: dogAge || "", dogs_breed: dogBreed || "",
+    program: programLabel(program),
+  };
+  fetch(GHL_SIGNUP_WEBHOOK, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+  }).catch(err => console.error("[GHL signup webhook] failed to send:", err));
 };
 
 // ─── ACCOUNT DELETION (Supabase-backed) ──────────────────────────────────────
@@ -7930,8 +7971,9 @@ const SettingsScreen = ({onSignOut,darkMode,setDarkMode,quickAddDocs=[],onOpenHa
               </GoldBtn>
             )}
 
-            {/* Real receipt emails are sent automatically on renewal via SendGrid —
-                the demo simulate-button that used to be here has been removed. */}
+            {/* Real receipt emails are sent automatically on renewal via the GHL
+                webhook (see GHL_EMAIL_WEBHOOK) — the demo simulate-button that
+                used to be here has been removed. */}
           </div>
 
           <div style={{background:T.cardInner,border:`1px solid ${T.cardInnerBorder}`,borderRadius:"14px",padding:"14px 16px",marginBottom:"12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -8432,7 +8474,16 @@ export default function App() {
   const handleGoRegister=()=>setScreen("register");
   const handleRegistered=(ud)=>{ setRegData(ud); if(ud.googleAuth){ setScreen("onboarding"); } else { setScreen("verify"); } };
   const handleVerified=()=>setScreen("onboarding");
-  const handleGoToPayment=(data)=>{ setPendingData(data); setScreen("payment"); };
+  const handleGoToPayment=(data)=>{
+    setPendingData(data);
+    setScreen("payment");
+    sendAbandonedCheckoutWebhook({
+      firstName: regData?.firstName || "", lastName: regData?.lastName || "",
+      email: regData?.email || "", phone: regData?.phone || "",
+      dogName: data?.name || "", dogAge: computeAge(data?.birthday) || "",
+      dogBreed: data?.breed || "", program: data?.program,
+    });
+  };
   const handlePaySuccess=()=>setScreen("success");
   const handleSuccessContinue=async ()=>{
     setPlan(pendingData?.plan||"annual");
@@ -8448,6 +8499,14 @@ export default function App() {
     if (!session?.user) return;
     const authId = session.user.id;
     setUserId(authId);
+
+    sendSignupWebhook({
+      firstName: regData?.firstName || pendingData?.firstName || "",
+      lastName: regData?.lastName || pendingData?.lastName || "",
+      email: session.user.email, phone: regData?.phone || "",
+      dogName: pendingData?.name || "", dogAge: computeAge(birthday) || "",
+      dogBreed: pendingData?.breed || "", program: purchasedProgram,
+    });
 
     // 1. Upsert users
     const { error: userUpsertError } = await supabase.from("users").upsert({
