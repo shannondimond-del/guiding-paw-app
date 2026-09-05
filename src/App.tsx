@@ -9,18 +9,23 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-// Where password-reset emails send the user. Must be added to Supabase Auth →
-// URL Configuration → Redirect URLs (an unlisted redirectTo is rejected by
-// Supabase and it silently falls back to the Site URL instead).
-const PASSWORD_RESET_REDIRECT_URL = "https://app.guidingpaw.com/reset-password";
+// Where password-reset emails send the user. Computed from wherever this
+// instance is actually running (not hardcoded to production) — /reset-password
+// is served by this same bundle regardless of which Supabase project backs
+// it, so the redirect target should match. Must be added to Supabase Auth →
+// URL Configuration → Redirect URLs on WHICHEVER project this deployment
+// currently points at (an unlisted redirectTo is rejected by Supabase and it
+// silently falls back to that project's Site URL instead — e.g. localhost,
+// if that's what Site URL happens to be set to).
+const passwordResetRedirectUrl = () => `${window.location.origin}/reset-password`;
 
-// Where Google OAuth sends the user back after they authenticate. Unlike
-// PASSWORD_RESET_REDIRECT_URL this doesn't need a fixed production URL — the
+// Where Google OAuth sends the user back after they authenticate — the
 // app's normal signed-in/out flow (onAuthStateChange) already handles
 // routing once back at "/", so returning to wherever this instance is
 // actually running is correct for production, Vercel previews, and local
 // dev alike, as long as that exact origin is allow-listed in Supabase Auth →
-// URL Configuration → Redirect URLs.
+// URL Configuration → Redirect URLs (same caveat as passwordResetRedirectUrl
+// above: allow-listed on whichever project is currently live).
 // NOTE: this only covers the web/PWA build. A packaged Capacitor app's
 // window.location.origin (capacitor://localhost etc.) isn't a reachable
 // OAuth redirect target — native Google Sign-In needs its own deep-link
@@ -1134,7 +1139,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
     // be added to Supabase Auth → URL Configuration → Redirect URLs, or
     // Supabase will reject it and fall back to the (possibly wrong) Site URL.
     const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
-      redirectTo: PASSWORD_RESET_REDIRECT_URL,
+      redirectTo: passwordResetRedirectUrl(),
     });
     setLoading(false);
     if(error){ setForgotError(error.message); }
@@ -1366,7 +1371,7 @@ const SignInScreen = ({onSignIn, goSignUp, darkMode, setDarkMode, kickedMsg="", 
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SCREEN: RESET PASSWORD — served at /reset-password, the link sent by
-// resetPasswordForEmail (see PASSWORD_RESET_REDIRECT_URL). Supabase's client
+// resetPasswordForEmail (see passwordResetRedirectUrl). Supabase's client
 // auto-consumes the recovery token in the URL on load (detectSessionInUrl,
 // on by default) and fires a PASSWORD_RECOVERY auth event once it does — this
 // screen just waits for that (or an already-established session, in case the
